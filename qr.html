@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QR · KEDAI EMAS SIANG HENG</title>
+<link rel="icon" href="data:,">
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0f172a;color:#e5e7eb;margin:0;padding:24px;text-align:center}
+  .card{display:inline-block;background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px}
+  #q{width:280px;height:280px;margin:10px auto;background:#fff;padding:10px;border-radius:12px}
+  .hint{color:#9ca3af;margin-top:8px}
+  .link{word-break:break-all;color:#93c5fd}
+  .lang{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
+  .lang button{background:#0b1220;border:1px solid #374151;color:#e5e7eb;border-radius:10px;height:30px;cursor:pointer}
+  @media print {.hint,.link,.lang{display:none}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1/qrcode.min.js"></script>
+<script>
+const i18n = {
+  BM: { title:"Imbas untuk Semak Mata", hint:"Sila imbas kod atau layari pautan:", },
+  EN: { title:"Scan to Check Points", hint:"Scan the code or visit:", },
+  ZH: { title:"扫码查询积分", hint:"请扫码，或直接访问：", }
+};
+let LANG = localStorage.getItem("lang_qr") || "BM";
+function setLang(l){
+  LANG = l; localStorage.setItem("lang_qr", l);
+  document.getElementById("title").textContent = i18n[l].title;
+  document.getElementById("hint").textContent  = i18n[l].hint;
+  document.querySelectorAll(".lang button").forEach(b=>b.style.outline=(b.dataset.lang===l)?"2px solid #60a5fa":"none");
+}
+document.addEventListener('DOMContentLoaded', ()=> setLang(LANG));
+</script>
+</head>
+<body>
+  <div class="card">
+    <div class="lang">
+      <button data-lang="BM" onclick="setLang('BM')">BM</button>
+      <button data-lang="EN" onclick="setLang('EN')">EN</button>
+      <button data-lang="ZH" onclick="setLang('ZH')">中文</button>
+    </div>
+    <h1 id="title">Scan to Check Points</h1>
+    <h3>KEDAI EMAS SIANG HENG</h3>
+    <div id="q"></div>
+    <div id="hint" class="hint">Scan the code or visit:</div>
+    <div class="link" id="url"></div>
+  </div>
+
+<script>
+const url = location.origin + '/index.html';
+document.getElementById('url').textContent = url;
+new QRCode(document.getElementById('q'), { text: url, width: 260, height: 260 });
+</script>
+</body>
+</html>

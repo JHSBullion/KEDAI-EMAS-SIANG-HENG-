@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KEDAI EMAS SIANG HENG · Customer Points</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{color-scheme:dark light}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0f172a;color:#e5e7eb;margin:0;padding:22px}
+  .card{max-width:640px;margin:0 auto;background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px}
+  h1{margin:0 0 6px;font-size:22px}
+  .brand{color:#93c5fd;font-weight:700;margin-bottom:8px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+  input,button{height:42px;border-radius:10px;border:1px solid #374151;background:#0b1220;color:#e5e7eb;padding:0 12px;font-size:16px}
+  input{flex:1;min-width:220px}
+  button{cursor:pointer;background:#2563eb;border-color:#3b82f6}
+  .lang{display:flex;gap:8px;margin-top:4px}
+  .lang button{background:#0b1220;border-color:#374151;height:30px}
+  .ok{color:#34d399}.err{color:#f87171}.hint{color:#9ca3af;font-size:12px}
+  .points{font-size:36px;font-weight:800;margin-top:6px}
+  .nav{margin-top:12px} .nav a{color:#93c5fd;margin-right:10px;text-decoration:none}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB = supabase.createClient("https://mnzwqqxybhjqrfzydwk.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uendxcXh5YmhqcXJmcnp5ZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzgzMzIsImV4cCI6MjA3MjA1NDMzMn0.Yo27vsFqgVM9wWKRgI-ErV2Fl6kjsYcQQPqbe8nGZOQ");
+const $ = s => document.querySelector(s);
+
+const i18n = {
+  BM: {
+    title: "Semak Mata Ahli",
+    phonePH: "Sila masukkan nombor telefon anda",
+    query: "Semak",
+    hello: "Pelanggan dihormati",
+    points: "Mata Semasa",
+    hint: "Jika maklumat tidak tepat, sila hubungi kaunter untuk semakan.",
+    notfound: "Nombor telefon ini tiada dalam rekod.",
+    fail: "Gagal untuk semak: "
+  },
+  EN: {
+    title: "Member Points Check",
+    phonePH: "Enter your phone number",
+    query: "Check",
+    hello: "Dear Member",
+    points: "Current Points",
+    hint: "If the info seems wrong, please contact the counter.",
+    notfound: "No member found for this phone.",
+    fail: "Query failed: "
+  },
+  ZH: {
+    title: "会员积分查询",
+    phonePH: "请输入您的电话",
+    query: "查询",
+    hello: "尊敬的会员",
+    points: "当前积分",
+    hint: "如信息不符，请联系柜台核对。",
+    notfound: "未找到该电话的会员。",
+    fail: "查询失败："
+  }
+};
+let LANG = localStorage.getItem("lang") || "BM";
+
+function setLang(l){
+  LANG = l; localStorage.setItem("lang", l);
+  const t = i18n[l];
+  document.getElementById("title").textContent = t.title;
+  document.getElementById("phone").placeholder = t.phonePH;
+  document.getElementById("btn").textContent = t.query;
+  document.getElementById("hello").textContent = t.hello;
+  document.getElementById("pointsLabel").textContent = t.points + "：";
+  document.getElementById("hint").textContent = t.hint;
+  document.querySelectorAll(".lang button").forEach(b=>b.style.outline = (b.dataset.lang===l) ? "2px solid #60a5fa" : "none");
+}
+
+async function query(){
+  const phone = $('#phone').value.trim();
+  if(!phone){ return; }
+  try{
+    const { data, error } = await SB.from('member_points').select('name, phone, points').eq('phone', phone).maybeSingle();
+    if(error || !data){
+      $('#msg').innerHTML = `<div class="err">${i18n[LANG].notfound}</div>`;
+      $('#result').style.display='none'; return;
+    }
+    $('#name').textContent = data.name || 'Member';
+    $('#pts').textContent  = data.points ?? 0;
+    $('#result').style.display='';
+    $('#msg').innerHTML = '';
+  }catch(e){
+    $('#msg').innerHTML = `<div class="err">${i18n[LANG].fail}${e.message}</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=> setLang(LANG));
+</script>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">KEDAI EMAS SIANG HENG</div>
+    <h1 id="title">Member Points Check</h1>
+
+    <div class="lang">
+      <button data-lang="BM" onclick="setLang('BM')">BM</button>
+      <button data-lang="EN" onclick="setLang('EN')">EN</button>
+      <button data-lang="ZH" onclick="setLang('ZH')">中文</button>
+    </div>
+
+    <div class="row">
+      <input id="phone" placeholder="Enter your phone number" />
+      <button id="btn" onclick="query()">Check</button>
+    </div>
+    <div id="msg"></div>
+
+    <div id="result" style="display:none">
+      <div><span id="hello">Dear Member</span> <b id="name"></b>：</div>
+      <div class="points"><span id="pointsLabel">Current Points：</span><span id="pts">0</span></div>
+      <div id="hint" class="hint">If the info seems wrong, please contact the counter.</div>
+    </div>
+
+    <div class="nav">
+      <a href="qr.html">QR</a>
+      <a href="/admin/add-member.html">Admin</a>
+      <a href="/admin/points.html">Admin Points</a>
+    </div>
+  </div>
+</body>
+</html>
