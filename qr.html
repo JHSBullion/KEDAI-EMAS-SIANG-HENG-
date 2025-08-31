@@ -1,55 +1,36 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>QR · KEDAI EMAS SIANG HENG</title>
 <link rel="icon" href="data:,">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0f172a;color:#e5e7eb;margin:0;padding:24px;text-align:center}
-  .card{display:inline-block;background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px}
-  #q{width:280px;height:280px;margin:10px auto;background:#fff;padding:10px;border-radius:12px}
-  .hint{color:#9ca3af;margin-top:8px}
-  .link{word-break:break-all;color:#93c5fd}
-  .lang{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
-  .lang button{background:#0b1220;border:1px solid #374151;color:#e5e7eb;border-radius:10px;height:30px;cursor:pointer}
-  @media print {.hint,.link,.lang{display:none}}
+  :root{--bg:#F7F6F2;--surface:#FFFFFF;--ink:#1A1D2A;--muted:#6A7280;--line:#E8E5DD;--gold:#C7A553;--gold-2:#E7D79B}
+  html,body{height:100%}
+  body{margin:0;font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{width:min(640px,92vw);background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:24px;text-align:center}
+  h1{margin:6px 0 12px}
+  .tag{color:var(--muted);font-size:14px;margin-top:8px}
+  img{width:min(320px,80vw);height:auto;border-radius:12px;border:2px solid rgba(199,165,83,.55);box-shadow:0 0 0 6px rgba(199,165,83,.14)}
+  a{color:#6A7280;text-decoration:none}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1/qrcode.min.js"></script>
 <script>
-const i18n = {
-  BM: { title:"Imbas untuk Semak Mata", hint:"Sila imbas kod atau layari pautan:", },
-  EN: { title:"Scan to Check Points", hint:"Scan the code or visit:", },
-  ZH: { title:"扫码查询积分", hint:"请扫码，或直接访问：", }
-};
-let LANG = localStorage.getItem("lang_qr") || "BM";
-function setLang(l){
-  LANG = l; localStorage.setItem("lang_qr", l);
-  document.getElementById("title").textContent = i18n[l].title;
-  document.getElementById("hint").textContent  = i18n[l].hint;
-  document.querySelectorAll(".lang button").forEach(b=>b.style.outline=(b.dataset.lang===l)?"2px solid #60a5fa":"none");
-}
-document.addEventListener('DOMContentLoaded', ()=> setLang(LANG));
+  document.addEventListener('DOMContentLoaded',()=>{
+    const link = location.origin + '/';
+    const url  = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&data='+encodeURIComponent(link);
+    document.getElementById('q').src = url;
+    document.getElementById('u').textContent = link;
+  });
 </script>
 </head>
 <body>
   <div class="card">
-    <div class="lang">
-      <button data-lang="BM" onclick="setLang('BM')">BM</button>
-      <button data-lang="EN" onclick="setLang('EN')">EN</button>
-      <button data-lang="ZH" onclick="setLang('ZH')">中文</button>
-    </div>
-    <h1 id="title">Scan to Check Points</h1>
-    <h3>KEDAI EMAS SIANG HENG</h3>
-    <div id="q"></div>
-    <div id="hint" class="hint">Scan the code or visit:</div>
-    <div class="link" id="url"></div>
+    <h1>Scan to Check Points</h1>
+    <img id="q" alt="QR Code">
+    <div class="tag"><span id="u"></span></div>
+    <div class="tag" style="margin-top:12px"><a href="index.html">Open site</a></div>
   </div>
-
-<script>
-const url = location.origin + '/index.html';
-document.getElementById('url').textContent = url;
-new QRCode(document.getElementById('q'), { text: url, width: 260, height: 260 });
-</script>
 </body>
 </html>
