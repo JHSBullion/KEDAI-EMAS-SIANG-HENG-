@@ -1,63 +1,189 @@
-<!DOCTYPE html>
-<html lang="ms">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KEDAI EMAS SIANG HENG - Semak Mata Ahli</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0a0a0a, #1c1c1c);
-      color: #e5e4e2;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KEDAI EMAS SIANG HENG · Customer Points</title>
+<link rel="icon" href="data:,">
+<style>
+  /* ===== White–Platinum Luxury Theme ===== */
+  :root{
+    --gold:#d4af37;
+    --platinum:#e5e4e2;
+    --bg:#0b0b10;
+    --panel:#111317;
+    --line:#2a2f3a;
+    --text:#e5e7eb;
+    --muted:#9ca3af;
+    --input:#0b1220;
+  }
+  html,body{height:100%}
+  body{
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    background:
+      radial-gradient(1200px 600px at 20% 0%, #151826 0%, transparent 60%),
+      radial-gradient(1200px 700px at 120% 0%, #0f1424 0%, transparent 60%),
+      linear-gradient(180deg, #0a0b12, var(--bg));
+    color:var(--text);
+    margin:0;
+    padding:22px;
+  }
+
+  .card{
+    max-width:720px;
+    margin:40px auto;
+    background:linear-gradient(180deg, #12141b 0%, var(--panel) 100%);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:24px 22px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.04) inset,
+      0 0 0 1px rgba(212,175,55,.12),
+      0 18px 50px rgba(0,0,0,.45);
+    position:relative;
+  }
+  .card:before{
+    content:"";
+    position:absolute; inset:-1px;
+    border-radius:18px;
+    pointer-events:none;
+    background:
+      linear-gradient(135deg, rgba(212,175,55,.25), rgba(229,228,226,.15));
+    mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    -webkit-mask:linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    padding:1px; border-radius:18px;
+  }
+
+  .brand{
+    display:inline-block;
+    font-weight:800; letter-spacing:.4px;
+    background:linear-gradient(90deg, var(--gold), var(--platinum));
+    -webkit-background-clip:text; background-clip:text;
+    color:transparent;
+    margin-bottom:8px;
+  }
+  h1{margin:0 0 10px;font-size:26px; font-weight:800}
+
+  .lang{display:flex;gap:10px;margin:12px 0 4px}
+  .lang button{
+    height:32px; padding:0 14px; border-radius:999px;
+    border:1px solid var(--line); background:#0c101b; color:var(--platinum);
+    cursor:pointer; transition:.2s ease;
+  }
+  .lang button:hover{border-color:var(--gold); box-shadow:0 0 0 2px rgba(212,175,55,.15) inset}
+  .lang button.active{border-color:var(--gold); color:#000; background:linear-gradient(135deg, var(--gold), var(--platinum))}
+
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+  input,button{
+    height:46px;border-radius:12px;border:1px solid var(--line);
+    background:var(--input);color:var(--text);padding:0 14px;font-size:16px
+  }
+  input{flex:1;min-width:260px; outline:none}
+  input:focus{border-color:var(--gold); box-shadow:0 0 0 2px rgba(212,175,55,.2)}
+  button{
+    cursor:pointer; border-color:rgba(212,175,55,.55);
+    background:linear-gradient(135deg, var(--gold), var(--platinum));
+    color:#141414; font-weight:700; padding:0 18px;
+    transition:transform .08s ease, filter .2s ease;
+  }
+  button:hover{filter:brightness(1.05)}
+  button:active{transform:translateY(1px)}
+
+  .ok{color:#34d399}.err{color:#f87171}.hint{color:var(--muted);font-size:13px}
+  .points{
+    font-size:40px; font-weight:900; line-height:1.1; margin-top:6px;
+    letter-spacing:.4px; color:var(--platinum);
+    text-shadow:0 0 18px rgba(229,228,226,.15);
+  }
+
+  .result-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+  .nav{margin-top:14px}
+  .nav a{
+    color:var(--platinum); text-decoration:none; margin-right:12px; font-size:14px
+  }
+  .nav a:hover{color:var(--gold); text-decoration:underline}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===== 业务逻辑保持不变（Supabase + i18n + 查询） ===== */
+const SB = supabase.createClient(
+  "https://mnzwqqxybhjqrfzydwk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uendxcXh5YmhqcXJmcnp5ZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzgzMzIsImV4cCI6MjA3MjA1NDMzMn0.Yo27vsFqgVM9wWKRgI-ErV2Fl6kjsYcQQPqbe8nGZOQ"
+);
+const $ = s => document.querySelector(s);
+
+const i18n = {
+  BM:{title:"Semak Mata Ahli",phonePH:"Sila masukkan nombor telefon anda",query:"Semak",hello:"Pelanggan dihormati",points:"Mata Semasa",hint:"Jika maklumat tidak tepat, sila hubungi kaunter untuk semakan.",notfound:"Nombor telefon ini tiada dalam rekod.",fail:"Gagal untuk semak: "},
+  EN:{title:"Member Points Check",phonePH:"Enter your phone number",query:"Check",hello:"Dear Member",points:"Current Points",hint:"If the info seems wrong, please contact the counter.",notfound:"No member found for this phone.",fail:"Query failed: "},
+  ZH:{title:"会员积分查询",phonePH:"请输入您的电话",query:"查询",hello:"尊敬的会员",points:"当前积分",hint:"如信息不符，请联系柜台核对。",notfound:"未找到该电话的会员。",fail:"查询失败："}
+};
+let LANG = localStorage.getItem("lang") || "BM";
+
+function setLang(l){
+  LANG = l; localStorage.setItem("lang", l);
+  const t = i18n[l];
+  $("#title").textContent = t.title;
+  $("#phone").placeholder = t.phonePH;
+  $("#btn").textContent = t.query;
+  $("#hello").textContent = t.hello;
+  $("#pointsLabel").textContent = t.points + "：";
+  $("#hint").textContent = t.hint;
+  document.querySelectorAll(".lang button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.lang===l);
+  });
+}
+
+async function query(){
+  const phone = $('#phone').value.trim();
+  if(!phone){ return; }
+  try{
+    const { data, error } = await SB
+      .from('member_points')
+      .select('name, phone, points').eq('phone', phone).maybeSingle();
+    if(error || !data){
+      $('#msg').innerHTML = `<div class="err">${i18n[LANG].notfound}</div>`;
+      $('#result').style.display='none'; return;
     }
-    .card {
-      background: rgba(30, 30, 30, 0.9);
-      border: 1px solid #d4af37;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-      padding: 40px;
-      width: 400px;
-      text-align: center;
-    }
-    h1 { font-size: 20px; margin-bottom: 10px; color: #d4af37; }
-    h2 { font-size: 28px; margin-bottom: 20px; color: #fff; }
-    .lang-switch button {
-      background: transparent; border: 1px solid #e5e4e2; color: #e5e4e2;
-      margin: 5px; padding: 8px 14px; border-radius: 8px; cursor: pointer;
-    }
-    .lang-switch button:hover { background: #d4af37; color: #000; }
-    input {
-      width: calc(100% - 20px); padding: 12px; border-radius: 8px;
-      margin-bottom: 15px; font-size: 16px; border: none; outline: none;
-    }
-    button.submit {
-      background: linear-gradient(135deg, #d4af37, #e5e4e2);
-      color: #000; border: none; padding: 12px 20px; border-radius: 8px;
-      font-size: 16px; cursor: pointer; font-weight: bold;
-    }
-    button.submit:hover { background: linear-gradient(135deg, #e5e4e2, #d4af37); }
-    .links { margin-top: 15px; font-size: 14px; }
-    .links a { color: #d4af37; text-decoration: none; margin: 0 8px; }
-    .links a:hover { text-decoration: underline; }
-  </style>
+    $('#name').textContent = data.name || 'Member';
+    $('#pts').textContent  = data.points ?? 0;
+    $('#result').style.display='';
+    $('#msg').innerHTML = '';
+  }catch(e){
+    $('#msg').innerHTML = `<div class="err">${i18n[LANG].fail}${e.message}</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=> setLang(LANG));
+</script>
 </head>
 <body>
   <div class="card">
-    <h1>KEDAI EMAS SIANG HENG</h1>
-    <h2>Semak Mata Ahli</h2>
-    <div class="lang-switch">
-      <button>BM</button> <button>EN</button> <button>中文</button>
+    <div class="brand">KEDAI EMAS SIANG HENG</div>
+    <h1 id="title">Member Points Check</h1>
+
+    <div class="lang">
+      <button data-lang="BM" onclick="setLang('BM')">BM</button>
+      <button data-lang="EN" onclick="setLang('EN')">EN</button>
+      <button data-lang="ZH" onclick="setLang('ZH')">中文</button>
     </div>
-    <input type="text" placeholder="Sila masukkan nombor telefon anda">
-    <button class="submit">Semak</button>
-    <div class="links">
-      <a href="qr.html">QR</a> | <a href="add-member.html">Admin</a> | <a href="points.html">Admin Points</a>
+
+    <div class="row">
+      <input id="phone" placeholder="Enter your phone number" />
+      <button id="btn" onclick="query()">Check</button>
+    </div>
+    <div id="msg"></div>
+
+    <div id="result" style="display:none">
+      <div class="result-row"><span id="hello">Dear Member</span>&nbsp;<b id="name"></b>：</div>
+      <div class="points"><span id="pointsLabel">Current Points：</span><span id="pts">0</span></div>
+      <div id="hint" class="hint">If the info seems wrong, please contact the counter.</div>
+    </div>
+
+    <div class="nav">
+      <a href="qr.html">QR</a>
+      <a href="/admin/add-member.html">Admin</a>
+      <a href="/admin/points.html">Admin Points</a>
     </div>
   </div>
 </body>
