@@ -1,109 +1,110 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin · Adjust Points · KEDAI EMAS SIANG HENG</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin · Points</title>
 <link rel="icon" href="data:,">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0f172a;color:#e5e7eb;margin:0;padding:24px}
-  .card{max-width:820px;margin:0 auto;background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px}
-  h1{margin:0 0 10px;font-size:22px}
-  .row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
-  input,button{height:40px;border-radius:10px;border:1px solid #374151;background:#0b1220;color:#e5e7eb;padding:0 12px;font-size:14px}
-  input{flex:1;min-width:220px}
-  button{cursor:pointer;background:#2563eb;border-color:#3b82f6}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{border-bottom:1px solid #1f2937;padding:8px;text-align:left}
-  .msg{min-height:24px}
-  .nav a{color:#93c5fd;margin-right:10px;text-decoration:none}
+  :root{--bg:#F7F6F2;--surface:#FFFFFF;--ink:#1A1D2A;--muted:#6A7280;--line:#E8E5DD;--gold:#C7A553;--gold-2:#E7D79B}
+  body{margin:0;font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg)}
+  .top{max-width:1080px;margin:0 auto;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+  .brand{font-weight:800;background:linear-gradient(90deg,#B7963A,#D8C27B);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .shell{max-width:980px;margin:20px auto 40px;padding:0 20px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:22px}
+  h1{margin:6px 0 10px;font-size:26px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:10px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  input,button{height:46px;border-radius:12px;border:1px solid var(--line);font-size:16px}
+  input{flex:1;min-width:220px;padding:0 12px;background:#FBFBF8}
+  button{padding:0 18px;font-weight:800;color:#1a1a1a;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-2));box-shadow:0 8px 16px rgba(199,165,83,.2);cursor:pointer}
+  .msg{margin-top:8px;font-size:14px}.err{color:#c04b4b}.ok{color:#15803d}
+  .panel{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+  .box{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}
+  .title{font-weight:800;margin-bottom:6px}
+  ul{margin:6px 0 0 16px;color:#555}
+  @media (max-width:900px){.panel{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const ADMIN_PASS="123456";
-const SB = supabase.createClient("https://mnzwqqxybhjqrfzydwk.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uendxcXh5YmhqcXJmcnp5ZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzgzMzIsImV4cCI6MjA3MjA1NDMzMn0.Yo27vsFqgVM9wWKRgI-ErV2Fl6kjsYcQQPqbe8nGZOQ");
-const $ = s => document.querySelector(s);
-const tip=(t,ok=true)=>{$('#msg').innerHTML=`<span style="color:${ok?'#34d399':'#f87171'}">${t}</span>`;setTimeout(()=>$('#msg').innerHTML='',2500);};
+const SB=supabase.createClient(
+ "https://mnzwqqxybhjqrfzydwk.supabase.co",
+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uendxcXh5YmhqcXJmcnp5ZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzgzMzIsImV4cCI6MjA3MjA1NDMzMn0.Yo27vsFqgVM9wWKRgI-ErV2Fl6kjsYcQQPqbe8nGZOQ"
+);
+const $=s=>document.querySelector(s);
 
-function gate(){ const p = prompt("Admin Password"); if(p!==ADMIN_PASS){ alert("Wrong password"); location.reload(); } }
-document.addEventListener('DOMContentLoaded', gate);
+function gate(){ if($('#pin').value.trim()==='123456'){ $('#g').style.display='none'; $('#p').style.display='block'; } else { $('#m').innerHTML='<div class="err">Wrong passcode</div>' } }
 
-let current = null;
 async function findMember(){
-  const phone = $('#phone').value.trim();
-  if(!phone){ tip("Phone required", false); return; }
-  const { data, error } = await SB.from('member_points').select('member_id,name,phone,points').eq('phone', phone).maybeSingle();
-  if(error || !data){ tip("Member not found", false); return; }
-  current = { id: data.member_id, name: data.name, phone: data.phone, points: data.points??0 };
-  $('#mName').textContent = current.name;
-  $('#mPhone').textContent = current.phone;
-  $('#mPoints').textContent= current.points;
-  $('#memberInfo').style.display='';
-  loadLogs();
+  const phone=$('#phone').value.trim(); if(!phone) return;
+  const {data,error}=await SB.from('member_points').select('member_id,name,phone,points').eq('phone',phone).maybeSingle();
+  if(error||!data){ $('#member').innerHTML='<div class="err">Not found</div>'; $('#member').dataset.mid=''; $('#hist').innerHTML=''; return; }
+  $('#member').dataset.mid=data.member_id;
+  $('#member').innerHTML=`<div class="ok"><b>${esc(data.name||'—')}</b> · Points: <b>${data.points??0}</b></div>`;
+  loadHist(data.member_id);
 }
-
-async function submitDelta(){
-  if(!current){ tip("Find a member first", false); return; }
-  const delta = parseInt($('#delta').value, 10);
-  const reason = $('#reason').value.trim();
-  if(!Number.isInteger(delta) || delta===0){ tip("Enter a non-zero integer", false); return; }
-  const { error } = await SB.from('point_transactions').insert({ member_id: current.id, delta, reason: reason||null });
-  if(error){ tip(error.message, false); return; }
-  tip("Updated!");
-  $('#delta').value=''; $('#reason').value='';
-  await refreshPoints(); loadLogs();
+async function change(isAdd){
+  const mid=$('#member').dataset.mid;
+  if(!mid){ $('#m').innerHTML='<div class="err">Find member first</div>'; return; }
+  const v=parseInt($('#delta').value,10); if(!v){ $('#m').innerHTML='<div class="err">Enter points</div>'; return; }
+  const {error}=await SB.from('point_transactions').insert({member_id:mid,delta:isAdd?Math.abs(v):-Math.abs(v)});
+  if(error){ $('#m').innerHTML='<div class="err">'+error.message+'</div>'; return; }
+  $('#m').innerHTML='<div class="ok">Updated</div>'; $('#delta').value=''; findMember();
 }
-
-async function refreshPoints(){
-  const { data } = await SB.from('member_points').select('points').eq('member_id', current.id).maybeSingle();
-  if(data){ current.points = data.points??0; $('#mPoints').textContent = current.points; }
+async function loadHist(mid){
+  const {data,error}=await SB.from('point_transactions').select('delta,created_at').eq('member_id',mid).order('created_at',{ascending:false}).limit(10);
+  if(error){ $('#hist').innerHTML='<div class="err">'+error.message+'</div>'; return; }
+  $('#hist').innerHTML = '<ul>'+ (data||[]).map(r=>`<li>${r.delta>0?'+':''}${r.delta} · ${new Date(r.created_at).toLocaleString()}</li>`).join('') + '</ul>';
 }
-async function loadLogs(){
-  const { data } = await SB.from('point_transactions').select('delta,reason,created_at').eq('member_id', current.id).order('created_at', {ascending:false}).limit(20);
-  $('#logs').innerHTML = (data||[]).map(r=>`<tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${r.delta>0?('+'+r.delta):r.delta}</td><td>${r.reason||''}</td></tr>`).join('') || `<tr><td colspan="3" style="color:#9ca3af">No records</td></tr>`;
-}
-function quick(n){ $('#delta').value=n; submitDelta(); }
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 </script>
 </head>
 <body>
-<div class="card">
-  <h1>Adjust Points · KEDAI EMAS SIANG HENG</h1>
-
-  <div class="row">
-    <input id="phone" placeholder="Phone (unique)" />
-    <button onclick="findMember()">Find</button>
-    <button onclick="(()=>{document.getElementById('phone').value='';document.getElementById('memberInfo').style.display='none';current=null;})()">Clear</button>
+  <div class="top">
+    <div class="brand">KEDAI EMAS SIANG HENG</div>
+    <nav><a href="index.html" style="color:#6A7280;text-decoration:none;margin-left:12px">Customer</a><a href="add-member.html" style="color:#6A7280;text-decoration:none;margin-left:12px">Add Member</a></nav>
   </div>
-  <div id="msg" class="msg"></div>
 
-  <div id="memberInfo" style="display:none">
-    <div><b>Name:</b> <span id="mName"></span></div>
-    <div><b>Phone:</b> <span id="mPhone"></span></div>
-    <div><b>Points:</b> <span id="mPoints">0</span></div>
+  <div class="shell">
+    <div class="card">
+      <h1>Adjust Points</h1>
+      <div class="sub">Find by phone → Add/Deduct points. History shown on the right.</div>
 
-    <div class="row" style="margin-top:10px">
-      <input id="delta" placeholder="Enter + or - integer" />
-      <input id="reason" placeholder="Reason (optional)" />
-      <button onclick="submitDelta()">Submit</button>
-    </div>
+      <div id="g">
+        <div class="row">
+          <input id="pin" type="password" placeholder="Passcode (default 123456)">
+          <button onclick="gate()">Enter</button>
+        </div>
+        <div id="m" class="msg"></div>
+      </div>
 
-    <div class="row">
-      <button onclick="quick(10)">+10</button>
-      <button onclick="quick(-10)">-10</button>
-      <button onclick="quick(50)">+50</button>
-      <button onclick="quick(-50)">-50</button>
-    </div>
+      <div id="p" style="display:none">
+        <div class="panel">
+          <div class="box">
+            <div class="title">Member</div>
+            <div class="row">
+              <input id="phone" placeholder="Phone">
+              <button onclick="findMember()">Find</button>
+            </div>
+            <div id="member" class="sub" style="min-height:22px"></div>
 
-    <h3 style="margin-top:18px">Recent Transactions</h3>
-    <table>
-      <thead><tr><th>Time</th><th>Delta</th><th>Reason</th></tr></thead>
-      <tbody id="logs"></tbody>
-    </table>
+            <div class="title" style="margin-top:12px">Adjust</div>
+            <div class="row">
+              <input id="delta" type="number" placeholder="Points (±)">
+              <button onclick="change(true)">Add</button>
+              <button onclick="change(false)">Deduct</button>
+            </div>
+            <div id="m" class="msg"></div>
+          </div>
 
-    <div class="nav" style="margin-top:10px">
-      <a href="/admin/add-member.html">Add Member</a>
-      <a href="/index.html">Customer</a>
+          <div class="box">
+            <div class="title">Recent History</div>
+            <div id="hist" class="sub" style="min-height:22px">—</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 </body>
 </html>
