@@ -1,195 +1,192 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KEDAI EMAS SIANG HENG · Customer Points</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KEDAI EMAS SIANG HENG · Points</title>
 <link rel="icon" href="data:,">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --soft-gold: #cbaF63;
-    --platinum: #eaeaea;
-    --dark-bg: #0b0c10;
-    --card-bg: rgba(20, 20, 25, 0.75);
-    --line: rgba(255,255,255,0.12);
+  :root{
+    --bg:#F7F6F2;          /* 背景 · 白金米色 */
+    --surface:#FFFFFF;     /* 卡片 */
+    --ink:#1A1D2A;         /* 主文字 */
+    --muted:#6A7280;       /* 次要文字 */
+    --line:#E8E5DD;        /* 细边 */
+    --gold:#C7A553;        /* 柔金 */
+    --gold-2:#E7D79B;      /* 次金 */
+    --brand:#B7963A;       /* 品牌金 */
   }
-  body {
-    margin:0; padding:0;
-    font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    background: radial-gradient(ellipse at top,#1a1b1f,#0b0c10);
-    color: var(--platinum);
-    display:flex; justify-content:center; align-items:center;
-    min-height:100vh;
+  html,body{height:100%}
+  body{
+    margin:0; font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    color:var(--ink); background:
+      radial-gradient(800px 600px at 10% -10%, #FFF6DB 0%, transparent 55%),
+      radial-gradient(900px 700px at 120% -15%, #F2EEE4 0%, transparent 60%),
+      var(--bg);
   }
-  .card {
-    width:100%; max-width:640px;
-    background: var(--card-bg);
-    backdrop-filter: blur(14px);
-    border:1px solid var(--line);
-    border-radius:20px;
-    padding:32px;
-    box-shadow:
-      0 0 0 1px rgba(203,175,99,.18),
-      0 30px 60px rgba(0,0,0,.65);
-    text-align:center;
+  /* 顶部品牌条 */
+  .topbar{
+    position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(6px);
+    background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,255,255,.72));
+    border-bottom:1px solid var(--line);
   }
-  .brand {
-    font-size:16px;
-    font-weight:700;
-    letter-spacing:1px;
-    color:var(--soft-gold);
-    margin-bottom:14px;
+  .topbar .wrap{
+    max-width:1080px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
   }
-  h1 {
-    font-size:26px;
-    margin:0 0 18px;
-    font-weight:700;
-    background: linear-gradient(90deg,#fff,var(--platinum));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+  .brand{
+    font-weight:800; letter-spacing:.6px;
+    background:linear-gradient(90deg,var(--brand),#D8C27B);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .lang {
-    display:flex; justify-content:center; gap:10px;
-    margin-bottom:20px;
-  }
-  .lang button {
-    background: transparent;
+  .mini-nav a{color:var(--muted); text-decoration:none; margin-left:16px}
+  .mini-nav a:hover{color:var(--ink)}
+
+  .shell{max-width:860px;margin:48px auto;padding:0 20px}
+  .hero{
+    background:var(--surface);
     border:1px solid var(--line);
     border-radius:18px;
-    padding:4px 12px;
-    font-size:14px; color: var(--platinum);
-    cursor:pointer; transition: all .3s;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    padding:28px 22px;
   }
-  .lang button.active {
-    border-color: var(--soft-gold);
-    color:#000; background: var(--soft-gold);
+  h1{margin:6px 0 12px;font-size:28px;font-weight:800;color:var(--ink)}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+
+  .lang{display:flex;gap:10px;margin:6px 0 18px}
+  .pill{
+    height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#FAFAF7;color:#343a46;font-weight:700;font-size:13px;cursor:pointer;transition:.2s
   }
-  .row {
-    display:flex; gap:10px; flex-wrap:wrap;
-    margin-bottom:16px;
+  .pill:hover{border-color:#D8C27B}
+  .pill.active{background:linear-gradient(135deg,var(--gold),var(--gold-2));border-color:transparent;color:#211f18}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  input,button{
+    height:48px;border-radius:12px;border:1px solid var(--line);font-size:16px
   }
-  input {
-    flex:1; min-width:220px;
-    height:46px; border-radius:12px;
-    border:1px solid var(--line);
-    background:rgba(255,255,255,0.08);
-    color: var(--platinum);
-    padding:0 14px; font-size:16px;
+  input{flex:1;min-width:260px;padding:0 14px;background:#FBFBF8}
+  input:focus{outline:none;border-color:#D8C27B;box-shadow:0 0 0 3px rgba(200,165,75,.15)}
+  .cta{
+    padding:0 22px;cursor:pointer;font-weight:800;color:#1a1a1a;border:none;
+    background:linear-gradient(135deg,var(--gold),var(--gold-2));
+    box-shadow:0 8px 16px rgba(199,165,83,.22);
+    transition:transform .05s,filter .2s
   }
-  button.query {
-    height:46px; border-radius:12px;
-    border:none; cursor:pointer;
-    font-size:16px; font-weight:600;
-    padding:0 24px;
-    background: var(--soft-gold); color:#000;
-    transition: all .3s;
+  .cta:hover{filter:brightness(1.05)}
+  .cta:active{transform:translateY(1px)}
+
+  .msg{margin-top:10px;font-size:14px}
+  .err{color:#c04b4b}
+  .ok{color:#15803d}
+
+  .result{
+    margin-top:16px;border:1px dashed var(--line);border-radius:14px;padding:14px;background:#FFFEFB;
   }
-  button.query:hover {
-    box-shadow:0 0 14px rgba(203,175,99,.7);
+  .hello{color:#6B6F78}
+  .name{font-weight:800;font-size:18px;margin-top:2px}
+  .points-card{
+    margin-top:10px;
+    background:linear-gradient(180deg,#FFF,#FBF7EA);
+    border:1px solid #E8E1C7;border-radius:14px;padding:14px 16px;
+    box-shadow:0 8px 20px rgba(188,163,85,.12) inset, 0 8px 18px rgba(0,0,0,.03);
   }
-  .msg { margin:12px 0; font-size:14px; }
-  .err { color:#f87171; }
-  .points-box {
-    margin-top:20px;
-    font-size:20px;
-    font-weight:600;
-    background:rgba(255,255,255,0.06);
-    padding:18px;
-    border-radius:14px;
-  }
-  .points {
-    font-size:40px; font-weight:800;
-    color: var(--soft-gold);
-  }
-  .nav {
-    margin-top:20px; font-size:14px;
-  }
-  .nav a {
-    color:var(--soft-gold);
-    margin:0 10px;
-    text-decoration:none;
-  }
+  .points-label{color:#6B6F78;font-weight:700}
+  .points{font-size:40px;font-weight:900;letter-spacing:.5px;color:#A8872E}
+
+  .links{margin-top:16px}
+  .links a{color:#6b6f78;text-decoration:none;margin-right:14px}
+  .links a:hover{color:#2d2f36}
+
+  footer{margin:24px 0;color:#9aa1ad;font-size:12px;text-align:center}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SB = supabase.createClient(
- "https://mnzwqqxybhjqrfzydwk.supabase.co",
- "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uendxcXh5YmhqcXJmcnp5ZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzgzMzIsImV4cCI6MjA3MjA1NDMzMn0.Yo27vsFqgVM9wWKRgI-ErV2Fl6kjsYcQQPqbe8nGZOQ"
+const SB=supabase.createClient(
+  "https://mnzwqqxybhjqrfzydwk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uendxcXh5YmhqcXJmcnp5ZHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzgzMzIsImV4cCI6MjA3MjA1NDMzMn0.Yo27vsFqgVM9wWKRgI-ErV2Fl6kjsYcQQPqbe8nGZOQ"
 );
 const $=s=>document.querySelector(s);
 
-const i18n = {
-  BM:{title:"Semak Mata Ahli",phonePH:"Sila masukkan nombor telefon anda",query:"Semak",hello:"Pelanggan dihormati",points:"Mata Semasa",hint:"Jika maklumat tidak tepat, sila hubungi kaunter.",notfound:"Nombor telefon ini tiada dalam rekod.",fail:"Gagal: "},
-  EN:{title:"Member Points Check",phonePH:"Enter your phone number",query:"Check",hello:"Dear Member",points:"Current Points",hint:"If the info seems wrong, please contact the counter.",notfound:"No member found for this phone.",fail:"Failed: "},
-  ZH:{title:"会员积分查询",phonePH:"请输入您的电话",query:"查询",hello:"尊敬的会员",points:"当前积分",hint:"如信息不符，请联系柜台。",notfound:"未找到该电话的会员。",fail:"查询失败："}
+const i18n={
+  BM:{title:"Semak Mata Ahli",sub:"Masukkan nombor telefon untuk menyemak mata.",phonePH:"Sila masukkan nombor telefon anda",query:"Semak",hello:"Pelanggan dihormati",points:"Mata Semasa",hint:"Jika maklumat tidak tepat, sila hubungi kaunter.",notfound:"Nombor telefon ini tiada dalam rekod.",fail:"Gagal: "},
+  EN:{title:"Member Points",sub:"Enter phone number to view points.",phonePH:"Enter your phone number",query:"Check",hello:"Dear Member",points:"Current Points",hint:"If info looks wrong, please contact the counter.",notfound:"No member found for this phone.",fail:"Failed: "},
+  ZH:{title:"会员积分查询",sub:"输入手机号查询当前积分。",phonePH:"请输入您的电话",query:"查询",hello:"尊敬的会员",points:"当前积分",hint:"如信息不符，请联系柜台核对。",notfound:"未找到该电话的会员。",fail:"查询失败："}
 };
-let LANG = localStorage.getItem("lang") || "BM";
+let LANG=localStorage.getItem("lang")||"BM";
 
-function setLang(l){
-  LANG=l; localStorage.setItem("lang",l);
-  const t=i18n[l];
+function renderLang(){
+  const t=i18n[LANG];
   $("#title").textContent=t.title;
+  $("#sub").textContent=t.sub;
   $("#phone").placeholder=t.phonePH;
   $("#btn").textContent=t.query;
-  document.querySelectorAll(".lang button").forEach(b=>b.classList.remove("active"));
-  document.querySelector(`.lang button[data-lang="${l}"]`).classList.add("active");
+  $("#pointsLabel").textContent=t.points+"：";
+  $("#hint").textContent=t.hint;
+  document.querySelectorAll(".pill").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
 }
+function setLang(l){ LANG=l; localStorage.setItem("lang",l); renderLang(); }
 
 async function query(){
-  const phone=$("#phone").value.trim();
-  if(!phone) return;
+  const phone=$("#phone").value.trim(); if(!phone) return;
   try{
-    const {data,error} = await SB.from("member_points").select("name,phone,points").eq("phone",phone).maybeSingle();
-    if(error||!data){
-      $("#msg").innerHTML=`<div class="err">${i18n[LANG].notfound}</div>`;
-      $("#result").style.display="none";return;
-    }
+    const {data,error}=await SB.from("member_points").select("name,phone,points").eq("phone",phone).maybeSingle();
+    if(error||!data){ $("#msg").innerHTML=`<div class="err">${i18n[LANG].notfound}</div>`; $("#result").style.display="none"; return; }
+    $("#hello").textContent=i18n[LANG].hello;
     $("#name").textContent=data.name||"Member";
     $("#pts").textContent=data.points??0;
-    $("#result").style.display="";
-    $("#msg").innerHTML="";
-  }catch(e){
-    $("#msg").innerHTML=`<div class="err">${i18n[LANG].fail}${e.message}</div>`;
-  }
+    $("#result").style.display="block"; $("#msg").innerHTML="";
+  }catch(e){ $("#msg").innerHTML=`<div class="err">${i18n[LANG].fail}${e.message}</div>`; }
 }
-
-document.addEventListener("DOMContentLoaded",()=>setLang(LANG));
+document.addEventListener("DOMContentLoaded",renderLang);
 </script>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">KEDAI EMAS SIANG HENG</div>
-    <h1 id="title">Member Points Check</h1>
-
-    <div class="lang">
-      <button data-lang="BM" onclick="setLang('BM')">BM</button>
-      <button data-lang="EN" onclick="setLang('EN')">EN</button>
-      <button data-lang="ZH" onclick="setLang('ZH')">中文</button>
-    </div>
-
-    <div class="row">
-      <input id="phone" placeholder="Enter your phone number" />
-      <button id="btn" class="query" onclick="query()">Check</button>
-    </div>
-
-    <div id="msg" class="msg"></div>
-
-    <div id="result" style="display:none">
-      <div><span id="hello"></span> <b id="name"></b></div>
-      <div class="points-box">
-        <span id="pointsLabel"></span>
-        <div class="points"><span id="pts">0</span></div>
-      </div>
-      <div id="hint" class="hint"></div>
-    </div>
-
-    <div class="nav">
-      <a href="qr.html">QR</a> | 
-      <a href="add-member.html">Admin</a> | 
-      <a href="points.html">Admin Points</a>
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand">KEDAI EMAS SIANG HENG</div>
+      <nav class="mini-nav">
+        <a href="qr.html">QR</a>
+        <a href="add-member.html">Admin</a>
+        <a href="points.html">Admin Points</a>
+      </nav>
     </div>
   </div>
+
+  <div class="shell">
+    <section class="hero">
+      <h1 id="title">Member Points</h1>
+      <div id="sub" class="sub">Enter phone number to view points.</div>
+
+      <div class="lang">
+        <button class="pill" data-lang="BM" onclick="setLang('BM')">BM</button>
+        <button class="pill" data-lang="EN" onclick="setLang('EN')">EN</button>
+        <button class="pill" data-lang="ZH" onclick="setLang('ZH')">中文</button>
+      </div>
+
+      <div class="row">
+        <input id="phone" placeholder="Enter your phone number">
+        <button id="btn" class="cta" onclick="query()">Check</button>
+      </div>
+      <div id="msg" class="msg"></div>
+
+      <div id="result" class="result" style="display:none">
+        <div class="hello" id="hello">Dear Member</div>
+        <div class="name" id="name">—</div>
+        <div class="points-card">
+          <div class="points-label" id="pointsLabel">Current Points：</div>
+          <div class="points"><span id="pts">0</span></div>
+        </div>
+        <div id="hint" class="sub" style="margin-top:8px">If info looks wrong, please contact the counter.</div>
+      </div>
+
+      <div class="links">
+        <a href="qr.html">QR</a>
+        <a href="add-member.html">Admin</a>
+        <a href="points.html">Admin Points</a>
+      </div>
+    </section>
+  </div>
+
+  <footer>© KEDAI EMAS SIANG HENG</footer>
 </body>
 </html>
