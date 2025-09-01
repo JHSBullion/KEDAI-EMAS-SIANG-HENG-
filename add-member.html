@@ -27,19 +27,19 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ====== 1) Supabase 项目参数 ====== */
-const SUPABASE_URL = "https://mnzwqqxybhjqrfzydwk.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_RH66evOmA6hxy7PSckt6cA_5PvhZU_E"; 
+/* ====== 1) Supabase 项目参数（从 Netlify 环境变量读取） ====== */
+const SUPABASE_URL = window.env?.SUPABASE_URL || import.meta.env?.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.env?.SUPABASE_ANON_KEY || import.meta.env?.SUPABASE_ANON_KEY;
 const SB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-/* ================================== */
+/* ========================================== */
 
-const $  = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[m]));
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[m])) || '';
 
-function tip(msg, ok=true){
-  const el = $('#msg');
-  el.innerHTML = `<div class="${ok?'ok':'err'}">${msg}</div>`;
-  clearTimeout(el._t); el._t = setTimeout(()=>{ el.innerHTML='' }, 3500);
+function tip(t,ok=true){ 
+  const el=$('#msg'); 
+  el.innerHTML=`<div class="${ok?'ok':'err'}">${t}</div>`; 
+  setTimeout(()=>{el.innerHTML=''},3500); 
 }
 
 async function addMember(){
@@ -49,11 +49,8 @@ async function addMember(){
 
   try{
     // 唯一手机号检查
-    const { data: existed, error: qErr } = await SB
-      .from('members')
-      .select('id')
-      .eq('phone', phone)
-      .limit(1);
+    let { data: existed, error: qErr } = await SB.from('members')
+      .select('id').eq('phone', phone).limit(1);
 
     if(qErr){ console.error(qErr); tip('查询失败：'+qErr.message, false); return; }
     if(existed && existed.length){ tip('该电话已存在', false); return; }
@@ -74,11 +71,9 @@ async function addMember(){
 async function loadList(){
   $('#list tbody').innerHTML = `<tr><td colspan="4" class="hint">加载中...</td></tr>`;
   try{
-    // 视图 member_points：member_id, name, phone, points（若你已添加 last_activity_at 可换成按时间排序）
-    const { data, error } = await SB
-      .from('member_points')
+    const { data, error } = await SB.from('member_points')
       .select('member_id, name, phone, points')
-      .order('name', { ascending:true }); // 想按时间：.select('member_id, name, phone, points, last_activity_at').order('last_activity_at', { ascending:false })
+      .order('name', { ascending:true });
 
     if(error){
       console.error(error);
