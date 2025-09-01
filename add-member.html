@@ -1,114 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Admin · Add Member · KEDAI EMAS SIANG HENG</title>
-<link rel="icon" href="data:,">
-<style>
-  :root{color-scheme:dark light}
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#0b1020;color:#e7e9ee}
-  .wrap{max-width:980px;margin:48px auto;padding:0 20px}
-  .card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
-  h1{margin:0 0 16px;font-size:20px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
-  input,button{height:42px;border-radius:10px;border:1px solid #344155;background:#0b1220;color:#e7e9ee;padding:0 12px;font-size:15px}
-  input{flex:1;min-width:260px}
-  button{cursor:pointer}
-  .primary{background:#2563eb;border-color:#3b82f6}
-  .muted{background:#0b1220;border-color:#344155}
-  .ok{color:#34d399}.err{color:#f87171}.hint{color:#98a2b3;font-size:12px}
-  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
-  th,td{border-bottom:1px solid #1f2937;padding:10px 8px;text-align:left}
-  .nav{margin:8px 0 16px} .nav a{color:#93c5fd;margin-right:12px;text-decoration:none}
-  .brand{font-weight:700;color:#f5d58a;letter-spacing:.4px}
-  .pill{display:inline-block;padding:2px 8px;border:1px solid #3a3f55;border-radius:999px;font-size:12px;color:#9fb5ff}
-  .right{margin-left:auto}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-/* ====== 1) Supabase 项目参数（从 Netlify 环境变量读取） ====== */
-const SUPABASE_URL = window.env?.SUPABASE_URL || import.meta.env?.SUPABASE_URL;
-const SUPABASE_ANON_KEY = window.env?.SUPABASE_ANON_KEY || import.meta.env?.SUPABASE_ANON_KEY;
-const SB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-/* ========================================== */
-
-const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[m])) || '';
-
-function tip(t,ok=true){ 
-  const el=$('#msg'); 
-  el.innerHTML=`<div class="${ok?'ok':'err'}">${t}</div>`; 
-  setTimeout(()=>{el.innerHTML=''},3500); 
-}
-
-async function addMember(){
-  const name  = $('#name').value.trim();
-  const phone = $('#phone').value.trim();
-  if(!name || !phone){ tip('姓名与电话必填', false); return; }
-
-  try{
-    // 唯一手机号检查
-    let { data: existed, error: qErr } = await SB.from('members')
-      .select('id').eq('phone', phone).limit(1);
-
-    if(qErr){ console.error(qErr); tip('查询失败：'+qErr.message, false); return; }
-    if(existed && existed.length){ tip('该电话已存在', false); return; }
-
-    // 插入
-    const { error: insErr } = await SB.from('members').insert({ name, phone });
-    if(insErr){ console.error(insErr); tip('新增失败：'+insErr.message, false); return; }
-
-    tip('新增成功！');
-    $('#name').value=''; $('#phone').value='';
-    loadList();
-  }catch(e){
-    console.error(e);
-    tip('网络错误：'+e.message, false);
-  }
-}
-
-async function loadList(){
-  $('#list tbody').innerHTML = `<tr><td colspan="4" class="hint">加载中...</td></tr>`;
-  try{
-    const { data, error } = await SB.from('member_points')
-      .select('member_id, name, phone, points')
-      .order('name', { ascending:true });
-
-    if(error){
-      console.error(error);
-      $('#list tbody').innerHTML = `<tr><td colspan="4" class="err">加载失败：${esc(error.message)}</td></tr>`;
-      return;
-    }
-
-    const rows = data || [];
-    if(!rows.length){
-      $('#list tbody').innerHTML = `<tr><td colspan="4" class="hint">暂无数据</td></tr>`;
-      return;
-    }
-    $('#list tbody').innerHTML = rows.map(r=>`
-      <tr>
-        <td>${esc(r.member_id || '')}</td>
-        <td>${esc(r.name || '')}</td>
-        <td>${esc(r.phone || '')}</td>
-        <td>${r.points ?? 0}</td>
-      </tr>
-    `).join('');
-  }catch(e){
-    console.error(e);
-    $('#list tbody').innerHTML = `<tr><td colspan="4" class="err">网络错误：${esc(e.message)}</td></tr>`;
-  }
-}
-
-document.addEventListener('DOMContentLoaded', loadList);
-</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin · Add Member · KEDAI EMAS SIANG HENG</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root{color-scheme:dark light}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#0b1020;color:#e7e9ee}
+    .wrap{max-width:980px;margin:48px auto;padding:0 20px}
+    .card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+    h1{margin:0 0 16px;font-size:20px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    input,button{height:42px;border-radius:10px;border:1px solid #344155;background:#0b1220;color:#e7e9ee;padding:0 12px;font-size:15px}
+    input{flex:1;min-width:260px}
+    button{cursor:pointer}
+    .primary{background:#2563eb;border-color:#3b82f6}
+    .muted{background:#0b1220;border-color:#344155}
+    .ok{color:#34d399}.err{color:#f87171}.hint{color:#98a2b3;font-size:12px}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+    th,td{border-bottom:1px solid #1f2937;padding:10px 8px;text-align:left}
+    .nav{margin:8px 0 16px} .nav a{color:#93c5fd;margin-right:12px;text-decoration:none}
+    .brand{font-weight:700;color:#f5d58a;letter-spacing:.4px}
+    .pill{display:inline-block;padding:2px 8px;border:1px solid #3a3f55;border-radius:999px;font-size:12px;color:#9fb5ff;margin-left:auto}
+  </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <div class="row">
         <div class="brand">KEDAI EMAS SIANG HENG</div>
-        <span class="pill right">Admin · Add Member</span>
+        <span class="pill">Admin · Add Member</span>
       </div>
 
       <h1>新增会员</h1>
@@ -124,19 +46,72 @@ document.addEventListener('DOMContentLoaded', loadList);
       <div class="nav">
         <a href="/index.html">Customer</a>
         <a href="/points.html">Adjust Points</a>
+        <a href="/list-members.html">Members</a>
       </div>
 
-      <table id="list">
+      <table>
         <thead>
           <tr><th>Member ID</th><th>Name</th><th>Phone</th><th>Points</th></tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="tbody"></tbody>
       </table>
 
       <div class="hint" style="margin-top:10px">
-        说明：演示阶段允许匿名访问。上线前请迁移到 Auth / Service Role + 细化 RLS。
+        注：页面只请求 Netlify Functions，不在前端暴露任何 Supabase 密钥。
       </div>
     </div>
   </div>
+
+  <script>
+    const tip = (html)=>{ document.getElementById('msg').innerHTML = html };
+    const esc = s => String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[m]));
+
+    async function addMember(){
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      if(!name || !phone){ tip('<div class="err">姓名与电话必填</div>'); return; }
+
+      try{
+        tip('<div class="hint">提交中…</div>');
+        const res = await fetch('/.netlify/functions/add-member', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ name, phone })
+        });
+        const json = await res.json();
+        if(!json.success){ tip('<div class="err">新增失败：'+esc(json.error||'未知错误')+'</div>'); return; }
+        tip('<div class="ok">新增成功！</div>');
+        document.getElementById('name').value='';
+        document.getElementById('phone').value='';
+        loadList();
+      }catch(e){
+        tip('<div class="err">网络错误：'+esc(e.message)+'</div>');
+      }
+    }
+
+    async function loadList(){
+      try{
+        const tbody = document.getElementById('tbody');
+        tbody.innerHTML = '<tr><td colspan="4" class="hint">加载中…</td></tr>';
+        const res = await fetch('/.netlify/functions/list-members');
+        const json = await res.json();
+        if(!json.success){ tbody.innerHTML = '<tr><td colspan="4" class="err">加载失败：'+esc(json.error||'')+'</td></tr>'; return; }
+        const rows = json.data||[];
+        if(!rows.length){ tbody.innerHTML = '<tr><td colspan="4" class="hint">暂无数据</td></tr>'; return; }
+        tbody.innerHTML = rows.map(r=>`
+          <tr>
+            <td>${esc(r.member_id||'')}</td>
+            <td>${esc(r.name||'')}</td>
+            <td>${esc(r.phone||'')}</td>
+            <td>${r.points??0}</td>
+          </tr>
+        `).join('');
+      }catch(e){
+        document.getElementById('tbody').innerHTML = '<tr><td colspan="4" class="err">网络错误：'+esc(e.message)+'</td></tr>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadList);
+  </script>
 </body>
 </html>
