@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · 调整积分</title><link rel="icon" href="data:,">
+<style>
+:root{color-scheme:dark light}
+body{margin:0;background:#0b1020;color:#e7e9ee;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto}
+.wrap{max-width:960px;margin:56px auto;padding:0 18px}
+.card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+h1{font-size:20px;margin:0 0 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+input,button{height:44px;border-radius:10px;border:1px solid #344155;background:#0b1220;color:#e7e9ee;padding:0 12px}
+input{min-width:160px}
+.primary{background:#2563eb;border-color:#3b82f6;cursor:pointer}
+.brand{font-weight:700;color:#f5d58a}
+.nav a{color:#93c5fd;margin-right:14px;text-decoration:none}
+</style>
+<script type="module">
+import { api, tip } from './web.js'
+
+async function adjust(){
+  const phone = document.querySelector('#phone').value.trim()
+  const delta = parseInt(document.querySelector('#delta').value || '0')
+  const note  = document.querySelector('#note').value.trim()
+  const msg = document.querySelector('#msg')
+  if(!phone || !delta){ tip(msg, '电话与非零积分变动必填', false); return }
+  try{
+    await api('/.netlify/functions/adjust-points', { method:'POST', body:JSON.stringify({phone, delta, note}) })
+    tip(msg, '已记录')
+    document.querySelector('#delta').value = ''
+    document.querySelector('#note').value = ''
+    lookup()
+  }catch(e){ tip(msg, '失败：'+e.message, false) }
+}
+
+async function lookup(){
+  const phone = document.querySelector('#phone').value.trim()
+  if(!phone) return
+  const box = document.querySelector('#summary')
+  box.innerHTML = '查询中…'
+  try{
+    const s = await api('/.netlify/functions/member-points?phone='+encodeURIComponent(phone))
+    box.innerHTML = `姓名：${s.name}｜电话：${s.phone}｜当前积分：<b>${s.points}</b>`
+  }catch(e){ box.innerHTML = '查询失败：'+e.message }
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelector('#btn').addEventListener('click', adjust)
+  document.querySelector('#phone').addEventListener('change', lookup)
+})
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">KEDAI EMAS SIANG HENG</div>
+      <h1>Admin · 调整积分</h1>
+      <div class="row">
+        <input id="phone" placeholder="手机号">
+        <input id="delta" placeholder="变动积分（可为负）">
+        <input id="note"  placeholder="备注（可选）" style="flex:1">
+        <button id="btn" class="primary">提交</button>
+      </div>
+      <div id="msg"></div>
+      <div id="summary" style="margin-top:10px"></div>
+
+      <div class="nav" style="margin-top:12px">
+        <a href="index.html">Customer</a>
+        <a href="add-member.html">Add Member</a>
+        <a href="members.html">会员搜索列表</a>
+        <a href="qr.html">QR</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

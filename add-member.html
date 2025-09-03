@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · 新增会员</title><link rel="icon" href="data:,">
+<style>
+:root{color-scheme:dark light}
+body{margin:0;background:#0b1020;color:#e7e9ee;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto}
+.wrap{max-width:960px;margin:56px auto;padding:0 18px}
+.card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+h1{font-size:20px;margin:0 0 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+input,button{height:44px;border-radius:10px;border:1px solid #344155;background:#0b1220;color:#e7e9ee;padding:0 12px}
+input{flex:1;min-width:200px}
+.primary{background:#2563eb;border-color:#3b82f6;cursor:pointer}
+table{width:100%;border-collapse:collapse;margin-top:14px}
+th,td{border-bottom:1px solid #1f2937;padding:10px 8px;text-align:left}
+.brand{font-weight:700;color:#f5d58a}
+.nav a{color:#93c5fd;margin-right:14px;text-decoration:none}
+</style>
+<script type="module">
+import { api, tip } from './web.js'
+
+async function add(){
+  const name = document.querySelector('#name').value.trim()
+  const phone = document.querySelector('#phone').value.trim()
+  const msg = document.querySelector('#msg')
+  if(!name || !phone){ tip(msg,'姓名与电话必填',false); return }
+  try{
+    await api('/.netlify/functions/add-member', { method:'POST', body:JSON.stringify({name,phone}) })
+    tip(msg,'新增成功')
+    document.querySelector('#name').value=''
+    document.querySelector('#phone').value=''
+    list()
+  }catch(e){ tip(msg,'新增失败：'+e.message,false) }
+}
+
+async function list(){
+  const tb = document.querySelector('#list tbody')
+  tb.innerHTML = '<tr><td colspan="4" class="hint">加载中...</td></tr>'
+  try{
+    const page = await api('/.netlify/functions/list-members?page=1&size=20')
+    tb.innerHTML = (page.rows||[]).map(r=>`
+      <tr><td>${r.id}</td><td>${r.name}</td><td>${r.phone}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>
+    `).join('')
+  }catch(e){
+    tb.innerHTML = `<tr><td colspan="4">加载失败：${e.message}</td></tr>`
+  }
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelector('#add').addEventListener('click', add)
+  list()
+})
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">KEDAI EMAS SIANG HENG</div>
+      <h1>Admin · 新增会员</h1>
+      <div class="row">
+        <input id="name" placeholder="姓名（必填）">
+        <input id="phone" placeholder="电话（必填，唯一）">
+        <button id="add" class="primary">Add</button>
+      </div>
+      <div id="msg"></div>
+
+      <div class="nav">
+        <a href="index.html">Customer</a>
+        <a href="points.html">Adjust Points</a>
+        <a href="members.html">会员搜索列表</a>
+        <a href="qr.html">QR</a>
+      </div>
+
+      <table id="list">
+        <thead><tr><th>Member ID</th><th>Name</th><th>Phone</th><th>Created</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

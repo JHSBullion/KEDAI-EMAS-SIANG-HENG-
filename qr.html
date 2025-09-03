@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QR 生成 · KEDAI EMAS SIANG HENG</title><link rel="icon" href="data:,">
+<style>
+:root{color-scheme:dark light}
+body{margin:0;background:#0b1020;color:#e7e9ee;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto}
+.wrap{max-width:700px;margin:56px auto;padding:0 18px}
+.card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35);text-align:center}
+h1{font-size:20px;margin:0 0 14px}
+input,button{height:44px;border-radius:10px;border:1px solid #344155;background:#0b1220;color:#e7e9ee;padding:0 12px}
+input{width:100%;max-width:380px}
+.primary{background:#2563eb;border-color:#3b82f6;cursor:pointer}
+.brand{font-weight:700;color:#f5d58a}
+.nav a{color:#93c5fd;margin-right:14px;text-decoration:none}
+#qrcode{margin-top:20px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+function generate(){
+  const phone = document.querySelector('#phone').value.trim()
+  const el = document.querySelector('#qrcode')
+  el.innerHTML = ''
+  if(!phone){ el.textContent = '请输入手机号'; return }
+  // encode to query url of public lookup
+  const url = new URL(location.origin + '/index.html')
+  url.searchParams.set('phone', phone)
+  QRCode.toCanvas(document.createElement('canvas'), url.toString(), { width: 240 }, (err, canvas)=>{
+    if(err){ el.textContent = err.message; return }
+    el.appendChild(canvas)
+  })
+}
+window.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelector('#btn').addEventListener('click', generate)
+})
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">KEDAI EMAS SIANG HENG</div>
+      <h1>生成会员查询二维码</h1>
+      <input id="phone" placeholder="输入手机号">
+      <div><button id="btn" class="primary" style="margin-top:8px">生成 QR</button></div>
+      <div id="qrcode"></div>
+
+      <div class="nav" style="margin-top:14px">
+        <a href="index.html">Customer</a>
+        <a href="add-member.html">Add Member</a>
+        <a href="points.html">Adjust Points</a>
+        <a href="members.html">会员搜索列表</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
