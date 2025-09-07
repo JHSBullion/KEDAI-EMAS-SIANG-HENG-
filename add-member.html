@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin · Add Member · KEDAI EMAS SIANG HENG</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root{color-scheme:dark light}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#0b1020;color:#e7e9ee}
+    .wrap{max-width:980px;margin:48px auto;padding:0 20px}
+    .card{background:#0f172a;border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+    h1{margin:0 0 16px;font-size:20px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    input,button{height:42px;border-radius:10px;border:1px solid #344155;background:#0b1220;color:#e7e9ee;padding:0 12px;font-size:15px}
+    input{flex:1;min-width:260px}
+    button{cursor:pointer}
+    .primary{background:#2563eb;border-color:#3b82f6}
+    .muted{background:#0b1220;border-color:#344155}
+    .ok{color:#34d399}.err{color:#f87171}.hint{color:#98a2b3;font-size:12px}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+    th,td{border-bottom:1px solid #1f2937;padding:10px 8px;text-align:left}
+    .nav{margin:8px 0 16px} .nav a{color:#93c5fd;margin-right:12px;text-decoration:none}
+    .brand{font-weight:700;color:#f5d58a;letter-spacing:.4px}
+    .pill{display:inline-block;padding:2px 8px;border:1px solid #3a3f55;border-radius:999px;font-size:12px;color:#9fb5ff;margin-left:auto}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div class="brand">KEDAI EMAS SIANG HENG</div>
+        <span class="pill">Admin · Add Member</span>
+      </div>
+
+      <h1>新增会员</h1>
+
+      <div class="row">
+        <input id="name"  placeholder="姓名（必填）" />
+        <input id="phone" placeholder="电话（必填，唯一）" />
+        <button class="primary" onclick="addMember()">Add</button>
+        <button class="muted"   onclick="loadList()">Refresh</button>
+      </div>
+      <div id="msg"></div>
+
+      <div class="nav">
+        <a href="/index.html">Customer</a>
+        <a href="/points.html">Adjust Points</a>
+        <a href="/list-members.html">Members</a>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Member ID</th><th>Name</th><th>Phone</th><th>Points</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+      <div class="hint" style="margin-top:10px">
+        注：页面只请求 Netlify Functions，不在前端暴露任何 Supabase 密钥。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tip = (html)=>{ document.getElementById('msg').innerHTML = html };
+    const esc = s => String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[m]));
+
+    async function addMember(){
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      if(!name || !phone){ tip('<div class="err">姓名与电话必填</div>'); return; }
+
+      try{
+        tip('<div class="hint">提交中…</div>');
+        const res = await fetch('/.netlify/functions/add-member', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ name, phone })
+        });
+        const json = await res.json();
+        if(!json.success){ tip('<div class="err">新增失败：'+esc(json.error||'未知错误')+'</div>'); return; }
+        tip('<div class="ok">新增成功！</div>');
+        document.getElementById('name').value='';
+        document.getElementById('phone').value='';
+        loadList();
+      }catch(e){
+        tip('<div class="err">网络错误：'+esc(e.message)+'</div>');
+      }
+    }
+
+    async function loadList(){
+      try{
+        const tbody = document.getElementById('tbody');
+        tbody.innerHTML = '<tr><td colspan="4" class="hint">加载中…</td></tr>';
+        const res = await fetch('/.netlify/functions/list-members');
+        const json = await res.json();
+        if(!json.success){ tbody.innerHTML = '<tr><td colspan="4" class="err">加载失败：'+esc(json.error||'')+'</td></tr>'; return; }
+        const rows = json.data||[];
+        if(!rows.length){ tbody.innerHTML = '<tr><td colspan="4" class="hint">暂无数据</td></tr>'; return; }
+        tbody.innerHTML = rows.map(r=>`
+          <tr>
+            <td>${esc(r.member_id||'')}</td>
+            <td>${esc(r.name||'')}</td>
+            <td>${esc(r.phone||'')}</td>
+            <td>${r.points??0}</td>
+          </tr>
+        `).join('');
+      }catch(e){
+        document.getElementById('tbody').innerHTML = '<tr><td colspan="4" class="err">网络错误：'+esc(e.message)+'</td></tr>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadList);
+  </script>
+</body>
+</html>
