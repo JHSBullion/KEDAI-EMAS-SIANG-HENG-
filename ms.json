@@ -1,0 +1,23 @@
+{
+  "system_title": "Sistem Keahlian",
+  "login": "Log Masuk",
+  "email": "E-mel",
+  "password": "Kata Laluan",
+  "btn_login": "Masuk",
+  "btn_logout": "Log Keluar",
+  "members": "Ahli",
+  "add_member": "Tambah Ahli",
+  "btn_add": "Tambah",
+  "name": "Nama",
+  "phone": "Telefon",
+  "members_list": "Senarai Ahli",
+  "created_at": "Dicipta Pada",
+  "points": "Mata",
+  "adjust_points": "Ubah Mata",
+  "note": "Nota",
+  "btn_submit": "Hantar",
+  "recent_points": "Rekod Mata Terkini",
+  "qr": "Kod QR",
+  "btn_generate": "Jana",
+  "scan": "Imbas"
+}

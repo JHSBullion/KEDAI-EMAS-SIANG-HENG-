@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title data-i18n="qr">二维码</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="libs/qrcode.min.js"></script>
+  <script src="lang.js"></script>
+</head>
+<body>
+  <div class="card">
+    <h2 data-i18n="qr">生成二维码</h2>
+    <input id="content" placeholder="输入会员ID或电话">
+    <button onclick="makeQR()" data-i18n="btn_generate">生成</button>
+    <div id="qrcode"></div>
+  </div>
+  <script>
+    function makeQR(){
+      const text = document.getElementById('content').value
+      document.getElementById('qrcode').innerHTML = ''
+      new QRCode(document.getElementById('qrcode'), text)
+    }
+  </script>
+</body>
+</html>
