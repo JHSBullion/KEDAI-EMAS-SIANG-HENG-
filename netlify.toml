@@ -1,8 +1,0 @@
-# netlify.toml
-[build]
-  publish = "."
-  functions = "netlify/functions"
-  node_version = "20"
-
-[functions]
-  node_bundler = "esbuild"
