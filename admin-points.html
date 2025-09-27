@@ -76,10 +76,10 @@
 
     $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
 
-    // ============== 新：封装插入函数，确保传入 amount = 0（防止 NOT NULL 错误） ==============
+    // ============== 修正：封装插入函数（保留 UUID 字符串，不再 parseInt memberId） ==============
     /**
      * addPointTransaction - 插入一笔积分记录到 point_transactions
-     * @param {number|string} memberId
+     * @param {string|number} memberId - 会员 ID（UUID 字符串或数字 id）
      * @param {number|string} points
      * @param {number|string} amount - 确保传入（默认 0）
      * @param {string} note
@@ -87,38 +87,43 @@
      */
     async function addPointTransaction(memberId, points, amount = 0, note = '') {
       try {
-        const member_id = parseInt(memberId, 10)
-        const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10)
-        const amt = Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10)
+        // 保留原始 memberId（不要 parseInt），确保如果是 UUID 字符串不会被破坏
+        let member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim();
 
-        if (!member_id) {
-          const err = { message: 'invalid member id' }
-          console.error('addPointTransaction invalid member id', { memberId, points, amount, note })
-          return { data: null, error: err }
+        // points 和 amount 做整数化/容错
+        const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10);
+        const amt = Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10);
+
+        // 基础校验：允许 UUID 或纯数字 id
+        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+        const digitsRegex = /^\d+$/;
+        if (!member_id || !(uuidRegex.test(member_id) || digitsRegex.test(member_id))) {
+          const err = { message: 'invalid member id (expect uuid string or numeric id)' };
+          console.error('addPointTransaction invalid member id', { memberId, points, amount, note });
+          return { data: null, error: err };
         }
 
         const payload = {
           member_id,
           points: pts,
-          amount: amt,   // <-- 明确传 amount 字段，避免 NOT NULL 约束错误
+          amount: amt,   // 确保传 amount（防止 NOT NULL 报错）
           note: note || null
-        }
+        };
 
         const { data, error } = await supabase
           .from('point_transactions')
-          .insert([payload])
+          .insert([payload]);
 
         if (error) {
-          // 打印完整错误对象到 Console（便于你把完整报错贴过来）
-          console.error('Supabase insert error:', error, 'payload:', payload)
-          return { data: null, error }
+          console.error('Supabase insert error:', error, 'payload:', payload);
+          return { data: null, error };
         }
 
-        console.log('inserted point_transaction:', data)
-        return { data, error: null }
+        console.log('inserted point_transaction:', data);
+        return { data, error: null };
       } catch (e) {
-        console.error('unexpected error in addPointTransaction:', e)
-        return { data: null, error: e }
+        console.error('unexpected error in addPointTransaction:', e);
+        return { data: null, error: e };
       }
     }
 
@@ -131,10 +136,11 @@
       if(!ph || !Number.isFinite(d)){
         setMsg('请输入有效的手机号与积分变动', false); return
       }
+      // 取得会员（members.id 很可能是 UUID 字符串）
       const { data: m, error: e1 } = await supabase.from('members').select('id,name,phone').eq('phone', ph).maybeSingle()
       if(e1 || !m){ setMsg(e1?.message || '未找到该会员', false); return }
 
-      // 用 addPointTransaction 替代直接 insert，确保 amount 一定被传入（此处默认 0）
+      // 用 addPointTransaction，确保 member_id 格式正确，且 amount 明确传入（此处默认 0）
       const { data: insData, error: e2 } = await addPointTransaction(m.id, d, 0, nt)
       if(e2){ setMsg(e2.message || JSON.stringify(e2), false); return }
 
