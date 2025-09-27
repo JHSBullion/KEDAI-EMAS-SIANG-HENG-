@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title data-i18n="qr_page_title">QR · 会员入口</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- 轻量 QRCode 库（CDN） -->
+  <link rel="stylesheet" href="style.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -38,26 +38,20 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <script src="lang.js"></script>
   <script>
-    const el = s=>document.querySelector(s)
-    function defaultLink(){
-      // 默认到主页 index.html
-      return `${location.origin}/index.html`
-    }
+    function defaultLink(){ return `${location.origin}/index.html`; }
     function render(){
-      const url = el('#link').value.trim() || defaultLink()
-      const box = el('#qr')
-      box.innerHTML = ''
-      // 生成二维码
-      new QRCode(box, { text: url, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H })
+      const url = document.getElementById('link').value.trim() || defaultLink();
+      const box = document.getElementById('qr'); box.innerHTML = '';
+      if(window.QRCode){ new QRCode(box,{text:url,width:300,height:300,correctLevel:QRCode.CorrectLevel.H}); }
     }
     document.addEventListener('DOMContentLoaded', ()=>{
-      el('#link').value = defaultLink()
-      render()
-      el('#regen').addEventListener('click', render)
-      el('#print').addEventListener('click', ()=>window.print())
-    })
+      document.getElementById('link').value = defaultLink();
+      document.getElementById('regen').onclick = render;
+      document.getElementById('print').onclick = ()=>window.print();
+      render();
+    });
   </script>
+  <script src="lang.js?v=6"></script>
 </body>
 </html>
