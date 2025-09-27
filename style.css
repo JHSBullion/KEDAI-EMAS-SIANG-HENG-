@@ -1,250 +1,205 @@
-/* ===== 全局 ===== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ============ White • Gold • Luxe ============ */
+:root{
+  --bg: #f9f7f2;
+  --bg-soft: #fbfaf6;
+  --text: #1a1a1a;
+  --subtext: #757575;
+
+  --gold: #e9c46a;            /* 主金色 */
+  --gold-strong: #d4a90f;     /* 深一点的金色 */
+  --gold-soft: #fff4cf;       /* 淡金色，用于高光 */
+
+  --card: #ffffff;
+  --card-border: rgba(0,0,0,.06);
+  --ring: rgba(233,196,106,.55);
+  --shadow: 0 10px 30px rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.04);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+
+  --container: 1200px;
 }
 
-html, body {
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  background: #fafafa;
-  color: #222;
-  line-height: 1.6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* 背景：微金色辐射光，低调 */
+html,body{
+  height:100%;
+}
+body{
+  margin:0;
+  color:var(--text);
+  font: 15px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC",
+        "Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  background:
+    radial-gradient(1200px 600px at 80% 10%, rgba(233,196,106,0.08), transparent 60%),
+    radial-gradient(1000px 500px at 10% 90%, rgba(233,196,106,0.06), transparent 60%),
+    var(--bg);
 }
 
-.container {
-  width: 100%;
-  max-width: 1100px;
+/* 容器 */
+.container{
+  width: min(100%, var(--container));
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 18px;
 }
 
-h1, h2, h3 {
-  font-weight: 700;
-  color: #111;
+/* ============ 顶栏 ============ */
+.navbar{
+  position: sticky; top:0; z-index: 20;
+  background: rgba(255,255,255,.78);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--card-border);
+}
+.navbar .navbar-inner,
+.navbar > .container{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; height:64px;
+}
+.brand{ display:flex; align-items:center; gap:10px; font-weight:800; }
+.crest{
+  width:18px; height:18px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #fff4cf 40%, #e9c46a 70%, #d4a90f 100%);
+  box-shadow: 0 0 0 3px rgba(233,196,106,.2);
+}
+.nav-right, .actions{ display:flex; gap:10px; align-items:center; }
+
+/* ============ 卡片 / 表单 ============ */
+.card{
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+h1,h2,h3{ margin:0 0 10px; font-weight: 800; letter-spacing:.2px; }
+.sub{ color:var(--subtext); font-size: 13px; }
+
+/* 表单行（让标签与输入同一行） */
+.form-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.form-row label{ width:92px; font-weight:600; color:var(--text); }
+.form-row .input{ flex:1; }
+
+/* 单列表单（也很好用） */
+label{ display:block; margin:8px 0 6px; font-weight:600; }
+.input{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  outline:none;
+  transition: box-shadow .15s border-color .15s;
+}
+.input:focus{
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px var(--ring);
 }
 
-.sub {
-  font-size: 0.95rem;
-  color: #666;
+/* ============ 按钮 ============ */
+.btn{
+  --btn-bg: #fff;
+  --btn-bd: var(--card-border);
+  --btn-fg: var(--text);
+  display:inline-flex; align-items:center; justify-content:center;
+  height:36px; padding: 0 14px;
+  border-radius: 999px;
+  border:1px solid var(--btn-bd);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  cursor:pointer;
+  text-decoration:none;
+  font-weight:600;
+  transition: transform .05s ease, box-shadow .2s ease, background .2s ease;
+  box-shadow: 0 2px 0 rgba(0,0,0,.02);
 }
+.btn:hover{ transform: translateY(-1px); }
+.btn:active{ transform: translateY(0); }
 
-.footer {
-  text-align: center;
-  font-size: 0.85rem;
-  color: #888;
-  padding: 20px;
-  margin-top: auto;
-  border-top: 1px solid #eee;
+.btn-gold{
+  --btn-bg: linear-gradient(180deg, #ffe89b, #e9c46a);
+  --btn-bd: rgba(212,169,15,.5);
+  --btn-fg: #3b2b00;
+  box-shadow: 0 6px 16px rgba(233,196,106,.35), inset 0 1px 0 rgba(255,255,255,.6);
+}
+.btn-ghost{
+  --btn-bg: #fff; --btn-bd: var(--card-border); --btn-fg:#333;
   background: #fff;
 }
 
-/* ===== 顶栏 ===== */
-.navbar {
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+/* 语言选择 pill（可用于 a/按钮） */
+.lang-pill select,
+.navbar select{
+  height:36px; border-radius:999px; padding:0 10px;
+  border:1px solid var(--card-border); background:#fff;
 }
 
-.navbar-inner {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ============ 表格 ============ */
+.table{
+  width:100%; border-collapse: collapse; font-size:14px; background:#fff;
+  border:1px solid var(--card-border); border-radius: var(--radius);
+  overflow:hidden;
+}
+.table thead th{
+  text-align:left; background: #faf9f5; border-bottom: 1px solid var(--card-border);
+  padding:12px; font-weight:700; color:#333;
+}
+.table tbody td{
+  padding:12px; border-bottom: 1px solid var(--card-border);
+}
+.table tbody tr:last-child td{ border-bottom:none; }
+
+/* ============ 布局 ============ */
+.grid-2{
+  display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start;
+}
+@media (max-width: 1024px){
+  .grid-2{ grid-template-columns: 1fr; }
 }
 
-.brand {
-  font-weight: 700;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* ============ 页脚 ============ */
+.footer{
+  text-align:center; color:var(--subtext);
+  padding: 28px 12px; font-size:13px;
 }
 
-.crest {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fffbc1, #f7c948, #f1b400);
-  box-shadow: 0 0 4px rgba(0,0,0,.2);
+/* ============ 卡片标题下的徽标（可选） ============ */
+.badge-gold{
+  display:inline-block; padding:4px 10px; font-size:12px; font-weight:700;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  border: 1px solid rgba(212,169,15,.35);
+  color: #6a5200;
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+/* ============ 链接 ============ */
+a{ color:#59359a; text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+/* ============ 小提示条（成功/错误）=========== */
+.alert{
+  border-radius: var(--radius-sm);
+  padding:10px 12px; margin-top:8px; font-size:14px;
+  border:1px solid var(--card-border); background:#fff;
+}
+.alert-success{ border-color: rgba(20,150,60,.2); background:#f0fff5; color:#136b35; }
+.alert-error{ border-color: rgba(200,40,40,.2); background:#fff0f0; color:#8b1a1a; }
+
+/* ============ QR 画布容器（qr.html）=========== */
+.qr-box{
+  width:320px; height:320px; margin:16px auto;
+  background:#fff; border:1px solid var(--card-border);
+  border-radius: var(--radius);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: var(--shadow);
 }
 
-/* ===== 按钮 ===== */
-.btn {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none !important; /* 去掉下划线 */
-  font-weight: 600;
-  transition: 0.2s;
-  background: #fff;
-  color: #222 !important;
-  border: 1px solid #ddd;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
+/* ============ 边距辅助 ============ */
+.mt-0{ margin-top:0 } .mt-6{ margin-top:6px } .mt-10{ margin-top:10px }
+.mb-0{ margin-bottom:0 } .mb-6{ margin-bottom:6px } .mb-10{ margin-bottom:10px }
 
-.btn:hover {
-  background: #f5f5f5;
-}
-
-/* 金色按钮 */
-.btn-gold {
-  background: linear-gradient(135deg, #f7d77e, #f5c843);
-  border: none;
-  color: #000 !important;
-}
-
-.btn-gold:hover {
-  background: linear-gradient(135deg, #f9e394, #f8d34d);
-}
-
-/* ===== 语言选择 pill ===== */
-.lang-pill select {
-  border: 1px solid #ddd;
-  padding: 6px 10px;
-  border-radius: 20px;
-  background: #fff;
-  font-size: 0.85rem;
-}
-
-/* ===== Hero 区块 ===== */
-.hero {
-  padding: 60px 20px;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.wrap {
-  text-align: center;
-}
-
-.h1 {
-  font-size: 2.2rem;
-  margin: 12px 0;
-}
-
-.badge {
-  background: #fff3c4;
-  color: #b58900;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-/* ===== 卡片 ===== */
-.card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  text-align: left;
-}
-
-.kpi {
-  text-align: center;
-}
-
-.kpi .value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #000;
-}
-
-.kpi .hint {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-/* ===== 表格 ===== */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-}
-
-.table th, .table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  font-size: 0.9rem;
-}
-
-.table th {
-  background: #fafafa;
-  font-weight: 600;
-}
-
-/* ===== 输入框 ===== */
-.input {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 1rem;
-  outline: none;
-}
-
-.input:focus {
-  border-color: #f5c843;
-  box-shadow: 0 0 0 2px rgba(245,200,67,0.25);
-}
-
-/* ===== 辅助类 ===== */
-.mt-28 { margin-top: 28px; }
-.sr-only { position:absolute;left:-9999px }
-/* === 强制把链接当按钮渲染（解决紫色 + 下划线） === */
-a { text-decoration: none; }
-
-/* 覆盖所有状态：link / visited / hover / active */
-.btn,
-.btn:link,
-.btn:visited,
-.btn:hover,
-.btn:active,
-.actions a,
-.actions a:link,
-.actions a:visited,
-.actions a:hover,
-.actions a:active {
-  text-decoration: none !important;
-  color: #222 !important;          /* 统一按钮文字颜色 */
-}
-
-/* 按钮外观再强化一次，确保不被别的样式抢走 */
-.actions a.btn, .btn {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid #ddd;
-  font-weight: 600;
-  transition: .2s;
-}
-
-.actions a.btn:hover, .btn:hover {
-  background: #f5f5f5;
-}
-
-/* 金色按钮仍保持金色 */
-.btn-gold,
-.btn-gold:link,
-.btn-gold:visited,
-.btn-gold:hover,
-.btn-gold:active {
-  background: linear-gradient(135deg, #f7d77e, #f5c843);
-  border: none;
-  color: #000 !important;
+/* ============ 打印优化（用于 QR 打印）=========== */
+@media print{
+  .navbar, .footer { display:none !important; }
+  body{ background:#fff; }
+  .card{ box-shadow:none; border-color:#ddd; }
 }
