@@ -1,19 +1,19 @@
 <!doctype html>
-<html>
+<html lang="zh">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KEDAI EMAS SIANG HENG · 会员系统</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="lang.js" defer></script>
 </head>
 <body>
-  <!-- 顶部导航：品牌 + 语言 -->
+  <!-- 顶部：左品牌 / 右语言胶囊 -->
   <div class="navbar">
     <div class="navbar-inner container">
       <div class="brand">
         <span class="crest"></span>
-        <span>KEDAI EMAS SIANG HENG 会员系统</span>
+        <span>KEDAI EMAS SIANG HENG</span>
       </div>
       <div class="lang-pill">
         <select class="lang">
@@ -25,43 +25,96 @@
     </div>
   </div>
 
-  <!-- 单列英雄区：直接输入手机号 -->
-  <section class="hero">
-    <div class="container">
-      <div class="wrap onecol">
-        <div>
-          <span class="badge">White • Gold • Luxe</span>
-          <h1 class="h1">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h1>
-          <p class="sub">输入手机号后将跳转到结果页</p>
-
-          <form id="f" class="mt-28" style="max-width:420px">
-            <label for="phone">手机号</label>
-            <input id="phone" type="text" placeholder="请输入手机号" class="input" required>
-            <button class="btn btn-gold mt-20" type="submit">查询积分</button>
-          </form>
-
-          <p class="sub" style="opacity:.7;margin-top:10px">
-            也支持带参数访问：<code>member-portal.html?phone=0123456789</code>
-          </p>
-        </div>
+  <!-- 居中卡片 -->
+  <main class="page-center">
+    <section class="card luxe-card">
+      <div class="card-head">
+        <div class="mini-badge">White • Gold</div>
+        <h1 class="title">会员积分查询</h1>
+        <p class="sub">输入手机号码查询当前积分</p>
       </div>
-    </div>
-  </section>
 
-  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+      <form id="f" class="stack">
+        <input id="phone" class="input xl" inputmode="numeric" placeholder="请输入手机号" />
+        <button class="btn btn-gold big" type="submit">查询积分</button>
+      </form>
 
-  <script>
-    // 提交后携带 ?phone= 跳到结果页
-    document.getElementById('f').addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const phone = document.getElementById('phone').value.trim();
-      if(!phone) return;
-      location.href = 'member-portal.html?phone=' + encodeURIComponent(phone);
-    });
+      <!-- 结果区 -->
+      <div id="panel" class="result" style="display:none">
+        <div class="kpi">
+          <div class="value" id="points">0</div>
+          <div class="hint">总积分</div>
+        </div>
+        <div class="bio" id="bio"></div>
+        <details class="history">
+          <summary>积分明细</summary>
+          <table class="table">
+            <thead><tr><th>积分</th><th>备注</th><th>时间</th></tr></thead>
+            <tbody id="tb"></tbody>
+          </table>
+        </details>
+      </div>
+    </section>
+  </main>
 
-    // 如果从扫码带了 phone 参数到首页，也直接跳转
-    const p = new URLSearchParams(location.search).get('phone');
-    if(p){ location.replace('member-portal.html?phone='+encodeURIComponent(p)); }
+  <footer class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</footer>
+
+  <!-- 跳到结果页的逻辑取消，直接本页查并展示 -->
+  <script type="module">
+    import { supabase } from './supabase.js'
+
+    const f = document.getElementById('f')
+    const phone = document.getElementById('phone')
+    const panel = document.getElementById('panel')
+    const bio = document.getElementById('bio')
+    const pointsEl = document.getElementById('points')
+    const tb = document.getElementById('tb')
+
+    // 支持从 ?phone= 带参打开
+    const p = new URLSearchParams(location.search).get('phone')
+    if (p) { phone.value = p; query(p) }
+
+    f.addEventListener('submit', (e)=>{
+      e.preventDefault()
+      const ph = phone.value.trim()
+      if(!ph) return
+      query(ph)
+    })
+
+    async function query(ph){
+      panel.style.display = 'none'
+      // 1) 总积分+姓名
+      const { data: mp, error: e1 } = await supabase
+        .from('member_points')
+        .select('name,phone,total_points')
+        .eq('phone', ph)
+        .maybeSingle()
+      if (e1 || !mp) { showError('未找到该会员'); return }
+
+      // 2) 最近明细
+      const { data: rows, error: e2 } = await supabase
+        .from('point_transactions')
+        .select('points,note,created_at,members!inner(phone)')
+        .eq('members.phone', ph)
+        .order('created_at',{ascending:false})
+        .limit(20)
+      if (e2) { showError('查询失败，请稍后重试'); return }
+
+      bio.textContent = `姓名：${mp.name}（${mp.phone}）`
+      pointsEl.textContent = mp.total_points
+      tb.innerHTML = (rows||[]).map(r =>
+        `<tr><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`
+      ).join('') || `<tr><td colspan="3">暂无记录</td></tr>`
+
+      panel.style.display = 'block'
+    }
+
+    function showError(msg){
+      bio.textContent = msg
+      pointsEl.textContent = '—'
+      tb.innerHTML = `<tr><td colspan="3">-</td></tr>`
+      panel.style.display = 'block'
+    }
   </script>
 </body>
 </html>
