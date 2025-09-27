@@ -54,9 +54,7 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 语言脚本 -->
   <script src="lang.js"></script>
-
   <script type="module">
     import { supabase } from './supabase.js'
 
@@ -64,29 +62,30 @@
     const tp = document.getElementById('tp')
     const tb = document.getElementById('tb')
 
-    const langGet = k => {
-      const L = (window.I18N && I18N[localStorage.getItem('lang')||'zh']) || {}
-      return L[k] || ''
-    }
+    const L = ()=> (window.I18N && window.I18N[localStorage.getItem('lang')||'zh']) || {}
 
     const phone = new URLSearchParams(location.search).get('phone')
-    if(!phone){ bio.textContent = langGet('not_found') || '未找到该会员'; fillTable([]); throw new Error('no phone') }
+    if(!phone){
+      bio.textContent = L().not_found || '未找到该会员'
+      fillTable([]); throw new Error('no phone')
+    }
 
-    // 1) 姓名/电话/总分
+    // 1) 基本信息 + 总分
     const { data: mp, error: e1 } = await supabase
       .from('member_points')
       .select('name,phone,total_points')
       .eq('phone', phone)
       .maybeSingle()
+
     if(e1 || !mp){
-      bio.textContent = langGet('not_found') || '未找到该会员'
+      bio.textContent = L().not_found || '未找到该会员'
       tp.textContent = '—'
-    }else{
+    } else {
       bio.textContent = `姓名：${mp.name}（${mp.phone}）`
       tp.textContent = mp.total_points
     }
 
-    // 2) 历史记录（最近 30）
+    // 2) 历史记录
     const { data: rows, error: e2 } = await supabase
       .from('point_transactions')
       .select('points,note,created_at,members!inner(phone)')
@@ -94,11 +93,11 @@
       .order('created_at',{ascending:false})
       .limit(30)
 
-    if(e2){ fillTable([], e2.message) } else { fillTable(rows||[]) }
+    if(e2){ fillTable([], true) } else { fillTable(rows||[]) }
 
-    function fillTable(rows, err){
-      if(err){ tb.innerHTML = `<tr><td colspan="3" style="color:#c00">${langGet('fetch_fail')||'查询失败，请稍后重试'}</td></tr>`; return }
-      if(!rows.length){ tb.innerHTML = `<tr><td colspan="3">${langGet('no_rows')||'暂无记录'}</td></tr>`; return }
+    function fillTable(rows, failed){
+      if(failed){ tb.innerHTML = `<tr><td colspan="3" style="color:#c00">${L().fetch_fail||'查询失败，请稍后重试'}</td></tr>`; return }
+      if(!rows.length){ tb.innerHTML = `<tr><td colspan="3">${L().no_rows||'暂无记录'}</td></tr>`; return }
       tb.innerHTML = rows.map(r =>
         `<tr><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`
       ).join('')
