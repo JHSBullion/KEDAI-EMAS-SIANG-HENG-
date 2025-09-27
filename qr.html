@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>会员入口二维码</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
   <div class="navbar">
     <div class="navbar-inner container">
       <div class="brand"><span class="crest"></span><span>QR · 会员入口</span></div>
       <div class="actions">
-        <a class="btn" href="index.html">返回首页</a>
+        <a class="btn" href="index.html" data-i18n="back_home">返回首页</a>
         <div class="lang-pill">
           <select class="lang">
             <option value="zh">中</option><option value="en">EN</option><option value="ms">BM</option>
@@ -27,7 +26,7 @@
       <h2 style="margin:0 0 8px">打印用二维码</h2>
       <p class="sub">默认生成本站 <code>index.html</code>（顾客扫码后输入手机号查询）</p>
 
-      <canvas id="qr" style="width:320px;height:320px;margin:16px auto;display:block"></canvas>
+      <canvas id="qr" style="width:320px;height:320px;margin:16px auto;display:block;border:1px solid rgba(0,0,0,.06);border-radius:12px"></canvas>
 
       <label>链接（可改，例如：member-portal.html?phone=0123456789）</label>
       <input id="url" class="input">
@@ -38,19 +37,31 @@
     </div>
   </div>
 
+  <!-- 顺序很重要：先 i18n，再 QR 库，再初始化 -->
   <script src="lang.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script>
-    const def = location.origin + location.pathname.replace(/\/[^/]*$/,'/') + 'index.html'
-    const urlInput = document.getElementById('url')
-    const canvas = document.getElementById('qr')
-    urlInput.value = def
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const def = location.origin + location.pathname.replace(/\/[^/]*$/,'/') + 'index.html';
+      const urlInput = document.getElementById('url');
+      const canvas = document.getElementById('qr');
+      urlInput.value = def;
 
-    function draw(){
-      const text = urlInput.value.trim() || def
-      QRCode.toCanvas(canvas, text, { width: 640, margin: 2 }, (err)=>{ if(err) console.error(err) })
-    }
-    draw()
-    document.getElementById('regen').onclick = draw
+      function draw(){
+        const text = (urlInput.value || def).trim();
+        // 清空旧画面
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        // 生成二维码（确保库已加载）
+        if (window.QRCode && QRCode.toCanvas) {
+          QRCode.toCanvas(canvas, text, { width: 640, margin: 2 }, (err)=>{ if(err) console.error(err) });
+        } else {
+          console.error('QRCode library not loaded');
+        }
+      }
+      draw();
+      document.getElementById('regen').addEventListener('click', draw);
+    });
   </script>
 </body>
 </html>
