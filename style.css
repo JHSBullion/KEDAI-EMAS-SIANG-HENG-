@@ -1,7 +1,0 @@
-body{font-family:sans-serif;margin:0;background:#fff;color:#111}
-header{padding:10px;background:#D4AF37;color:#fff;display:flex;justify-content:space-between;align-items:center}
-.card{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);padding:16px;margin:20px}
-button{background:#D4AF37;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer}
-button:hover{background:#C9A227}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #eee;padding:8px;text-align:left}
