@@ -1,4 +1,4 @@
-/* ===== White · Gold · Luxury ===== */
+/* ===== White · Gold · Luxury Theme ===== */
 :root{
   --gold:#D4AF37;
   --gold-700:#B38C2C;
@@ -47,6 +47,8 @@ body{
 .hero .wrap{
   position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center
 }
+.hero .wrap.onecol { grid-template-columns: 1fr !important; }
+
 .badge{
   display:inline-block; padding:8px 12px;border-radius:999px;
   border:1px solid rgba(212,175,55,.45);
@@ -59,7 +61,7 @@ body{
 }
 .sub{color:var(--muted); font-size:15px}
 
-/* 玻璃卡片（语言 & KPI） */
+/* 玻璃卡片 */
 .card{
   background:var(--glass); border:1px solid var(--border);
   border-radius:var(--radius); padding:24px; backdrop-filter: blur(10px) saturate(140%);
@@ -86,7 +88,7 @@ body{
 }
 .btn-gold:hover::before{ transform:skewX(-20deg) translateX(130%) }
 
-/* 表单、表格（后台/会员页公用） */
+/* 输入框 */
 label{display:block;margin:10px 0 6px;color:var(--muted)}
 .input, input, select{
   width:100%;padding:12px 14px;border:1px solid rgba(0,0,0,.08);
@@ -94,11 +96,13 @@ label{display:block;margin:10px 0 6px;color:var(--muted)}
 }
 input:focus, select:focus{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-glow) }
 
+/* 表格 */
 .table{width:100%;border-collapse:collapse;border-radius:14px;overflow:hidden}
 .table th,.table td{padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.06);text-align:left; background:#fff}
 .table th{background:#FAF7ED;color:#5d4b1b;font-weight:800}
 .table tr:hover td{background:#FFFCF3}
 
+/* 底部 */
 .footer{padding:26px;color:#8b8b8b;text-align:center}
 
 /* 小屏 */
@@ -107,7 +111,5 @@ input:focus, select:focus{ border-color:var(--gold); box-shadow:0 0 0 3px var(--
   .h1{font-size:40px}
 }
 
-/* 页面内可复用的工具类 */
-.mt-20{margin-top:20px}
-.mt-28{margin-top:28px}
+/* 查询提示 */
 #msg{margin-top:14px;font-weight:600;color:#444}
