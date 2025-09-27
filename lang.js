@@ -18,7 +18,15 @@ window.I18N = {
     th_time: "时间",
     no_rows: "暂无记录",
     not_found: "未找到该会员",
-    fetch_fail: "查询失败，请稍后重试"
+    fetch_fail: "查询失败，请稍后重试",
+
+    // QR 页面
+    qr_nav_title: "QR · 会员入口",
+    qr_title: "打印用二维码",
+    qr_desc: "默认生成本站 index.html（顾客扫码后输入手机号查询）",
+    qr_link_label: "链接（可改，例如：member-portal.html?phone=0123456789）",
+    qr_regen: "重新生成",
+    qr_print: "打印"
   },
   en: {
     brand_title: "KEDAI EMAS SIANG HENG · Members",
@@ -38,7 +46,15 @@ window.I18N = {
     th_time: "Time",
     no_rows: "No records",
     not_found: "Member not found",
-    fetch_fail: "Failed to fetch, please retry"
+    fetch_fail: "Failed to fetch, please retry",
+
+    // QR page
+    qr_nav_title: "QR · Member Entry",
+    qr_title: "Printable QR Code",
+    qr_desc: "By default it generates this site's index.html (customer scans then enters phone).",
+    qr_link_label: "Link (editable, e.g. member-portal.html?phone=0123456789)",
+    qr_regen: "Regenerate",
+    qr_print: "Print"
   },
   ms: {
     brand_title: "KEDAI EMAS SIANG HENG · Ahli",
@@ -58,7 +74,15 @@ window.I18N = {
     th_time: "Masa",
     no_rows: "Tiada rekod",
     not_found: "Ahli tidak dijumpai",
-    fetch_fail: "Gagal mengambil data"
+    fetch_fail: "Gagal mengambil data",
+
+    // QR page
+    qr_nav_title: "QR · Pintu Masuk Ahli",
+    qr_title: "Kod QR Untuk Cetak",
+    qr_desc: "Lalai menjana pautan index.html (pelanggan imbas dan masukkan telefon).",
+    qr_link_label: "Pautan (boleh ubah, cth: member-portal.html?phone=0123456789)",
+    qr_regen: "Jana Semula",
+    qr_print: "Cetak"
   }
 };
 
@@ -80,9 +104,7 @@ function initLang(){
   const saved = localStorage.getItem("lang") || "zh";
   applyLang(saved);
   document.addEventListener("change", (e)=>{
-    if (e.target.matches("select.lang")) {
-      applyLang(e.target.value);
-    }
+    if (e.target.matches("select.lang")) applyLang(e.target.value);
   });
 }
 
