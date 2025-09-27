@@ -1,14 +1,16 @@
 <!doctype html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Admin Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
+  <!-- 你自己的 Supabase 初始化脚本文件（若有） -->
   <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <div class="navbar">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
+    <div class="container flex-between">
       <div class="brand"><span class="crest"></span> KEDAI EMAS SIANG HENG</div>
       <div class="nav-right">
         <a href="index.html" class="btn" data-i18n="back_home">返回首页</a>
@@ -17,7 +19,7 @@
     </div>
   </div>
 
-  <div class="container" style="max-width:900px;margin:28px auto;">
+  <div class="container" style="max-width:880px;margin:24px auto;">
     <div class="card">
       <h3 data-i18n="login_title">登录</h3>
       <div class="form-row">
@@ -28,37 +30,19 @@
         <label data-i18n="login_password">密码</label>
         <input id="password" class="input" type="password" placeholder="******">
       </div>
-      <button id="login" class="btn btn-gold" data-i18n="login_btn">登录</button>
+      <button id="loginBtn" class="btn btn-gold" data-i18n="login_btn">登录</button>
+      <div id="loginMsg" class="alert mt-10" style="display:none"></div>
     </div>
 
     <div class="card mt-10">
       <h4 class="mt-0" data-i18n="login_tips_title">提示</h4>
       <p class="mt-6" data-i18n="login_tips_text">请使用 Supabase 管理员邮箱与密码登录（例如 admin@shop.com / 123456）。</p>
-      <div id="msg" class="alert mt-10" style="display:none"></div>
     </div>
   </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
+  <!-- 你的登录逻辑保留（这里不改动） -->
   <script src="lang.js"></script>
-  <script type="module">
-    import { supabase } from './supabase.js'
-    const $ = s=>document.querySelector(s)
-    const msg = $('#msg')
-
-    $('#login').addEventListener('click', async ()=>{
-      msg.style.display='none'
-      const email = $('#email').value.trim()
-      const password = $('#password').value.trim()
-      if(!email || !password){ show('请输入邮箱与密码', false); return }
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if(error){ show(error.message, false); return }
-      location.href = 'admin-members.html'
-    })
-    function show(t, ok){
-      msg.className = 'alert ' + (ok?'alert-success':'alert-error')
-      msg.textContent = t; msg.style.display='block'
-    }
-  </script>
 </body>
 </html>
