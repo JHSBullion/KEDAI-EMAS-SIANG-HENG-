@@ -76,7 +76,53 @@
 
     $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
 
-    // 提交积分
+    // ============== 新：封装插入函数，确保传入 amount = 0（防止 NOT NULL 错误） ==============
+    /**
+     * addPointTransaction - 插入一笔积分记录到 point_transactions
+     * @param {number|string} memberId
+     * @param {number|string} points
+     * @param {number|string} amount - 确保传入（默认 0）
+     * @param {string} note
+     * @returns {object} { data, error }
+     */
+    async function addPointTransaction(memberId, points, amount = 0, note = '') {
+      try {
+        const member_id = parseInt(memberId, 10)
+        const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10)
+        const amt = Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10)
+
+        if (!member_id) {
+          const err = { message: 'invalid member id' }
+          console.error('addPointTransaction invalid member id', { memberId, points, amount, note })
+          return { data: null, error: err }
+        }
+
+        const payload = {
+          member_id,
+          points: pts,
+          amount: amt,   // <-- 明确传 amount 字段，避免 NOT NULL 约束错误
+          note: note || null
+        }
+
+        const { data, error } = await supabase
+          .from('point_transactions')
+          .insert([payload])
+
+        if (error) {
+          // 打印完整错误对象到 Console（便于你把完整报错贴过来）
+          console.error('Supabase insert error:', error, 'payload:', payload)
+          return { data: null, error }
+        }
+
+        console.log('inserted point_transaction:', data)
+        return { data, error: null }
+      } catch (e) {
+        console.error('unexpected error in addPointTransaction:', e)
+        return { data: null, error: e }
+      }
+    }
+
+    // ============== 绑定提交按钮，使用上面的函数 ==============
     $('#btnSubmit').addEventListener('click', async ()=>{
       msg.style.display='none'
       const ph = $('#phone').value.trim()
@@ -88,8 +134,9 @@
       const { data: m, error: e1 } = await supabase.from('members').select('id,name,phone').eq('phone', ph).maybeSingle()
       if(e1 || !m){ setMsg(e1?.message || '未找到该会员', false); return }
 
-      const { error: e2 } = await supabase.from('point_transactions').insert({ member_id: m.id, points: d, note: nt })
-      if(e2){ setMsg(e2.message, false); return }
+      // 用 addPointTransaction 替代直接 insert，确保 amount 一定被传入（此处默认 0）
+      const { data: insData, error: e2 } = await addPointTransaction(m.id, d, 0, nt)
+      if(e2){ setMsg(e2.message || JSON.stringify(e2), false); return }
 
       setMsg('已提交', true)
       $('#delta').value=''; $('#note').value=''
@@ -111,15 +158,16 @@
       if(ph) req = req.eq('members.phone', ph)
       const { data, error } = await req
       const tb = $('#tbody')
-      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; return }
+      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; console.error(error); return }
       if(!data || !data.length){ tb.innerHTML = `<tr><td colspan="5" class="sub">${I18N[localStorage.getItem('lang')||'zh'].no_rows}</td></tr>`; return }
       tb.innerHTML = data.map(r=>{
-        const sign = r.points>0? '+' : ''
-        const t = new Date(r.created_at).toLocaleString()
+        const pts = Number.isFinite(Number(r.points)) ? Number(r.points) : 0
+        const sign = pts>0? '+' : ''
+        const t = r.created_at ? new Date(r.created_at).toLocaleString() : ''
         return `<tr>
           <td>${esc(r.members?.name)}</td>
           <td>${esc(r.members?.phone)}</td>
-          <td>${sign}${esc(r.points)}</td>
+          <td>${sign}${esc(pts)}</td>
           <td>${esc(r.note)}</td>
           <td>${t}</td>
         </tr>`
