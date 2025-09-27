@@ -1,112 +1,80 @@
-/* ===== White · Gold · Luxury ===== */
-:root{
-  --gold:#D4AF37;
-  --gold-700:#B38C2C;
-  --gold-glow:rgba(212,175,55,.45);
-  --ink:#0A0A0A;
-  --muted:#6B6B6B;
-  --border:rgba(255,255,255,.28);
-  --glass:rgba(255,255,255,.6);
-  --radius:20px;
-  --shadow-deep:0 20px 60px rgba(0,0,0,.12);
-  --shadow-soft:0 8px 28px rgba(0,0,0,.08);
-}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KEDAI EMAS SIANG HENG · 会员系统</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lang.js" defer></script>
+  <script src="supabase.js" defer></script>
+  <script>
+    async function checkPoints(){
+      const phone = document.getElementById("phone").value.trim()
+      const msg = document.getElementById("msg")
+      msg.textContent = "查询中..."
+      if(!phone){ msg.textContent="请输入手机号"; return }
 
-/* 全局 */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;color:var(--ink);
-  font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei";
-  background:
-    radial-gradient(1000px 500px at 80% 20%, rgba(212,175,55,.08), transparent 60%),
-    radial-gradient(1400px 600px at 0% 100%, rgba(212,175,55,.06), transparent 60%),
-    linear-gradient(180deg,#fff 0%, #FFFBF0 100%);
-}
+      const { data, error } = await supabase
+        .from("member_points")
+        .select("name, total_points")
+        .eq("phone", phone)
+        .maybeSingle()
 
-/* 容器与导航 */
-.container{max-width:1180px;margin:0 auto;padding:28px}
-.navbar{position:sticky;top:0;z-index:10; backdrop-filter:saturate(140%) blur(8px); background:rgba(255,255,255,.75); border-bottom:1px solid rgba(0,0,0,.06)}
-.navbar-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
-.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.3px}
-.brand .crest{width:22px;height:22px;border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #F7E9B3 40%, #D4AF37 65%, #B38910 100%);
-  box-shadow:0 0 0 4px rgba(212,175,55,.18), 0 6px 16px rgba(212,175,55,.35) inset;
-}
-.lang-pill{
-  display:flex;align-items:center;gap:8px;
-  padding:8px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.08);
-  background:#fff; box-shadow:var(--shadow-soft)
-}
-.lang-pill select{
-  border:none; background:transparent; outline:none; font-weight:600; cursor:pointer
-}
+      if(error){ msg.textContent = "查询失败"; console.error(error); return }
+      if(!data){ msg.textContent = "未找到该会员"; return }
 
-/* 英雄区 */
-.hero{position:relative;padding:64px 24px 80px}
-.hero .wrap{
-  position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center
-}
-.badge{
-  display:inline-block; padding:8px 12px;border-radius:999px;
-  border:1px solid rgba(212,175,55,.45);
-  background:linear-gradient(180deg, #FFF9E9, #FFF);
-  color:#7E5A00; font-weight:700; font-size:12px; letter-spacing:.3px
-}
-.h1{
-  font-size:56px; line-height:1.06; margin:14px 0 10px; font-weight:900;
-  letter-spacing:.2px;
-}
-.sub{color:var(--muted); font-size:15px}
+      msg.textContent = `姓名：${data.name} · 积分：${data.total_points}`
+    }
+  </script>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <div class="navbar">
+    <div class="navbar-inner container">
+      <div class="brand">
+        <span class="crest"></span>
+        <span>KEDAI EMAS SIANG HENG 会员系统</span>
+      </div>
+      <div class="lang-pill">
+        <select class="lang">
+          <option value="zh">中</option>
+          <option value="en">EN</option>
+          <option value="ms">BM</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-/* 玻璃卡片（语言 & KPI） */
-.card{
-  background:var(--glass); border:1px solid var(--border);
-  border-radius:var(--radius); padding:24px; backdrop-filter: blur(10px) saturate(140%);
-  box-shadow:var(--shadow-deep)
-}
-.card .kpi{display:flex;align-items:center;gap:16px;margin-top:14px}
-.kpi .value{font-size:38px;font-weight:900}
-.kpi .hint{color:var(--muted)}
+  <!-- 英雄区 -->
+  <section class="hero">
+    <div class="container">
+      <div class="wrap">
+        <div>
+          <span class="badge">White • Gold • Luxe</span>
+          <h1 class="h1">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h1>
+          <p class="sub">输入手机号即可查询积分</p>
 
-/* 金色按钮 + 高光动画 */
-.btn{
-  display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:14px;
-  border:1px solid rgba(0,0,0,.06); background:#fff; cursor:pointer; font-weight:700;
-  transition:.2s; position:relative; overflow:hidden
-}
-.btn:hover{transform:translateY(-1px); box-shadow:0 12px 24px rgba(0,0,0,.08)}
-.btn-gold{ color:#fff; border-color:rgba(212,175,55,.9);
-  background:linear-gradient(135deg,#E7C96B 0%,#D4AF37 45%,#B98B13 100%);
-}
-.btn-gold::before{
-  content:""; position:absolute; inset:0; transform:skewX(-20deg) translateX(-120%);
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
-  transition:transform .7s ease;
-}
-.btn-gold:hover::before{ transform:skewX(-20deg) translateX(130%) }
+          <div class="mt-28" style="max-width:420px">
+            <label for="phone">手机号</label>
+            <input id="phone" type="text" placeholder="请输入手机号" class="input">
+            <button class="btn btn-gold mt-20" onclick="checkPoints()">查询积分</button>
+            <p id="msg" class="sub mt-20"></p>
+          </div>
+        </div>
 
-/* 表单、表格（后台/会员页公用） */
-label{display:block;margin:10px 0 6px;color:var(--muted)}
-.input, input, select{
-  width:100%;padding:12px 14px;border:1px solid rgba(0,0,0,.08);
-  border-radius:12px;background:#fff;outline:none;
-}
-input:focus, select:focus{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-glow) }
+        <!-- 右边装饰卡片 -->
+        <div class="card">
+          <h3 style="margin:0 0 8px">会员系统</h3>
+          <p class="sub" style="margin:0">积分实时更新 · 公平透明</p>
+          <div class="kpi">
+            <div class="value">∞</div>
+            <div class="hint">Members</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-.table{width:100%;border-collapse:collapse;border-radius:14px;overflow:hidden}
-.table th,.table td{padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.06);text-align:left; background:#fff}
-.table th{background:#FAF7ED;color:#5d4b1b;font-weight:800}
-.table tr:hover td{background:#FFFCF3}
-
-.footer{padding:26px;color:#8b8b8b;text-align:center}
-
-/* 小屏 */
-@media (max-width: 960px){
-  .hero .wrap{grid-template-columns:1fr}
-  .h1{font-size:40px}
-}
-
-/* 页面内可复用的工具类 */
-.mt-20{margin-top:20px}
-.mt-28{margin-top:28px}
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+</body>
+</html>
