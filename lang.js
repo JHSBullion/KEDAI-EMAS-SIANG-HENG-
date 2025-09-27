@@ -1,9 +1,9 @@
 <script>
-// ===== 词条（可随时增补） =====
+// ===== 多语言词条 =====
 window.I18N = {
   zh:{nav_home:"首页",nav_qr:"二维码",nav_admin:"后台",nav_members:"会员管理",nav_points:"积分管理",nav_logout:"登出",
       welcome:"欢迎来到 KEDAI EMAS SIANG HENG 会员系统",enter_phone:"输入手机号即可查询积分",ph_phone:"请输入手机号",btn_check:"查询积分",
-      result_title:"查询结果",result_name:"姓名",result_points:"积分",result_history:"积分历史",no_rows:"暂无记录",
+      result_title:"查询结果",result_name:"姓名",result_phone:"电话",result_points:"积分",result_history:"积分历史",no_rows:"暂无记录",
       admin_nav_members:"后台 · 会员管理",add_member_title:"新增会员",label_name:"姓名",label_phone:"电话",ph_name:"请输入姓名",
       ph_search:"搜索姓名或电话…",btn_add:"添加",th_name:"姓名",th_phone:"电话",th_created:"创建时间",
       member_list_title:"会员列表",
@@ -15,7 +15,7 @@ window.I18N = {
       qr_link_label:"链接（可改，例如：member-portal.html?phone=0123456789）",btn_regenerate:"重新生成",btn_print:"打印"},
   en:{nav_home:"Home",nav_qr:"QR Code",nav_admin:"Admin",nav_members:"Members",nav_points:"Points",nav_logout:"Logout",
       welcome:"Welcome to KEDAI EMAS SIANG HENG Member System",enter_phone:"Enter mobile number to view points",ph_phone:"Enter phone number",btn_check:"Check",
-      result_title:"Results",result_name:"Name",result_points:"Points",result_history:"Points History",no_rows:"No records",
+      result_title:"Results",result_name:"Name",result_phone:"Phone",result_points:"Points",result_history:"Points History",no_rows:"No records",
       admin_nav_members:"Admin · Members",add_member_title:"Add Member",label_name:"Name",label_phone:"Phone",ph_name:"Enter name",
       ph_search:"Search name or phone…",btn_add:"Add",th_name:"Name",th_phone:"Phone",th_created:"Created At",
       member_list_title:"Member List",
@@ -27,7 +27,7 @@ window.I18N = {
       qr_link_label:"Link (editable, e.g. member-portal.html?phone=0123456789)",btn_regenerate:"Regenerate",btn_print:"Print"},
   bm:{nav_home:"Laman Utama",nav_qr:"Kod QR",nav_admin:"Admin",nav_members:"Ahli",nav_points:"Mata",nav_logout:"Log Keluar",
       welcome:"Selamat datang ke Sistem Ahli KEDAI EMAS SIANG HENG",enter_phone:"Masukkan nombor telefon untuk semak mata",ph_phone:"Masukkan nombor telefon",btn_check:"Semak",
-      result_title:"Keputusan",result_name:"Nama",result_points:"Mata",result_history:"Sejarah Mata",no_rows:"Tiada rekod",
+      result_title:"Keputusan",result_name:"Nama",result_phone:"Telefon",result_points:"Mata",result_history:"Sejarah Mata",no_rows:"Tiada rekod",
       admin_nav_members:"Admin · Ahli",add_member_title:"Tambah Ahli",label_name:"Nama",label_phone:"Telefon",ph_name:"Masukkan nama",
       ph_search:"Cari nama atau telefon…",btn_add:"Tambah",th_name:"Nama",th_phone:"Telefon",th_created:"Masa Dicipta",
       member_list_title:"Senarai Ahli",
@@ -43,26 +43,17 @@ window.I18N = {
 function applyI18n(lang){
   const L = I18N[lang] || I18N.zh;
   document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const k = el.dataset.i18n;
-    if (L[k] != null) el.textContent = L[k];
+    const k = el.dataset.i18n; if(L[k]!=null) el.textContent = L[k];
   });
   document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
-    const k = el.dataset.i18nPh;
-    if (L[k] != null) el.setAttribute("placeholder", L[k]);
+    const k = el.dataset.i18nPh; if(L[k]!=null) el.setAttribute("placeholder", L[k]);
   });
-  // 同步所有选择器的当前值
-  document.querySelectorAll("select.lang-select").forEach(s => s.value = lang);
+  document.querySelectorAll("select.lang-select").forEach(s=> s.value = lang);
 }
-window.setLang = function(lang){
-  localStorage.setItem("lang", lang);
-  applyI18n(lang);
-};
+window.setLang = function(lang){ localStorage.setItem("lang",lang); applyI18n(lang); };
 document.addEventListener("DOMContentLoaded", ()=>{
   const cur = localStorage.getItem("lang") || "zh";
-  // 绑定选择器
-  document.querySelectorAll("select.lang-select").forEach(s=>{
-    s.addEventListener("change", e=> setLang(e.target.value));
-  });
+  document.querySelectorAll("select.lang-select").forEach(s=> s.addEventListener("change", e=>setLang(e.target.value)));
   applyI18n(cur);
 });
 </script>
