@@ -26,7 +26,16 @@ window.I18N = {
     qr_desc: "默认生成本站 index.html（顾客扫码后输入手机号查询）",
     qr_link_label: "链接（可改，例如：member-portal.html?phone=0123456789）",
     qr_regen: "重新生成",
-    qr_print: "打印"
+    qr_print: "打印",
+
+    // Login 页面
+    login_nav_title: "KEDAI EMAS SIANG HENG 会员系统",
+    login_title: "登录",
+    login_email: "邮箱",
+    login_password: "密码",
+    login_btn: "登录",
+    tips_title: "提示",
+    tips_text: "请使用 Supabase 管理员邮箱与密码登录（例如 admin@shop.com / 123456）。"
   },
   en: {
     brand_title: "KEDAI EMAS SIANG HENG · Members",
@@ -54,7 +63,16 @@ window.I18N = {
     qr_desc: "By default it generates this site's index.html (customer scans then enters phone).",
     qr_link_label: "Link (editable, e.g. member-portal.html?phone=0123456789)",
     qr_regen: "Regenerate",
-    qr_print: "Print"
+    qr_print: "Print",
+
+    // Login page
+    login_nav_title: "KEDAI EMAS SIANG HENG · Members",
+    login_title: "Login",
+    login_email: "Email",
+    login_password: "Password",
+    login_btn: "Sign in",
+    tips_title: "Tips",
+    tips_text: "Use your Supabase admin email/password (e.g. admin@shop.com / 123456)."
   },
   ms: {
     brand_title: "KEDAI EMAS SIANG HENG · Ahli",
@@ -82,7 +100,16 @@ window.I18N = {
     qr_desc: "Lalai menjana pautan index.html (pelanggan imbas dan masukkan telefon).",
     qr_link_label: "Pautan (boleh ubah, cth: member-portal.html?phone=0123456789)",
     qr_regen: "Jana Semula",
-    qr_print: "Cetak"
+    qr_print: "Cetak",
+
+    // Login page
+    login_nav_title: "KEDAI EMAS SIANG HENG · Ahli",
+    login_title: "Log Masuk",
+    login_email: "Emel",
+    login_password: "Kata Laluan",
+    login_btn: "Masuk",
+    tips_title: "Petua",
+    tips_text: "Guna emel/kata laluan admin Supabase anda (cth: admin@shop.com / 123456)."
   }
 };
 
