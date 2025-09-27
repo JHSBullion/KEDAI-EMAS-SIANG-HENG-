@@ -47,6 +47,21 @@ async function doLogin(){
   event.preventDefault();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
+  const msg = document.getElementById('loginMsg');
+  msg.textContent = '';
+
+  // Static admin fallback
+  if (typeof STATIC_ADMIN !== 'undefined' && STATIC_ADMIN.enabled) {
+    if (email === STATIC_ADMIN.user and password === STATIC_ADMIN.pass) {
+      localStorage.setItem('static_admin','1');
+      location.href = 'admin-members.html';
+      return false;
+    }
+  }
+
+  event.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
   const {{ data, error }} = await sb.auth.signInWithPassword({{ email, password }});
   if(error){{ document.getElementById('loginMsg').innerText = error.message; return false; }}
   location.href='admin-members.html';
