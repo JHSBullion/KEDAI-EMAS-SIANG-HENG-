@@ -1,6 +1,5 @@
-<script>
-// 简单内置词典（可按需扩展）
-const I18N = {
+// ===== Simple i18n =====
+window.I18N = {
   zh: {
     brand_title: "KEDAI EMAS SIANG HENG 会员系统",
     hero_title: "会员积分查询",
@@ -64,27 +63,27 @@ const I18N = {
 };
 
 function applyLang(lang){
-  const dict = I18N[lang] || I18N.zh;
+  const dict = (window.I18N && window.I18N[lang]) || window.I18N.zh;
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const key = el.getAttribute("data-i18n");
-    if(dict[key] !== undefined) el.textContent = dict[key];
+    if (dict[key] != null) el.textContent = dict[key];
   });
   document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
     const key = el.getAttribute("data-i18n-ph");
-    if(dict[key] !== undefined) el.setAttribute("placeholder", dict[key]);
+    if (dict[key] != null) el.setAttribute("placeholder", dict[key]);
   });
   localStorage.setItem("lang", lang);
-  const selects = document.querySelectorAll("select.lang");
-  selects.forEach(s=> s.value = lang);
+  document.querySelectorAll("select.lang").forEach(s => s.value = lang);
 }
 
 function initLang(){
   const saved = localStorage.getItem("lang") || "zh";
   applyLang(saved);
   document.addEventListener("change", (e)=>{
-    if(e.target.matches("select.lang")) applyLang(e.target.value);
+    if (e.target.matches("select.lang")) {
+      applyLang(e.target.value);
+    }
   });
 }
 
 document.addEventListener("DOMContentLoaded", initLang);
-</script>
