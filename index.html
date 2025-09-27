@@ -8,7 +8,7 @@
   <script src="lang.js" defer></script>
 </head>
 <body>
-  <!-- 顶部导航：只保留右上角语言 -->
+  <!-- 顶部导航：品牌 + 语言 -->
   <div class="navbar">
     <div class="navbar-inner container">
       <div class="brand">
@@ -25,28 +25,24 @@
     </div>
   </div>
 
-  <!-- 只有左侧内容（去掉右卡片） -->
+  <!-- 英雄区：单列，直接输入手机号 -->
   <section class="hero">
     <div class="container">
-      <div class="wrap onecol"><!-- onecol 让它单列 -->
+      <div class="wrap onecol">
         <div>
           <span class="badge">White • Gold • Luxe</span>
           <h1 class="h1">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h1>
-          <p class="sub">输入手机号即可查询积分</p>
+          <p class="sub">输入手机号后会跳转到结果页</p>
 
-          <div class="mt-28" style="max-width:420px">
+          <form id="f" class="mt-28" style="max-width:420px">
             <label for="phone">手机号</label>
-            <input id="phone" type="text" placeholder="请输入手机号" class="input">
-            <button class="btn btn-gold mt-20" id="btn-check">查询积分</button>
-            <p id="msg" class="sub mt-20"></p>
+            <input id="phone" type="text" placeholder="请输入手机号" class="input" required>
+            <button class="btn btn-gold mt-20" type="submit">查询积分</button>
+          </form>
 
-            <!-- 查询结果面板（查到后显示） -->
-            <div id="panel" class="card" style="display:none;margin-top:18px">
-              <h3 style="margin:0 0 8px">查询结果</h3>
-              <p class="sub" id="nameLine"></p>
-              <div class="kpi"><div class="value" id="points">0</div><div class="hint">总积分</div></div>
-            </div>
-          </div>
+          <p class="sub" style="opacity:.7;margin-top:10px">
+            也支持带参数访问：<code>member-portal.html?phone=0123456789</code>
+          </p>
         </div>
       </div>
     </div>
@@ -54,52 +50,18 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 放在 body 结尾，确保先加载完页面再加载 Supabase -->
-  <script type="module">
-    import { supabase } from './supabase.js'
+  <script>
+    // 提交后跳到结果页携带 ?phone=
+    document.getElementById('f').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const phone = document.getElementById('phone').value.trim();
+      if(!phone){ return }
+      location.href = 'member-portal.html?phone=' + encodeURIComponent(phone);
+    });
 
-    const phoneInput = document.getElementById('phone')
-    const btn = document.getElementById('btn-check')
-    const msg = document.getElementById('msg')
-    const panel = document.getElementById('panel')
-    const nameLine = document.getElementById('nameLine')
-    const pointsEl = document.getElementById('points')
-
-    // 读取 ?phone=xxxx 自动查询（也可以让扫码页跳过输入）
-    const urlPhone = new URLSearchParams(location.search).get('phone')
-    if (urlPhone) { phoneInput.value = urlPhone; doQuery() }
-
-    btn.addEventListener('click', doQuery)
-    phoneInput.addEventListener('keydown', e => { if (e.key === 'Enter') doQuery() })
-
-    async function doQuery(){
-      const phone = phoneInput.value.trim()
-      panel.style.display='none'
-      msg.style.color = '#666'
-      if(!phone){ msg.textContent='请输入手机号'; return }
-      msg.textContent='查询中…'
-
-      try {
-        const { data, error } = await supabase
-          .from('member_points')
-          .select('name,total_points')
-          .eq('phone', phone)
-          .maybeSingle()
-
-        if (error) { throw error }
-        if (!data) { msg.style.color='#c00'; msg.textContent='未找到该会员'; return }
-
-        // 展示结果
-        nameLine.textContent = `姓名：${data.name}（${phone}）`
-        pointsEl.textContent = data.total_points
-        panel.style.display='block'
-        msg.textContent = '' // 清空提示
-      } catch (e) {
-        console.error(e)
-        msg.style.color='#c00'
-        msg.textContent = '查询失败，请稍后重试'
-      }
-    }
+    // 允许从扫码等场景直接带 phone 到首页，也跳转
+    const p = new URLSearchParams(location.search).get('phone');
+    if(p){ location.replace('member-portal.html?phone='+encodeURIComponent(p)); }
   </script>
 </body>
 </html>
