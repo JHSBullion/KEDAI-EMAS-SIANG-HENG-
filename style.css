@@ -110,3 +110,4 @@ input:focus, select:focus{ border-color:var(--gold); box-shadow:0 0 0 3px var(--
 /* 页面内可复用的工具类 */
 .mt-20{margin-top:20px}
 .mt-28{margin-top:28px}
+#msg{margin-top:14px;font-weight:600;color:#444}
