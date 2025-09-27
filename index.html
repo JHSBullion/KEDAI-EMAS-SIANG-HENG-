@@ -50,15 +50,14 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 语言脚本 -->
-  <?xml version="1.0"?><script src="lang.js"></script>
-
+  <!-- 正确引入：先 lang.js，再页面逻辑 -->
+  <script src="lang.js"></script>
   <script>
-    // 带参来到首页时，直接跳转结果页
+    // ?phone=xxx 访问首页 → 直接去结果页
     const p = new URLSearchParams(location.search).get('phone');
-    if(p){ location.replace('member-portal.html?phone='+encodeURIComponent(p)); }
+    if (p) { location.replace('member-portal.html?phone=' + encodeURIComponent(p)); }
 
-    // 表单提交 → 跳转结果页
+    // 表单提交 → 跳到结果页
     document.getElementById('f').addEventListener('submit', (e)=>{
       e.preventDefault();
       const ph = document.getElementById('phone').value.trim();
