@@ -33,31 +33,79 @@
     </table>
   </div>
 </main>
+<!-- 在 <head> 里保留原来的 link/script 引用即可 -->
+
 <script type="module">
-  import { supabase, logout } from './supabase.js'
-  const form = document.getElementById('addForm')
-  const msg = document.getElementById('msg')
+  import { supabase, requireAuth, logout } from './supabase.js'
+
+  // 强制登录（没登录会被跳到 login.html）
+  await requireAuth()
+
+  const form  = document.getElementById('addForm')
+  const msg   = document.getElementById('msg')
   const tbody = document.getElementById('tbody')
-  const search = document.getElementById('search')
+  const search= document.getElementById('search')
+
   form.addEventListener('submit', async (e)=>{
     e.preventDefault()
-    const name = document.getElementById('name').value.trim()
+    msg.textContent = ''
+    const name  = document.getElementById('name').value.trim()
     const phone = document.getElementById('phone').value.trim()
-    const { data, error } = await supabase.from('members').insert([{ name, phone }]).select()
-    if(error){ msg.textContent = error.message; return }
-    msg.textContent = "添加成功"
-    form.reset()
-    loadMembers()
+    if(!name || !phone){ msg.textContent = '请填写姓名和电话'; return }
+
+    try{
+      const { data, error, status } = await supabase
+        .from('members')
+        .insert([{ name, phone }])
+        .select('id').single()
+
+      if (error) {
+        if (status===401 || status===403) {
+          throw new Error('没有权限：请确认已通过 login.html 登录，且 RLS 策略已允许 authenticated 插入。')
+        }
+        if (error.code==='23505' || /duplicate/i.test(error.message||'')) {
+          throw new Error('电话号码已存在，不能重复添加。')
+        }
+        throw error
+      }
+      msg.style.color = '#0a7d00'
+      msg.textContent = '添加成功'
+      form.reset()
+      await loadMembers()
+    } catch (err) {
+      console.error('[Add Member]', err)
+      msg.style.color = '#c00'
+      msg.textContent = err.message || String(err)
+    }
   })
+
   async function loadMembers(){
-    const q = search.value.trim()
-    let query = supabase.from('members').select('*').order('created_at',{ascending:false})
-    if(q) query = supabase.from('members').select('*').or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
-    const { data, error } = await query
-    tbody.innerHTML = (data||[]).map(m=>`<tr><td>${m.name}</td><td>${m.phone}</td><td>${m.created_at}</td></tr>`).join("")
+    const q = (search.value||'').trim()
+    let query = supabase.from('members').select('name,phone,created_at').order('created_at',{ascending:false})
+    if(q){
+      query = supabase.from('members').select('name,phone,created_at')
+              .or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
+              .order('created_at',{ascending:false})
+    }
+    const { data, error, status } = await query
+    if (error) {
+      if (status===401 || status===403) {
+        tbody.innerHTML = `<tr><td colspan="3" style="color:#c00">没有权限读取：请先登录，并确认 RLS select 策略</td></tr>`
+        return
+      }
+      tbody.innerHTML = `<tr><td colspan="3" style="color:#c00">${error.message}</td></tr>`
+      return
+    }
+    tbody.innerHTML = (data||[]).map(r => `
+      <tr><td>${escape(r.name)}</td><td>${escape(r.phone)}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>
+    `).join('') || `<tr><td colspan="3">暂无数据</td></tr>`
   }
+
+  function escape(s){ return (s??'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])) }
+
   search.addEventListener('input', loadMembers)
   loadMembers()
+
+  // 让页面上的“Logout”按钮可用
+  window.logout = logout
 </script>
-</body>
-</html>
