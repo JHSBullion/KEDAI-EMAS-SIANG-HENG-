@@ -1,78 +1,25 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Member Portal</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会员积分</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lang.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
-      <div class="brand"><span class="crest"></span> KEDAI EMAS SIANG HENG</div>
-      <div class="nav-right">
-        <a href="index.html" class="btn" data-i18n="nav_home">首页</a>
-        <select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
-      </div>
-    </div>
-  </div>
-
-  <div class="container" style="max-width:1000px;margin:24px auto;">
-    <div class="card">
-      <h3 data-i18n="result_title">查询结果</h3>
-      <div class="grid-2">
-        <div>
-          <div class="form-row"><label data-i18n="result_name">姓名</label><div id="m_name" class="sub">-</div></div>
-          <div class="form-row"><label data-i18n="result_phone">电话</label><div id="m_phone" class="sub">-</div></div>
-        </div>
-        <div>
-          <div class="form-row"><label data-i18n="result_points">积分</label><div id="m_points" style="font-weight:800;font-size:28px">0</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card mt-10">
-      <h3 data-i18n="result_history">积分历史</h3>
-      <div style="overflow:auto;margin-top:10px">
-        <table class="table">
-          <thead>
-            <tr>
-              <th data-i18n="th_time">时间</th>
-              <th data-i18n="th_change">变动</th>
-              <th data-i18n="th_note">备注</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"><tr><td colspan="3" class="sub" data-i18n="no_rows">暂无记录</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
-
-  <script type="module">
-    import { $, q, getMemberByPhone, listPointHistory, sumPointsByPhone } from './app.js';
-    const phone = q('phone','').trim();
-    if(!phone) location.replace('index.html');
-
-    (async ()=>{
-      const { data: m } = await getMemberByPhone(phone);
-      $('#m_name').textContent  = m?.name || '-';
-      $('#m_phone').textContent = phone;
-      $('#m_points').textContent = await sumPointsByPhone(phone);
-
-      const { data: rows } = await listPointHistory(phone);
-      const tb = $('#tbody'); tb.innerHTML = '';
-      (rows||[]).forEach(r=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${new Date(r.created_at).toLocaleString()}</td>
-                        <td>${r.delta>0?'+':''}${r.delta||0}</td>
-                        <td>${r.note||''}</td>`;
-        tb.appendChild(tr);
-      });
-      if(!rows || rows.length===0) tb.innerHTML = `<tr><td colspan="3" class="sub" data-i18n="no_rows"></td></tr>`;
-    })();
-  </script>
-  <script src="lang.js?v=6"></script>
+  <main>
+    <section class="card">
+      <h2 data-i18n="memberPoints">会员积分详情</h2>
+      <p><span data-i18n="name">姓名</span>: 张三</p>
+      <p><span data-i18n="phone">电话</span>: 0123456789</p>
+      <p><span data-i18n="points">积分</span>: 3000</p>
+      <h3 data-i18n="history">积分历史</h3>
+      <ul>
+        <li>+100 (2025/9/20)</li>
+        <li>-50 (2025/9/22)</li>
+      </ul>
+    </section>
+  </main>
 </body>
 </html>
