@@ -1,46 +1,63 @@
-
-<!doctype html><html lang="zh">
+<!doctype html>
+<html lang="zh">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>QR</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="lang.js"></script>
-  <script src="app.js"></script>
+  <meta charset="utf-8" />
+  <title data-i18n="qr_page_title">QR · 会员入口</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- 轻量 QRCode 库（CDN） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-  <div id="nav"></div>
-  <div class="container">
-    <div class="card" style="max-width:820px;margin:auto">
-      <div class="title" data-i18n="printableQR">打印用二维码</div>
-      <div class="note" data-i18n="defaultQRInfo">默认生成本站 index.html（顾客扫码后输入手机号查询）</div>
-      <div class="center" style="padding:20px 0">
-        <img id="qr" alt="QR" style="width:260px;height:260px;border:10px solid #fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.06)" />
-      </div>
-      <label data-i18n="link">链接（可改，例如：member-portal.html?phone=0123456789）</label>
-      <input id="qrurl" class="input mono">
-      <div class="actions">
-        <button class="btn gold" onclick="regen()" data-i18n="regenerate">重新生成</button>
-        <button class="btn" onclick="window.print()" data-i18n="print">打印</button>
+  <div class="navbar">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
+      <div class="brand"><span class="crest"></span> <span data-i18n="qr_page_title">QR · 会员入口</span></div>
+      <div class="nav-right">
+        <a href="index.html" class="btn" data-i18n="back_home">返回首页</a>
+        <select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
       </div>
     </div>
   </div>
+
+  <div class="container" style="max-width:960px;margin:24px auto;">
+    <div class="card" style="text-align:center">
+      <h3 data-i18n="qr_title">打印用二维码</h3>
+      <p class="sub" data-i18n="qr_desc">默认生成本站 index.html（顾客扫码后输入手机号查询）</p>
+      <div id="qr" class="qr-box"></div>
+
+      <div style="max-width:520px;margin:12px auto;text-align:left">
+        <label class="mt-10" data-i18n="qr_link_label">链接（可改，例如：member-portal.html?phone=0123456789）</label>
+        <input id="link" class="input" value="">
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
+        <button id="regen" class="btn btn-gold" data-i18n="btn_regenerate">重新生成</button>
+        <button id="print" class="btn" data-i18n="btn_print">打印</button>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-<script>
-document.getElementById('nav').innerHTML = navbar();
-bindLangSelect();
-
-function defaultUrl(){
-  const loc = location.origin + location.pathname.replace(/\/qr\.html$/,'/index.html');
-  return loc;
-}
-function regen(){
-  const u = document.getElementById('qrurl').value.trim() || defaultUrl();
-  // Use public QR API for image
-  const api = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent(u);
-  document.getElementById('qr').src = api;
-}
-document.getElementById('qrurl').value = defaultUrl();
-regen();
-</script>
-</body></html>
+  <script src="lang.js"></script>
+  <script>
+    const el = s=>document.querySelector(s)
+    function defaultLink(){
+      // 默认到主页 index.html
+      return `${location.origin}/index.html`
+    }
+    function render(){
+      const url = el('#link').value.trim() || defaultLink()
+      const box = el('#qr')
+      box.innerHTML = ''
+      // 生成二维码
+      new QRCode(box, { text: url, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H })
+    }
+    document.addEventListener('DOMContentLoaded', ()=>{
+      el('#link').value = defaultLink()
+      render()
+      el('#regen').addEventListener('click', render)
+      el('#print').addEventListener('click', ()=>window.print())
+    })
+  </script>
+</body>
+</html>
