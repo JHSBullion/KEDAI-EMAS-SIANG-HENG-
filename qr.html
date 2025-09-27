@@ -1,54 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<!doctype html><html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QR · Member Entry</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="lang.js"></script>
-  <script defer src="app.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lang.js"></script>
+  <script src="app.js"></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <span class="logo">●</span>
-      <span class="brand-line">QR</span>
-      <span class="muted"> · </span>
-      <span class="brand-sub" data-i18n="member_entry">Member Entry</span>
-    </div>
-    <nav class="nav">
-      <a class="pill" href="index.html" data-i18n="home">Back to Home</a>
-      <select id="langSwitch" class="lang-switch">
-        <option value="zh">中</option>
-        <option value="en">EN</option>
-        <option value="ms">BM</option>
-      </select>
-    </nav>
-  </header>
-  <main class="container">
-    <section class="card narrow">
-      <h2 data-i18n="print_qr">Printable QR Code</h2>
-      <div id="qrcode" class="qrbox"></div>
-      <div class="row gap mt">
-        <input id="qrLink" class="input" value="" />
-        <button class="btn gold" onclick="regen()" data-i18n="regenerate">Regenerate</button>
-        <button class="btn" onclick="window.print()" data-i18n="print">Print</button>
+  <div id="nav"></div>
+  <div class="container">
+    <div class="card" style="max-width:820px;margin:auto">
+      <div class="title" data-i18n="printableQR">打印用二维码</div>
+      <div class="note" data-i18n="defaultQRInfo">默认生成本站 index.html（顾客扫码后输入手机号查询）</div>
+      <div class="center" style="padding:20px 0">
+        <img id="qr" alt="QR" style="width:260px;height:260px;border:10px solid #fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.06)" />
       </div>
-    </section>
-  </main>
-  <footer class="site-footer">© 2025 KEDAI EMAS SIANG HENG</footer>
+      <label data-i18n="link">链接（可改，例如：member-portal.html?phone=0123456789）</label>
+      <input id="qrurl" class="input mono">
+      <div class="actions">
+        <button class="btn gold" onclick="regen()" data-i18n="regenerate">重新生成</button>
+        <button class="btn" onclick="window.print()" data-i18n="print">打印</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
 <script>
-let qrobj;
-function regen(){
-  const link = document.getElementById('qrLink').value.trim();
-  document.getElementById('qrcode').innerHTML='';
-  qrobj = new QRCode(document.getElementById('qrcode'), link);
+document.getElementById('nav').innerHTML = navbar();
+bindLangSelect();
+
+function defaultUrl(){
+  const loc = location.origin + location.pathname.replace(/\/qr\.html$/,'/index.html');
+  return loc;
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('qrLink').value = location.origin + '/index.html';
-  regen(); applyTranslations();
-});
+function regen(){
+  const u = document.getElementById('qrurl').value.trim() || defaultUrl();
+  // Use public QR API for image
+  const api = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent(u);
+  document.getElementById('qr').src = api;
+}
+document.getElementById('qrurl').value = defaultUrl();
+regen();
 </script>
-</body>
-</html>
+</body></html>

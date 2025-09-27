@@ -1,77 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<!doctype html><html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Member Portal</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="supabase.js"></script>
-  <script defer src="lang.js"></script>
-  <script defer src="app.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="lang.js"></script>
+  <script src="app.js"></script>
+  <script src="supabase.js"></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <span class="logo">●</span>
-      <span class="brand-line">KEDAI EMAS SIANG HENG</span>
-      <span class="muted"> · </span>
-      <span class="brand-sub" data-i18n="portal">Member Portal</span>
+  <div id="nav"></div>
+  <div class="container">
+    <div class="card">
+      <div class="grid two">
+        <div>
+          <div class="kicker" data-i18n="memberInfo">会员信息</div>
+          <div style="margin-top:8px">
+            <div><strong data-i18n="name">姓名</strong>：<span id="m_name">-</span></div>
+            <div><strong data-i18n="phone">电话</strong>：<span id="m_phone">-</span></div>
+            <div style="margin-top:12px;font-size:28px;font-weight:900">
+              <span id="m_total">0</span> <span class="tag" data-i18n="totalPoints">总积分</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="kicker" data-i18n="history">积分记录</div>
+          <table class="table" id="hist">
+            <thead><tr>
+              <th data-i18n="delta">变动</th><th data-i18n="note">备注</th><th data-i18n="time">时间</th>
+            </tr></thead><tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <nav class="nav">
-      <a class="pill" href="index.html" data-i18n="home">Home</a>
-      <select id="langSwitch" class="lang-switch">
-        <option value="zh">中</option>
-        <option value="en">EN</option>
-        <option value="ms">BM</option>
-      </select>
-    </nav>
-  </header>
-  <main class="container">
-    <section class="card">
-      <h2 data-i18n="results">Member Information</h2>
-      <div id="memberBox" class="member-box"></div>
-      <h3 class="mt" data-i18n="history">Point History</h3>
-      <div id="historyBox" class="history"></div>
-    </section>
-  </main>
-  <footer class="site-footer">© 2025 KEDAI EMAS SIANG HENG</footer>
+    <div class="actions" style="margin-top:14px">
+      <a class="btn" href="index.html" data-i18n="backHome">返回首页</a>
+    </div>
+  </div>
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const phone = new URLSearchParams(location.search).get("phone");
-  if(!phone){ document.getElementById("memberBox").innerHTML = `<p class="danger" data-i18n="need_phone">Please provide phone.</p>`; applyTranslations(); return; }
-  const {{ data: members, error }} = await sb.from('members').select('id,name,phone,created_at').eq('phone', phone).limit(1);
-  if(error){ document.getElementById('memberBox').innerHTML = `<p class="danger">${error.message}</p>`; return; }
-  if(!members || members.length===0){ document.getElementById('memberBox').innerHTML = `<p class="danger" data-i18n="not_found">Member not found.</p>`; applyTranslations(); return; }
-  const m = members[0];
-  // total points
-  const {{ data: rows, error: e2 }} = await sb.rpc('sum_points_by_member', {{ mid: m.id }}).maybeSingle();
-  // Fallback if no RPC: sum locally
-  let total = 0;
-  if(rows && typeof rows.total === 'number') total = rows.total;
-  else { 
-    const {{ data: tlist }} = await sb.from('point_transactions').select('delta').eq('member_id', m.id);
-    total = (tlist||[]).reduce((a,b)=>a+(b.delta||0),0);
+document.getElementById('nav').innerHTML = navbar();
+bindLangSelect();
+
+function gparam(k){ const u = new URL(location.href); return u.searchParams.get(k); }
+
+async function getMember(phone){
+  const { data, error } = await sb.from('members').select('*').eq('phone', phone).maybeSingle();
+  if(error) throw error; return data;
+}
+async function load(){
+  const phone = gparam('phone')||'';
+  if(!phone){ location.href='index.html'; return; }
+  const m = await getMember(phone);
+  if(!m){
+    document.querySelector('#m_name').textContent = phone;
+    document.querySelector('#m_phone').textContent = phone;
+    document.querySelector('#m_total').textContent = 0;
+    document.querySelector('#hist tbody').innerHTML = '<tr><td colspan="3">No Records</td></tr>';
+    return;
   }
-  document.getElementById('memberBox').innerHTML = `
-    <div class="grid2">
-      <div><div class="label" data-i18n="name">Name</div><div class="value">${m.name||'-'}</div></div>
-      <div><div class="label" data-i18n="phone">Phone</div><div class="value">${m.phone}</div></div>
-    </div>
-    <div class="points-big">${total}</div>
-  `;
-  const {{ data: hist }} = await sb.from('point_transactions').select('delta,note,created_at').eq('member_id', m.id).order('created_at',{ascending:false}).limit(50);
-  const box = document.getElementById('historyBox');
-  if(!hist || hist.length===0) box.innerHTML = `<div class="muted" data-i18n="no_records">No records</div>`;
-  else box.innerHTML = hist.map(r => `
-    <div class="row">
-      <div class="delta ${r.delta>=0?'pos':'neg'}">${r.delta>=0?'+':''}${r.delta}</div>
-      <div class="note">${r.note||''}</div>
-      <div class="time">${new Date(r.created_at).toLocaleString()}</div>
-    </div>
-  `).join('');
-  applyTranslations();
-});
+  document.querySelector('#m_name').textContent = m.name||'-';
+  document.querySelector('#m_phone').textContent = m.phone||'-';
+  // history
+  const { data, error } = await sb.from('point_transactions').select('*').eq('member_id', m.id).order('created_at',{ascending:false}).limit(50);
+  if(error){ console.error(error); }
+  let total = 0;
+  (data||[]).forEach(r=> total += (r.delta||0));
+  document.querySelector('#m_total').textContent = total;
+  const tb = document.querySelector('#hist tbody'); tb.innerHTML='';
+  (data||[]).forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="${r.delta>=0?'good':'bad'}">${r.delta>=0?'+':''}${r.delta}</td><td>${r.note||''}</td><td>${r.created_at||''}</td>`;
+    tb.appendChild(tr);
+  });
+  if(!(data||[]).length) tb.innerHTML = '<tr><td colspan="3">—</td></tr>';
+}
+load();
 </script>
-</body>
-</html>
+</body></html>

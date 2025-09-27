@@ -1,73 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<!doctype html><html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Login</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="supabase.js"></script>
-  <script defer src="lang.js"></script>
-  <script defer src="app.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="lang.js"></script>
+  <script src="app.js"></script>
+  <script src="supabase.js"></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <span class="logo">●</span>
-      <span class="brand-line">KEDAI EMAS SIANG HENG</span>
-      <span class="muted"> · </span>
-      <span class="brand-sub" data-i18n="admin">Admin</span>
+  <div id="nav"></div>
+  <div class="container">
+    <div class="card" style="max-width:760px;margin:auto">
+      <div class="title" data-i18n="login">登录</div>
+      <div class="grid">
+        <label data-i18n="email">邮箱</label>
+        <input id="email" class="input" placeholder="admin@shop.com" data-ph="email">
+        <label data-i18n="password">密码</label>
+        <input id="password" class="input" type="password" placeholder="******" data-ph="password">
+        <div class="actions">
+          <button class="btn gold" onclick="doLogin()" data-i18n="signIn">登录</button>
+          <a class="btn" href="index.html" data-i18n="backHome">返回首页</a>
+        </div>
+        <div class="note" data-i18n="signInHint">请使用 Supabase 管理员邮箱/密码登录（如 admin@shop.com / 123456）。</div>
+        <div id="loginMsg" class="note bad hidden"></div>
+      </div>
     </div>
-    <nav class="nav">
-      <a class="pill" href="index.html" data-i18n="home">Home</a>
-      <select id="langSwitch" class="lang-switch">
-        <option value="zh">中</option>
-        <option value="en">EN</option>
-        <option value="ms">BM</option>
-      </select>
-    </nav>
-  </header>
-  <main class="container">
-    <section class="card narrow">
-      <h2 data-i18n="login">Login</h2>
-      <form id="loginForm" onsubmit="return doLogin()">
-        <label class="label" data-i18n="email">Email</label>
-        <input id="email" class="input" type="email" required />
-        <label class="label" data-i18n="password">Password</label>
-        <input id="password" class="input" type="password" required />
-        <button class="btn gold" data-i18n="sign_in">Sign in</button>
-      </form>
-      <div id="loginMsg" class="danger mt"></div>
-      <p class="muted mt" data-i18n="login_tip">Use your Supabase admin email/password (e.g. admin@shop.com / 123456).</p>
-    </section>
-  </main>
-  <footer class="site-footer">© 2025 KEDAI EMAS SIANG HENG</footer>
+  </div>
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
 <script>
+document.getElementById('nav').innerHTML = navbar();
+bindLangSelect();
+
 async function doLogin(){
-  event.preventDefault();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
   const msg = document.getElementById('loginMsg');
-  msg.textContent = '';
+  msg.classList.add('hidden'); msg.textContent='';
 
-  // Static admin fallback
-  if (typeof STATIC_ADMIN !== 'undefined' && STATIC_ADMIN.enabled) {
-    if (email === STATIC_ADMIN.user and password === STATIC_ADMIN.pass) {
-      localStorage.setItem('static_admin','1');
-      location.href = 'admin-members.html';
-      return false;
-    }
+  // static admin first
+  if (STATIC_ADMIN.enabled && email==='admin' && password==='123456'){
+    localStorage.setItem('static_admin','1');
+    location.href='admin-members.html';
+    return;
   }
-
-  event.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const {{ data, error }} = await sb.auth.signInWithPassword({{ email, password }});
-  if(error){{ document.getElementById('loginMsg').innerText = error.message; return false; }}
-  location.href='admin-members.html';
-  return false;
+  try{
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){ msg.textContent = error.message; msg.classList.remove('hidden'); return; }
+    location.href='admin-members.html';
+  }catch(e){
+    msg.textContent = e.message || 'Login failed';
+    msg.classList.remove('hidden');
+  }
 }
-applyTranslations();
 </script>
-</body>
-</html>
+</body></html>

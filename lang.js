@@ -1,48 +1,130 @@
-// i18n map
-const i18n = {
-  en:{system:'Member System',qr:'QR Code',admin:'Admin',home:'Home',member_entry:'Member Entry',
-      welcome:'Welcome to KEDAI EMAS SIANG HENG Member System',enter_phone:'Enter your mobile number to view your points.',
-      phone:'Phone',check_points:'Check',deep_link_hint:'Supports deep link with ?phone=',
-      portal:'Member Portal',results:'Member Information',history:'Point History',need_phone:'Please provide phone.',not_found:'Member not found.',no_records:'No records',
-      admin_members:'Admin · Member Management',admin_points:'Admin · Points Management',members:'Members',points:'Points',logout:'Logout',
-      add_member:'Add Member',name:'Name',member_list:'Member List',created_at:'Created',
-      adjust_points:'Adjust Points',points_change:'Change (+/-)',note:'Note',submit:'Submit',points_history:'Points History',change:'Change',time:'Time',
-      login:'Login',email:'Email',password:'Password',sign_in:'Sign in',login_tip:'Use your Supabase admin email/password (e.g. admin@shop.com / 123456).',
-      print_qr:'Printable QR Code',regenerate:'Regenerate',print:'Print'
+
+// i18n - zh / en / bm
+const I18N = {
+  zh: {
+    brand: "KEDAI EMAS SIANG HENG · 会员系统",
+    home: "首页",
+    admin: "后台",
+    qrcode: "二维码",
+    login: "登录",
+    logout: "登出",
+    welcome: "欢迎来到 KEDAI EMAS SIANG HENG 会员系统",
+    phone: "电话",
+    check: "查询积分",
+    directLink: "支持带参数访问：?phone=",
+    members: "会员管理",
+    points: "积分管理",
+    email: "邮箱",
+    password: "密码",
+    signInHint: "请使用 Supabase 管理员邮箱/密码登录（如 admin@shop.com / 123456）。",
+    signIn: "登录",
+    addMember: "新增会员",
+    name: "姓名",
+    createdAt: "创建时间",
+    searchHint: "搜索姓名或电话…",
+    changePoints: "积分变动（正数加分，负数扣分）",
+    note: "备注",
+    submit: "提交",
+    history: "积分记录",
+    delta: "变动",
+    time: "时间",
+    totalPoints: "总积分",
+    memberInfo: "会员信息",
+    backHome: "返回首页",
+    printableQR: "打印用二维码",
+    defaultQRInfo: "默认生成本站 index.html（顾客扫码后输入手机号查询）",
+    link: "链接（可改，例如：member-portal.html?phone=0123456789）",
+    regenerate: "重新生成",
+    print: "打印",
   },
-  zh:{system:'会员系统',qr:'二维码',admin:'后台',home:'首页',member_entry:'会员入口',
-      welcome:'欢迎来到 KEDAI EMAS SIANG HENG 会员系统',enter_phone:'输入手机号即可查询积分。',
-      phone:'电话',check_points:'查询积分',deep_link_hint:'支持带参访问：?phone=',
-      portal:'会员入口',results:'会员信息',history:'积分记录',need_phone:'请输入手机号',not_found:'未找到该会员',no_records:'暂无记录',
-      admin_members:'后台 · 会员管理',admin_points:'后台 · 积分管理',members:'会员',points:'积分',logout:'退出登录',
-      add_member:'新增会员',name:'姓名',member_list:'会员列表',created_at:'创建时间',
-      adjust_points:'调整积分',points_change:'变动（+/-）',note:'备注',submit:'提交',points_history:'积分记录',change:'变动',time:'时间',
-      login:'登录',email:'邮箱',password:'密码',sign_in:'登录',login_tip:'请使用 Supabase 管理员邮箱/密码登录（如 admin@shop.com / 123456）。',
-      print_qr:'打印用二维码',regenerate:'重新生成',print:'打印'
+  en: {
+    brand: "KEDAI EMAS SIANG HENG · Members",
+    home: "Home",
+    admin: "Admin",
+    qrcode: "QR Code",
+    login: "Login",
+    logout: "Logout",
+    welcome: "Welcome to KEDAI EMAS SIANG HENG Membership System",
+    phone: "Phone",
+    check: "Check Points",
+    directLink: "Deep link supported: ?phone=",
+    members: "Members",
+    points: "Points",
+    email: "Email",
+    password: "Password",
+    signInHint: "Use your Supabase admin email/password (e.g. admin@shop.com / 123456).",
+    signIn: "Sign in",
+    addMember: "Add Member",
+    name: "Name",
+    createdAt: "Created At",
+    searchHint: "Search name or phone…",
+    changePoints: "Points Change (+ for add, - for deduct)",
+    note: "Note",
+    submit: "Submit",
+    history: "Point History",
+    delta: "Delta",
+    time: "Time",
+    totalPoints: "Total Points",
+    memberInfo: "Member",
+    backHome: "Back to Home",
+    printableQR: "Printable QR Code",
+    defaultQRInfo: "By default it generates this site's index.html (customer scans then enters phone).",
+    link: "Link (editable, e.g. member-portal.html?phone=0123456789)",
+    regenerate: "Regenerate",
+    print: "Print",
   },
-  ms:{system:'Sistem Ahli',qr:'Kod QR',admin:'Admin',home:'Laman Utama',member_entry:'Kemasukan Ahli',
-      welcome:'Selamat datang ke Sistem Ahli KEDAI EMAS SIANG HENG',enter_phone:'Masukkan nombor telefon untuk semak mata.',
-      phone:'Telefon',check_points:'Semak',deep_link_hint:'Sokong pautan dengan ?phone=',
-      portal:'Portal Ahli',results:'Maklumat Ahli',history:'Sejarah Mata',need_phone:'Sila masukkan telefon',not_found:'Ahli tiada',no_records:'Tiada rekod',
-      admin_members:'Admin · Pengurusan Ahli',admin_points:'Admin · Pengurusan Mata',members:'Ahli',points:'Mata',logout:'Log Keluar',
-      add_member:'Tambah Ahli',name:'Nama',member_list:'Senarai Ahli',created_at:'Dicipta',
-      adjust_points:'Laraskan Mata',points_change:'Perubahan (+/-)',note:'Nota',submit:'Hantar',points_history:'Sejarah Mata',change:'Perubahan',time:'Masa',
-      login:'Log Masuk',email:'Emel',password:'Kata Laluan',sign_in:'Log Masuk',login_tip:'Guna emel/kata laluan admin Supabase (cth. admin@shop.com / 123456).',
-      print_qr:'Kod QR Boleh Cetak',regenerate:'Jana Semula',print:'Cetak'
+  bm: {
+    brand: "KEDAI EMAS SIANG HENG · Sistem Ahli",
+    home: "Laman Utama",
+    admin: "Admin",
+    qrcode: "Kod QR",
+    login: "Log Masuk",
+    logout: "Log Keluar",
+    welcome: "Selamat datang ke Sistem Keahlian KEDAI EMAS SIANG HENG",
+    phone: "Telefon",
+    check: "Semak Mata",
+    directLink: "Pautan terus disokong: ?phone=",
+    members: "Ahli",
+    points: "Mata",
+    email: "Emel",
+    password: "Kata Laluan",
+    signInHint: "Guna emel/kata laluan admin Supabase (cth: admin@shop.com / 123456).",
+    signIn: "Log Masuk",
+    addMember: "Tambah Ahli",
+    name: "Nama",
+    createdAt: "Dicipta Pada",
+    searchHint: "Cari nama atau telefon…",
+    changePoints: "Perubahan Mata (+ tambah, - tolak)",
+    note: "Catatan",
+    submit: "Hantar",
+    history: "Sejarah Mata",
+    delta: "Perubahan",
+    time: "Masa",
+    totalPoints: "Jumlah Mata",
+    memberInfo: "Maklumat Ahli",
+    backHome: "Kembali ke Laman",
+    printableQR: "Kod QR Boleh Cetak",
+    defaultQRInfo: "Lalai jana index.html laman ini (pelanggan imbas dan masukkan telefon).",
+    link: "Pautan (boleh ubah, cth: member-portal.html?phone=0123456789)",
+    regenerate: "Jana Semula",
+    print: "Cetak",
   }
 };
-function currentLang(){ return localStorage.getItem('lang') || 'zh'; }
-function setLang(v){ localStorage.setItem('lang', v); applyTranslations(); }
-function applyTranslations(){
-  const lang = currentLang();
+function getLang(){return localStorage.getItem('lang') || 'zh';}
+function setLang(l){localStorage.setItem('lang', l); location.reload();}
+function applyI18N(){
+  const l = getLang();
+  const dict = I18N[l] || I18N.zh;
   document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key = el.getAttribute('data-i18n');
-    if(i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
+    const k = el.getAttribute('data-i18n');
+    if(dict[k]!==undefined) el.textContent = dict[k];
   });
-  const sel = document.getElementById('langSwitch');
-  if(sel) sel.value = lang;
+  document.querySelectorAll('[data-ph]').forEach(el=>{
+    const k = el.getAttribute('data-ph');
+    if(dict[k]!==undefined) el.setAttribute('placeholder', dict[k]);
+  });
+  // select lang UI
+  const langSel = document.getElementById('langSel');
+  if(langSel){ langSel.value = l; }
 }
-document.addEventListener('change', (e)=>{
-  if(e.target && e.target.id==='langSwitch'){ setLang(e.target.value); location.reload(); }
-});
-document.addEventListener('DOMContentLoaded', applyTranslations);
+document.addEventListener('DOMContentLoaded', applyI18N);

@@ -1,95 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<!doctype html><html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin · Points</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="supabase.js"></script>
-  <script defer src="lang.js"></script>
-  <script defer src="app.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="lang.js"></script>
+  <script src="app.js"></script>
+  <script src="supabase.js"></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <span class="logo">●</span>
-      <span class="brand-line" data-i18n="admin_points">Admin · Points Management</span>
-    </div>
-    <nav class="nav">
-      <a class="pill" href="admin-members.html" data-i18n="members">Members</a>
-      <a class="pill active" href="admin-points.html" data-i18n="points">Points</a>
-      <a class="pill" href="index.html" data-i18n="home">Home</a>
-      <select id="langSwitch" class="lang-switch">
-        <option value="zh">中</option>
-        <option value="en">EN</option>
-        <option value="ms">BM</option>
-      </select>
-      <button class="pill" onclick="logout()" data-i18n="logout">Logout</button>
-    </nav>
-  </header>
-  <main class="container">
-    <section class="card">
-      <h2 data-i18n="adjust_points">Adjust Points</h2>
-      <form id="adjForm" onsubmit="return adjust()">
-        <label class="label" data-i18n="phone">Phone</label>
-        <input id="aphone" class="input" required />
-        <label class="label" data-i18n="points_change">Change (+/-)</label>
-        <input id="delta" class="input" type="number" step="1" required placeholder="+100 or -50" />
-        <label class="label" data-i18n="note">Note</label>
-        <input id="note" class="input" />
-        <button class="btn gold" data-i18n="submit">Submit</button>
-      </form>
-      <div id="amsg" class="mt"></div>
-    </section>
-    <section class="card">
-      <div class="row between">
-        <h2 data-i18n="points_history">Points History</h2>
-        <input id="pSearch" class="input sm" placeholder="Phone..." oninput="loadHistory()" />
+  <div id="nav"></div>
+  <div class="container">
+    <div class="grid two">
+      <div class="card">
+        <div class="title" data-i18n="points">积分管理</div>
+        <label data-i18n="phone">电话</label>
+        <input id="pphone" class="input mono" data-ph="phone">
+        <label data-i18n="changePoints">积分变动（正数加分，负数扣分）</label>
+        <input id="pdelta" class="input mono" placeholder="+100 or -50">
+        <label data-i18n="note">备注</label>
+        <input id="pnote" class="input">
+        <div class="actions">
+          <button class="btn gold" onclick="addPointTx()" data-i18n="submit">提交</button>
+          <div id="pmsg" class="note hidden"></div>
+        </div>
       </div>
-      <div id="phTable" class="table"></div>
-    </section>
-  </main>
-  <footer class="site-footer">© 2025 KEDAI EMAS SIANG HENG</footer>
-<script>
-guard();
-async function ensureMemberByPhone(phone){{
-  const {{ data }} = await sb.from('members').select('id').eq('phone',phone).limit(1);
-  if(data && data.length) return data[0].id;
-  const {{ data:ins, error }} = await sb.from('members').insert({{name: phone, phone}}).select('id').single();
-  if(error) throw error; return ins.id;
-}}
-async function adjust(){{
-  event.preventDefault();
-  const phone = document.getElementById('aphone').value.trim();
-  const delta = parseInt(document.getElementById('delta').value,10);
-  const note  = document.getElementById('note').value.trim();
-  try{{
-    const mid = await ensureMemberByPhone(phone);
-    const {{ error }} = await sb.from('point_transactions').insert({{ member_id: mid, delta, note }});
-    document.getElementById('amsg').innerText = error? error.message : 'OK';
-    if(!error){{ document.getElementById('adjForm').reset(); loadHistory(); }}
-  }}catch(e){{ document.getElementById('amsg').innerText = e.message; }}
-  return false;
-}}
-async function loadHistory(){{
-  const q = document.getElementById('pSearch').value.trim();
-  let req = sb.from('point_transactions').select('delta,note,created_at, members(name,phone)').order('created_at',{{ascending:false}}).limit(200);
-  if(q) req = req.eq('members.phone', q);
-  const {{ data, error }} = await req;
-  if(error){{ document.getElementById('phTable').innerHTML = `<div class="danger">${{error.message}}</div>`; return; }}
-  document.getElementById('phTable').innerHTML = `
-    <div class="thead">
-      <div data-i18n="name">Name</div>
-      <div data-i18n="phone">Phone</div>
-      <div data-i18n="change">Change</div>
-      <div data-i18n="note">Note</div>
-      <div data-i18n="time">Time</div>
+      <div class="card">
+        <div class="title" data-i18n="history">积分记录</div>
+        <div class="search">
+          <input id="pq" class="input mono" style="max-width:300px" data-ph="phone" placeholder="Enter phone">
+          <button class="btn" onclick="loadTx()" data-i18n="history">积分记录</button>
+        </div>
+        <table class="table" id="pt">
+          <thead><tr>
+            <th data-i18n="name">姓名</th><th data-i18n="phone">电话</th><th data-i18n="delta">变动</th><th data-i18n="note">备注</th><th data-i18n="time">时间</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
-    ${{(data||[]).map(r=>`<div class="trow"><div>${{r.members?.name||''}}</div><div>${{r.members?.phone||''}}</div><div class="${{r.delta>=0?'pos':'neg'}}">${{r.delta>=0?'+':''}}${{r.delta}}</div><div>${{r.note||''}}</div><div>${{new Date(r.created_at).toLocaleString()}}</div></div>`).join('')}}`;
-  applyTranslations();
-}}
-loadHistory();
+  </div>
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
+<script>
+document.getElementById('nav').innerHTML = adminbar('points');
+bindLangSelect();
+guard();
+
+async function getMemberByPhone(phone){
+  const { data, error } = await sb.from('members').select('*').eq('phone', phone).maybeSingle();
+  if(error) throw error;
+  return data;
+}
+async function addPointTx(){
+  const phone = document.getElementById('pphone').value.trim();
+  const deltaStr = document.getElementById('pdelta').value.trim();
+  const note = document.getElementById('pnote').value.trim();
+  const msg = document.getElementById('pmsg'); msg.classList.add('hidden'); msg.textContent='';
+  if(!phone || !deltaStr){ msg.textContent='Phone/Delta required'; msg.classList.remove('hidden'); return; }
+  const delta = parseInt(deltaStr,10);
+  if(isNaN(delta)){ msg.textContent='Delta must be integer'; msg.classList.remove('hidden'); return; }
+  try{
+    let m = await getMemberByPhone(phone);
+    if(!m){ // auto create member if not exists
+      const ins = await sb.from('members').insert({ name: phone, phone }).select('*').maybeSingle();
+      if(ins.error) throw ins.error;
+      m = ins.data;
+    }
+    const { error } = await sb.from('point_transactions').insert({ member_id: m.id, delta, note });
+    if(error) throw error;
+    document.getElementById('pdelta').value=''; document.getElementById('pnote').value='';
+    loadTx();
+  }catch(e){ msg.textContent = e.message; msg.classList.remove('hidden'); }
+}
+async function loadTx(){
+  const phone = document.getElementById('pq').value.trim();
+  let query = sb.from('point_transactions').select('*, members(name,phone)').order('created_at',{ascending:false}).limit(200);
+  if(phone){
+    // join-like filter: first get member id by phone
+    const m = await getMemberByPhone(phone);
+    if(!m){ document.querySelector('#pt tbody').innerHTML='<tr><td colspan="5">No records</td></tr>'; return; }
+    query = query.eq('member_id', m.id);
+  }
+  const { data, error } = await query;
+  const tb = document.querySelector('#pt tbody'); tb.innerHTML='';
+  if(error){ tb.innerHTML = `<tr><td colspan="5" class="bad">${error.message}</td></tr>`; return; }
+  (data||[]).forEach(r=>{
+    let name='', phone='';
+    if(r.members){ name=r.members.name||''; phone=r.members.phone||''; }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${name}</td><td class="mono">${phone}</td><td class="${r.delta>=0?'good':'bad'}">${r.delta>=0?'+':''}${r.delta}</td><td>${r.note||''}</td><td>${r.created_at||''}</td>`;
+    tb.appendChild(tr);
+  });
+}
+loadTx();
 </script>
-</body>
-</html>
+</body></html>
