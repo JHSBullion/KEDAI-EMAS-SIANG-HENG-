@@ -76,9 +76,10 @@
 
     $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
 
-    // ============== 修正：封装插入函数（保留 UUID 字符串，不再 parseInt memberId） ==============
+    // ============== 封装插入函数：确保传入 created_by（当前登录用户 id） ==============
     /**
      * addPointTransaction - 插入一笔积分记录到 point_transactions
+     * 会自动尝试获取当前登录用户 id 并放入 created_by（若未登录会返回错误）
      * @param {string|number} memberId - 会员 ID（UUID 字符串或数字 id）
      * @param {number|string} points
      * @param {number|string} amount - 确保传入（默认 0）
@@ -87,10 +88,32 @@
      */
     async function addPointTransaction(memberId, points, amount = 0, note = '') {
       try {
-        // 保留原始 memberId（不要 parseInt），确保如果是 UUID 字符串不会被破坏
-        let member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim();
+        // 1) 取得当前登录用户 id（兼容 supabase v2 & v1）
+        let userId = null;
+        try {
+          if (supabase.auth.getUser) {
+            const res = await supabase.auth.getUser();
+            userId = res?.data?.user?.id ?? null;
+          } else if (supabase.auth.user) {
+            const u = supabase.auth.user();
+            userId = u?.id ?? null;
+          } else if (supabase.auth.session) {
+            const s = supabase.auth.session();
+            userId = s?.user?.id ?? null;
+          }
+        } catch (e) {
+          console.warn('获取用户 id 失败：', e);
+          userId = null;
+        }
 
-        // points 和 amount 做整数化/容错
+        if (!userId) {
+          const err = { message: '当前未登入，请先登入管理员账号再提交' };
+          console.error('addPointTransaction: no logged in user', { memberId, points, amount, note });
+          return { data: null, error: err };
+        }
+
+        // 2) member_id 保留原样（不要 parseInt），points & amount 做整数化
+        let member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim();
         const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10);
         const amt = Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10);
 
@@ -98,7 +121,7 @@
         const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
         const digitsRegex = /^\d+$/;
         if (!member_id || !(uuidRegex.test(member_id) || digitsRegex.test(member_id))) {
-          const err = { message: 'invalid member id (expect uuid string or numeric id)' };
+          const err = { message: '无效的会员 ID（需为 UUID 或数字 id）' };
           console.error('addPointTransaction invalid member id', { memberId, points, amount, note });
           return { data: null, error: err };
         }
@@ -106,8 +129,9 @@
         const payload = {
           member_id,
           points: pts,
-          amount: amt,   // 确保传 amount（防止 NOT NULL 报错）
-          note: note || null
+          amount: amt,
+          note: note || null,
+          created_by: userId
         };
 
         const { data, error } = await supabase
@@ -140,9 +164,17 @@
       const { data: m, error: e1 } = await supabase.from('members').select('id,name,phone').eq('phone', ph).maybeSingle()
       if(e1 || !m){ setMsg(e1?.message || '未找到该会员', false); return }
 
-      // 用 addPointTransaction，确保 member_id 格式正确，且 amount 明确传入（此处默认 0）
+      // 用 addPointTransaction，确保 created_by 会被传入（此处 amount 默认 0）
       const { data: insData, error: e2 } = await addPointTransaction(m.id, d, 0, nt)
-      if(e2){ setMsg(e2.message || JSON.stringify(e2), false); return }
+      if(e2){
+        setMsg(e2.message || JSON.stringify(e2), false);
+        // 若是未登录错误，提醒并跳到登录页（可选）
+        if (e2.message && e2.message.includes('未登入')) {
+          // 可自动跳转登录页，若不想自动跳则注释下一行
+          // location.href = 'login.html';
+        }
+        return
+      }
 
       setMsg('已提交', true)
       $('#delta').value=''; $('#note').value=''
