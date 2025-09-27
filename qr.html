@@ -5,11 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>会员入口二维码</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 让二维码容器固定大小，保证可见 */
+    .qr-box{
+      width: 320px; height: 320px; margin:16px auto;
+      border:1px solid rgba(0,0,0,.06); border-radius:12px;
+      background:#fff; display:flex; align-items:center; justify-content:center;
+    }
+  </style>
 </head>
 <body>
   <div class="navbar">
     <div class="navbar-inner container">
-      <div class="brand"><span class="crest"></span><span>QR · 会员入口</span></div>
+      <div class="brand"><span class="crest"></span><span data-i18n="qr_nav_title">QR · 会员入口</span></div>
       <div class="actions">
         <a class="btn" href="index.html" data-i18n="back_home">返回首页</a>
         <div class="lang-pill">
@@ -23,44 +31,59 @@
 
   <div class="container">
     <div class="card" style="max-width:560px;margin:24px auto;text-align:center">
-      <h2 style="margin:0 0 8px">打印用二维码</h2>
-      <p class="sub">默认生成本站 <code>index.html</code>（顾客扫码后输入手机号查询）</p>
+      <h2 style="margin:0 0 8px" data-i18n="qr_title">打印用二维码</h2>
+      <p class="sub" data-i18n="qr_desc">默认生成本站 index.html（顾客扫码后输入手机号查询）</p>
 
-      <canvas id="qr" style="width:320px;height:320px;margin:16px auto;display:block;border:1px solid rgba(0,0,0,.06);border-radius:12px"></canvas>
+      <!-- 用 div 容器生成二维码，更稳定 -->
+      <div id="qrbox" class="qr-box"></div>
 
-      <label>链接（可改，例如：member-portal.html?phone=0123456789）</label>
+      <label style="display:block;margin-top:6px" data-i18n="qr_link_label">
+        链接（可改，例如：member-portal.html?phone=0123456789）
+      </label>
       <input id="url" class="input">
+
       <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-gold" id="regen">重新生成</button>
-        <button class="btn" onclick="window.print()">打印</button>
+        <button class="btn btn-gold" id="regen" data-i18n="qr_regen">重新生成</button>
+        <button class="btn" onclick="window.print()" data-i18n="qr_print">打印</button>
       </div>
     </div>
   </div>
 
-  <!-- 顺序很重要：先 i18n，再 QR 库，再初始化 -->
+  <!-- 顺序：先 i18n，再二维码库，再初始化 -->
   <script src="lang.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <!-- 稳定版二维码库（qrcodejs） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+          integrity="sha512-M6g3YxZl9e9Hk8o2c6kG5R0sQ3yq1qYcO9YzYk9m7Ue2sQ5QqTqj3pNwF4S2n7m8HhZrX2v5v8h5p9YwG2+AQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const def = location.origin + location.pathname.replace(/\/[^/]*$/,'/') + 'index.html';
-      const urlInput = document.getElementById('url');
-      const canvas = document.getElementById('qr');
-      urlInput.value = def;
+    // 计算默认链接（指向 index.html）
+    function defaultIndexUrl(){
+      return location.origin + location.pathname.replace(/\/[^/]*$/,'/') + 'index.html';
+    }
 
-      function draw(){
-        const text = (urlInput.value || def).trim();
-        // 清空旧画面
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        // 生成二维码（确保库已加载）
-        if (window.QRCode && QRCode.toCanvas) {
-          QRCode.toCanvas(canvas, text, { width: 640, margin: 2 }, (err)=>{ if(err) console.error(err) });
-        } else {
-          console.error('QRCode library not loaded');
-        }
-      }
-      draw();
-      document.getElementById('regen').addEventListener('click', draw);
+    let qr; // 持有实例，便于刷新
+    function drawQR(text){
+      const box = document.getElementById('qrbox');
+      box.innerHTML = ''; // 清空旧图
+      // 生成二维码
+      qr = new QRCode(box, {
+        text: text,
+        width: 320,
+        height: 320,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const urlInput = document.getElementById('url');
+      urlInput.value = defaultIndexUrl();
+      drawQR(urlInput.value);
+
+      document.getElementById('regen').addEventListener('click', ()=>{
+        const v = (urlInput.value || defaultIndexUrl()).trim();
+        drawQR(v);
+      });
     });
   </script>
 </body>
