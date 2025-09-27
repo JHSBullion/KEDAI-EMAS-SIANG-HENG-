@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Admin · Points</title>
   <link rel="stylesheet" href="style.css"/>
-  <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <div class="navbar">
-    <div class="container flex-between">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
       <div class="brand"><span class="crest"></span> <span data-i18n="admin_nav_points">后台 · 积分管理</span></div>
       <div class="nav-right">
         <a href="admin-members.html" class="btn" data-i18n="nav_members">会员管理</a>
@@ -23,7 +22,6 @@
 
   <div class="container" style="margin:18px auto;">
     <div class="grid-2">
-      <!-- 调整积分 -->
       <div class="card">
         <h3 data-i18n="adjust_points_title">调整积分</h3>
         <label data-i18n="label_phone">电话</label>
@@ -36,7 +34,6 @@
         <div id="msg" class="alert mt-10" style="display:none"></div>
       </div>
 
-      <!-- 积分记录 -->
       <div class="card">
         <h3 data-i18n="points_list_title">积分记录</h3>
         <input id="q" class="input" data-i18n-ph="ph_phone" placeholder="请输入手机号">
@@ -51,9 +48,7 @@
                 <th data-i18n="th_time">时间</th>
               </tr>
             </thead>
-            <tbody id="tbody">
-              <tr><td colspan="5" class="sub" data-i18n="no_rows">暂无记录</td></tr>
-            </tbody>
+            <tbody id="tbody"><tr><td colspan="5" class="sub" data-i18n="no_rows">暂无记录</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -62,7 +57,41 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 你的积分变动/记录查询脚本保留 -->
-  <script src="lang.js"></script>
+  <script type="module">
+    import { sb, $, toast, addPoint, listPointHistory } from './app.js';
+
+    $('#logout').onclick = async ()=>{ await sb.auth.signOut(); location.href='login.html'; };
+
+    async function render(phone=''){
+      const tb = $('#tbody'); tb.innerHTML='';
+      const { data } = await listPointHistory(phone);
+      if(!data || data.length===0){ tb.innerHTML=`<tr><td colspan="5" class="sub" data-i18n="no_rows">暂无记录</td></tr>`; return; }
+      data.forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${r.members?.name||''}</td>
+                        <td>${r.members?.phone||''}</td>
+                        <td>${r.delta>0?'+':''}${r.delta||0}</td>
+                        <td>${r.note||''}</td>
+                        <td>${new Date(r.created_at).toLocaleString()}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+    render();
+    $('#q').addEventListener('input', e=>render(e.target.value.trim()));
+
+    $('#btnSubmit').onclick = async ()=>{
+      const phone = $('#phone').value.trim();
+      const delta = parseInt($('#delta').value,10);
+      const note  = $('#note').value.trim();
+      const msg   = $('#msg');
+      if(!phone || isNaN(delta)){ toast(msg, 'Phone & delta required.'); return; }
+      const { error } = await addPoint(phone, delta, note);
+      if(error){ toast(msg, error.message); return; }
+      toast(msg,'Saved.');
+      $('#delta').value=''; $('#note').value='';
+      render(phone);
+    };
+  </script>
+  <script src="lang.js?v=6"></script>
 </body>
 </html>
