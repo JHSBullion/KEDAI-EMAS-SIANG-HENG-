@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>后台 · 会员管理</title>
+  <title>后台 · 积分管理</title>
   <link rel="stylesheet" href="style.css">
   <script src="lang.js" defer></script>
   <script type="module" src="supabase.js"></script>
@@ -11,7 +11,7 @@
 <body>
   <div class="navbar">
     <div class="navbar-inner container">
-      <div class="brand"><span class="crest"></span><span>后台 · 会员管理</span></div>
+      <div class="brand"><span class="crest"></span><span>后台 · 积分管理</span></div>
       <div class="actions">
         <a class="btn" href="admin-members.html">会员管理</a>
         <a class="btn" href="admin-points.html">积分管理</a>
@@ -22,59 +22,51 @@
     </div>
   </div>
 
-  <div class="container">
-    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div class="card">
-        <h2>新增会员</h2>
-        <form id="addForm">
-          <label>姓名</label><input id="name" class="input" required>
-          <label>电话</label><input id="phone" class="input" required>
-          <div style="margin-top:12px"><button class="btn btn-gold" type="submit">添加</button></div>
-        </form>
-        <div id="msg" class="sub" style="margin-top:8px"></div>
-      </div>
+  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div class="card">
+      <h2>调整积分</h2>
+      <form id="f">
+        <label>电话</label><input id="ph" class="input" required>
+        <label>积分（正数加分，负数扣分）</label><input id="pts" class="input" type="number" value="0" required>
+        <label>备注</label><input id="note" class="input" placeholder="可留空">
+        <div style="margin-top:12px"><button class="btn btn-gold" type="submit">提交</button></div>
+      </form>
+      <div id="m" class="sub" style="margin-top:8px"></div>
+    </div>
 
-      <div class="card">
-        <h2>会员列表</h2>
-        <input id="search" class="input" placeholder="搜索姓名或电话…">
-        <table class="table" style="margin-top:12px">
-          <thead><tr><th>姓名</th><th>电话</th><th>创建时间</th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
+    <div class="card">
+      <h2>最近积分记录</h2>
+      <table class="table">
+        <thead><tr><th>电话</th><th>积分</th><th>备注</th><th>时间</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
     </div>
   </div>
 
   <script type="module">
     import { supabase, requireAuth, logout } from './supabase.js'
-    await requireAuth()
-    document.getElementById('logout').onclick = logout
+    await requireAuth(); document.getElementById('logout').onclick = logout
 
-    const f=document.getElementById('addForm'), msg=document.getElementById('msg'), tbody=document.getElementById('tbody'), search=document.getElementById('search')
-
-    f.addEventListener('submit', async (e)=>{
-      e.preventDefault(); msg.textContent=''
-      const name=document.getElementById('name').value.trim(), phone=document.getElementById('phone').value.trim()
-      if(!name||!phone){ msg.style.color='#c00'; msg.textContent='请填写姓名与电话'; return }
-      const { error, status } = await supabase.from('members').insert([{ name, phone }])
-      if(error){
-        if(status===401||status===403){ msg.style.color='#c00'; msg.textContent='没有权限：请确认已登录且 RLS 已允许'; return }
-        if(error.code==='23505'||/duplicate/i.test(error.message||'')){ msg.style.color='#c00'; msg.textContent='电话号码已存在'; return }
-        msg.style.color='#c00'; msg.textContent=error.message; return
-      }
-      msg.style.color='#0a7d00'; msg.textContent='添加成功'; f.reset(); load()
+    const f=document.getElementById('f'), m=document.getElementById('m'), tb=document.getElementById('tb')
+    f.addEventListener('submit', async (e)=>{ e.preventDefault(); m.textContent=''
+      const phone=document.getElementById('ph').value.trim()
+      const points=parseInt(document.getElementById('pts').value||'0',10)
+      const note=document.getElementById('note').value
+      const { data: member, error: e1 } = await supabase.from('members').select('id').eq('phone', phone).maybeSingle()
+      if(e1||!member){ m.style.color='#c00'; m.textContent='会员不存在'; return }
+      const { error } = await supabase.from('point_transactions').insert([{ member_id: member.id, points, note }])
+      if(error){ m.style.color='#c00'; m.textContent=error.message; return }
+      m.style.color='#0a7d00'; m.textContent='积分已更新'; f.reset(); load()
     })
 
     async function load(){
-      const q=(search.value||'').trim()
-      let query=supabase.from('members').select('name,phone,created_at').order('created_at',{ascending:false})
-      if(q){ query = supabase.from('members').select('name,phone,created_at').or(`name.ilike.%${q}%,phone.ilike.%${q}%`).order('created_at',{ascending:false}) }
-      const { data, error } = await query
-      if(error){ tbody.innerHTML = `<tr><td colspan="3" style="color:#c00">${error.message}</td></tr>`; return }
-      tbody.innerHTML = (data||[]).map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.phone)}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`).join('')||'<tr><td colspan="3">暂无数据</td></tr>'
-    }
-    function escapeHtml(s){return (s??'').replace(/[&<>\"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
-    search.addEventListener('input', load); load()
+      const { data, error } = await supabase
+        .from('point_transactions')
+        .select('points,note,created_at,members!inner(phone)')
+        .order('created_at',{ascending:false}).limit(30)
+      if(error){ tb.innerHTML = `<tr><td colspan="4" style="color:#c00">${error.message}</td></tr>`; return }
+      tb.innerHTML = (data||[]).map(r=>`<tr><td>${r.members?.phone||''}</td><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`).join('')||'<tr><td colspan="4">暂无数据</td></tr>'
+    } load()
   </script>
 </body>
 </html>
