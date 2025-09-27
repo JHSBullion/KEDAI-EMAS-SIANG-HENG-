@@ -76,53 +76,48 @@
 
     $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
 
-    // ============== 封装插入函数：确保传入 created_by（当前登录用户 id） ==============
-    /**
-     * addPointTransaction - 插入一笔积分记录到 point_transactions
-     * 会自动尝试获取当前登录用户 id 并放入 created_by（若未登录会返回错误）
-     * @param {string|number} memberId - 会员 ID（UUID 字符串或数字 id）
-     * @param {number|string} points
-     * @param {number|string} amount - 确保传入（默认 0）
-     * @param {string} note
-     * @returns {object} { data, error }
-     */
-    async function addPointTransaction(memberId, points, amount = 0, note = '') {
+    // ---------- Helper: 获取当前登录用户 id（兼容 supabase v2 / v1） ----------
+    async function getCurrentUserId() {
       try {
-        // 1) 取得当前登录用户 id（兼容 supabase v2 & v1）
-        let userId = null;
-        try {
-          if (supabase.auth.getUser) {
-            const res = await supabase.auth.getUser();
-            userId = res?.data?.user?.id ?? null;
-          } else if (supabase.auth.user) {
-            const u = supabase.auth.user();
-            userId = u?.id ?? null;
-          } else if (supabase.auth.session) {
-            const s = supabase.auth.session();
-            userId = s?.user?.id ?? null;
-          }
-        } catch (e) {
-          console.warn('获取用户 id 失败：', e);
-          userId = null;
+        // v2
+        if (supabase.auth && supabase.auth.getUser) {
+          const res = await supabase.auth.getUser();
+          return res?.data?.user?.id ?? null;
         }
+        // v1
+        if (supabase.auth && typeof supabase.auth.user === 'function') {
+          const u = supabase.auth.user();
+          return u?.id ?? null;
+        }
+        // fallback session
+        if (supabase.auth && typeof supabase.auth.session === 'function') {
+          const s = supabase.auth.session();
+          return s?.user?.id ?? null;
+        }
+        return null;
+      } catch (e) {
+        console.warn('getCurrentUserId error:', e);
+        return null;
+      }
+    }
 
-        if (!userId) {
-          const err = { message: '当前未登入，请先登入管理员账号再提交' };
-          console.error('addPointTransaction: no logged in user', { memberId, points, amount, note });
+    // ---------- 插入函数：确保传 member_id / points / amount / created_by ----------
+    async function addPointTransaction(memberId, points, amount = null, note = '') {
+      try {
+        const member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim();
+        const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10);
+        const amt = amount === null ? pts : (Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10));
+
+        if (!member_id) {
+          const err = { message: 'invalid member id' };
+          console.error('addPointTransaction invalid member id', { memberId, points, amount, note });
           return { data: null, error: err };
         }
 
-        // 2) member_id 保留原样（不要 parseInt），points & amount 做整数化
-        let member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim();
-        const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10);
-        const amt = Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10);
-
-        // 基础校验：允许 UUID 或纯数字 id
-        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
-        const digitsRegex = /^\d+$/;
-        if (!member_id || !(uuidRegex.test(member_id) || digitsRegex.test(member_id))) {
-          const err = { message: '无效的会员 ID（需为 UUID 或数字 id）' };
-          console.error('addPointTransaction invalid member id', { memberId, points, amount, note });
+        const userId = await getCurrentUserId();
+        if (!userId) {
+          const err = { message: '当前未登入，请先登入管理员账号' };
+          console.error('addPointTransaction: no logged in user');
           return { data: null, error: err };
         }
 
@@ -134,6 +129,7 @@
           created_by: userId
         };
 
+        // 直接插入到 point_transactions（若你后来改用 RPC 可以改成 supabase.rpc(...)）
         const { data, error } = await supabase
           .from('point_transactions')
           .insert([payload]);
@@ -151,30 +147,34 @@
       }
     }
 
-    // ============== 绑定提交按钮，使用上面的函数 ==============
+    // ---------- 绑定提交按钮 ----------
     $('#btnSubmit').addEventListener('click', async ()=>{
       msg.style.display='none'
       const ph = $('#phone').value.trim()
-      const d  = Number(($('#delta').value||'').replace(/\s/g,'')) // 支持 +100 / -50
+      const dRaw = ($('#delta').value||'').replace(/\s/g,'') // 支持 +100 / -50
+      const d  = Number(dRaw)
       const nt = $('#note').value.trim()
       if(!ph || !Number.isFinite(d)){
         setMsg('请输入有效的手机号与积分变动', false); return
       }
-      // 取得会员（members.id 很可能是 UUID 字符串）
-      const { data: m, error: e1 } = await supabase.from('members').select('id,name,phone').eq('phone', ph).maybeSingle()
-      if(e1 || !m){ setMsg(e1?.message || '未找到该会员', false); return }
 
-      // 用 addPointTransaction，确保 created_by 会被传入（此处 amount 默认 0）
-      const { data: insData, error: e2 } = await addPointTransaction(m.id, d, 0, nt)
-      if(e2){
-        setMsg(e2.message || JSON.stringify(e2), false);
-        // 若是未登录错误，提醒并跳到登录页（可选）
-        if (e2.message && e2.message.includes('未登入')) {
-          // 可自动跳转登录页，若不想自动跳则注释下一行
-          // location.href = 'login.html';
-        }
-        return
+      // 先根据手机号查会员
+      const { data: m, error: e1 } = await supabase
+        .from('members')
+        .select('id,name,phone')
+        .eq('phone', ph)
+        .maybeSingle();
+
+      if (e1) {
+        console.error('查会员出错：', e1);
+        setMsg(e1.message || '查会员出错', false);
+        return;
       }
+      if (!m) { setMsg('未找到该会员', false); return }
+
+      // 插入：默认 amount = points（若你需要 amount 表示实际金额请传入不同值）
+      const { data: insData, error: e2 } = await addPointTransaction(m.id, d, d, nt)
+      if(e2){ setMsg(e2.message || JSON.stringify(e2), false); return }
 
       setMsg('已提交', true)
       $('#delta').value=''; $('#note').value=''
@@ -187,9 +187,13 @@
       msg.textContent = t; msg.style.display='block'
       if(ok) setTimeout(()=>msg.style.display='none',1500)
     }
+
     const esc = s=>String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m]))
+
+    // ---------- 刷新积分记录列表 ----------
     async function refresh(){
       const ph = $('#q').value.trim()
+      // 这里使用 inner join，优点是只显示能关联到 members 的记录（若你想看孤立记录可改为 members(name,phone)）
       let req = supabase.from('point_transactions')
         .select('points,note,created_at,members!inner(name,phone)')
         .order('created_at',{ascending:false}).limit(100)
@@ -211,6 +215,7 @@
         </tr>`
       }).join('')
     }
+
     $('#q').addEventListener('input', refresh)
     refresh()
   </script>
