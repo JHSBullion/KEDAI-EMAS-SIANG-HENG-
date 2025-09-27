@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Admin Login</title>
   <link rel="stylesheet" href="style.css"/>
-  <!-- 你自己的 Supabase 初始化脚本文件（若有） -->
-  <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <div class="navbar">
-    <div class="container flex-between">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
       <div class="brand"><span class="crest"></span> KEDAI EMAS SIANG HENG</div>
       <div class="nav-right">
         <a href="index.html" class="btn" data-i18n="back_home">返回首页</a>
@@ -30,7 +28,7 @@
         <label data-i18n="login_password">密码</label>
         <input id="password" class="input" type="password" placeholder="******">
       </div>
-      <button id="loginBtn" class="btn btn-gold" data-i18n="login_btn">登录</button>
+      <button id="login" class="btn btn-gold" data-i18n="login_btn">登录</button>
       <div id="loginMsg" class="alert mt-10" style="display:none"></div>
     </div>
 
@@ -42,7 +40,19 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 你的登录逻辑保留（这里不改动） -->
-  <script src="lang.js"></script>
+  <script type="module">
+    import { sb, $ } from './app.js';
+    const msg = $('#loginMsg');
+    $('#login').onclick = async ()=>{
+      msg.style.display='none'; msg.textContent='';
+      const email = $('#email').value.trim();
+      const password = $('#password').value;
+      if(!email || !password){ msg.style.display='block'; msg.textContent='Please enter email & password.'; return; }
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if(error){ msg.style.display='block'; msg.textContent=error.message; return; }
+      location.href='admin-members.html';
+    };
+  </script>
+  <script src="lang.js?v=6"></script>
 </body>
 </html>
