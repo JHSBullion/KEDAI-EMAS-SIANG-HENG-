@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Admin · Members</title>
   <link rel="stylesheet" href="style.css"/>
-  <!-- 你自己的 Supabase/业务脚本（若有独立文件请保留原引用） -->
-  <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <div class="navbar">
-    <div class="container flex-between">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
       <div class="brand"><span class="crest"></span> <span data-i18n="admin_nav_members">后台 · 会员管理</span></div>
       <div class="nav-right">
         <a href="admin-members.html" class="btn" data-i18n="nav_members">会员管理</a>
@@ -24,7 +22,6 @@
 
   <div class="container" style="margin:18px auto;">
     <div class="grid-2">
-      <!-- 新增会员 -->
       <div class="card">
         <h3 data-i18n="add_member_title">新增会员</h3>
         <label data-i18n="label_name">姓名</label>
@@ -35,7 +32,6 @@
         <div id="msg" class="alert mt-10" style="display:none"></div>
       </div>
 
-      <!-- 会员列表 -->
       <div class="card">
         <h3 data-i18n="member_list_title">会员列表</h3>
         <input id="q" class="input" data-i18n-ph="ph_search" placeholder="搜索姓名或电话…">
@@ -48,9 +44,7 @@
                 <th data-i18n="th_created">创建时间</th>
               </tr>
             </thead>
-            <tbody id="tbody">
-              <tr><td colspan="3" class="sub" data-i18n="no_rows">暂无记录</td></tr>
-            </tbody>
+            <tbody id="tbody"><tr><td colspan="3" class="sub" data-i18n="no_rows">暂无记录</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -59,7 +53,37 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 你原本的添加/查询会员脚本在这里继续加载（如果在本页内联，也可保留） -->
-  <script src="lang.js"></script>
+  <script type="module">
+    import { sb, $, listMembers, addMember, toast } from './app.js';
+
+    $('#logout').onclick = async ()=>{ await sb.auth.signOut(); location.href='login.html'; };
+
+    async function render(keyword=''){
+      const tb = $('#tbody'); tb.innerHTML='';
+      const { data } = await listMembers(keyword);
+      if(!data || data.length===0){ tb.innerHTML=`<tr><td colspan="3" class="sub" data-i18n="no_rows">暂无记录</td></tr>`; return; }
+      data.forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${r.name||''}</td><td>${r.phone||''}</td><td>${new Date(r.created_at).toLocaleString()}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+    render();
+
+    $('#q').addEventListener('input', e=>render(e.target.value.trim()));
+
+    $('#btnAdd').onclick = async ()=>{
+      const name = $('#name').value.trim();
+      const phone= $('#phone').value.trim();
+      const msg  = $('#msg');
+      if(!name || !phone){ toast(msg,'Name & phone required.'); return; }
+      const { error } = await addMember(name, phone);
+      if(error){ toast(msg, error.message); return; }
+      toast(msg,'Added.');
+      $('#name').value=''; $('#phone').value='';
+      render();
+    };
+  </script>
+  <script src="lang.js?v=6"></script>
 </body>
 </html>
