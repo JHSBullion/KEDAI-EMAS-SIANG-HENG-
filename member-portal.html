@@ -1,107 +1,78 @@
 <!doctype html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>会员积分 · 结果</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="supabase.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Member Portal</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <!-- 顶栏 -->
   <div class="navbar">
-    <div class="navbar-inner container">
-      <div class="brand"><span class="crest"></span><span data-i18n="result_title">查询结果</span></div>
-      <div class="actions">
-        <a class="btn" href="index.html" data-i18n="back_home">返回首页</a>
-        <a class="btn" href="login.html" data-i18n="btn_admin">后台</a>
-        <div class="lang-pill">
-          <select class="lang">
-            <option value="zh">中</option>
-            <option value="en">EN</option>
-            <option value="ms">BM</option>
-          </select>
-        </div>
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
+      <div class="brand"><span class="crest"></span> KEDAI EMAS SIANG HENG</div>
+      <div class="nav-right">
+        <a href="index.html" class="btn" data-i18n="nav_home">首页</a>
+        <select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
       </div>
     </div>
   </div>
 
-  <!-- 结果卡 -->
-  <div class="container">
-    <div class="card" style="max-width:920px;margin:18px auto">
-      <h2 style="margin:0 0 10px" data-i18n="result_title">查询结果</h2>
-
-      <div id="bio" class="sub" style="margin:0 0 10px">—</div>
-
-      <div class="kpi" style="margin:6px 0 16px">
-        <div class="value" id="tp">0</div>
-        <div class="hint" data-i18n="result_total">总积分</div>
+  <div class="container" style="max-width:1000px;margin:24px auto;">
+    <div class="card">
+      <h3 data-i18n="result_title">查询结果</h3>
+      <div class="grid-2">
+        <div>
+          <div class="form-row"><label data-i18n="result_name">姓名</label><div id="m_name" class="sub">-</div></div>
+          <div class="form-row"><label data-i18n="result_phone">电话</label><div id="m_phone" class="sub">-</div></div>
+        </div>
+        <div>
+          <div class="form-row"><label data-i18n="result_points">积分</label><div id="m_points" style="font-weight:800;font-size:28px">0</div></div>
+        </div>
       </div>
+    </div>
 
-      <h3 style="margin:16px 0 8px" data-i18n="history_title">积分记录</h3>
-      <table class="table">
-        <thead>
-          <tr>
-            <th data-i18n="th_points">积分</th>
-            <th data-i18n="th_note">备注</th>
-            <th data-i18n="th_time">时间</th>
-          </tr>
-        </thead>
-        <tbody id="tb"></tbody>
-      </table>
+    <div class="card mt-10">
+      <h3 data-i18n="result_history">积分历史</h3>
+      <div style="overflow:auto;margin-top:10px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-i18n="th_time">时间</th>
+              <th data-i18n="th_change">变动</th>
+              <th data-i18n="th_note">备注</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"><tr><td colspan="3" class="sub" data-i18n="no_rows">暂无记录</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <script src="lang.js"></script>
   <script type="module">
-    import { supabase } from './supabase.js'
+    import { $, q, getMemberByPhone, listPointHistory, sumPointsByPhone } from './app.js';
+    const phone = q('phone','').trim();
+    if(!phone) location.replace('index.html');
 
-    const bio = document.getElementById('bio')
-    const tp = document.getElementById('tp')
-    const tb = document.getElementById('tb')
+    (async ()=>{
+      const { data: m } = await getMemberByPhone(phone);
+      $('#m_name').textContent  = m?.name || '-';
+      $('#m_phone').textContent = phone;
+      $('#m_points').textContent = await sumPointsByPhone(phone);
 
-    const L = ()=> (window.I18N && window.I18N[localStorage.getItem('lang')||'zh']) || {}
-
-    const phone = new URLSearchParams(location.search).get('phone')
-    if(!phone){
-      bio.textContent = L().not_found || '未找到该会员'
-      fillTable([]); throw new Error('no phone')
-    }
-
-    // 1) 基本信息 + 总分
-    const { data: mp, error: e1 } = await supabase
-      .from('member_points')
-      .select('name,phone,total_points')
-      .eq('phone', phone)
-      .maybeSingle()
-
-    if(e1 || !mp){
-      bio.textContent = L().not_found || '未找到该会员'
-      tp.textContent = '—'
-    } else {
-      bio.textContent = `姓名：${mp.name}（${mp.phone}）`
-      tp.textContent = mp.total_points
-    }
-
-    // 2) 历史记录
-    const { data: rows, error: e2 } = await supabase
-      .from('point_transactions')
-      .select('points,note,created_at,members!inner(phone)')
-      .eq('members.phone', phone)
-      .order('created_at',{ascending:false})
-      .limit(30)
-
-    if(e2){ fillTable([], true) } else { fillTable(rows||[]) }
-
-    function fillTable(rows, failed){
-      if(failed){ tb.innerHTML = `<tr><td colspan="3" style="color:#c00">${L().fetch_fail||'查询失败，请稍后重试'}</td></tr>`; return }
-      if(!rows.length){ tb.innerHTML = `<tr><td colspan="3">${L().no_rows||'暂无记录'}</td></tr>`; return }
-      tb.innerHTML = rows.map(r =>
-        `<tr><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`
-      ).join('')
-    }
+      const { data: rows } = await listPointHistory(phone);
+      const tb = $('#tbody'); tb.innerHTML = '';
+      (rows||[]).forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${new Date(r.created_at).toLocaleString()}</td>
+                        <td>${r.delta>0?'+':''}${r.delta||0}</td>
+                        <td>${r.note||''}</td>`;
+        tb.appendChild(tr);
+      });
+      if(!rows || rows.length===0) tb.innerHTML = `<tr><td colspan="3" class="sub" data-i18n="no_rows"></td></tr>`;
+    })();
   </script>
+  <script src="lang.js?v=6"></script>
 </body>
 </html>
