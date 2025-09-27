@@ -2,34 +2,21 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin · Points</title>
   <link rel="stylesheet" href="style.css" />
   <script type="module" src="supabase.js"></script>
-  <style>
-    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
-    @media (max-width: 960px){ .grid-2{ grid-template-columns:1fr } }
-    .toolbar{ display:flex; gap:10px; align-items:center; }
-    .table-wrap{ overflow:auto }
-  </style>
 </head>
 <body>
-  <!-- 顶栏 -->
   <div class="navbar">
-    <div class="navbar-inner container">
-      <div class="brand">
-        <span class="crest"></span>
-        <span data-i18n="admin_nav_points">后台 · 积分管理</span>
-      </div>
-      <div class="actions toolbar">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
+      <div class="brand"><span class="crest"></span><span data-i18n="admin_nav_points">后台 · 积分管理</span></div>
+      <div class="nav-right">
         <a class="btn" href="admin-members.html" data-i18n="nav_members">会员管理</a>
         <a class="btn" href="admin-points.html"  data-i18n="nav_points">积分管理</a>
         <a class="btn" href="index.html"          data-i18n="nav_home">首页</a>
-        <div class="lang-pill">
-          <select class="lang">
-            <option value="zh">中</option><option value="en">EN</option><option value="ms">BM</option>
-          </select>
-        </div>
+        <select class="lang-select">
+          <option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option>
+        </select>
         <button id="logout" class="btn btn-ghost" data-i18n="nav_logout">登出</button>
       </div>
     </div>
@@ -40,32 +27,28 @@
       <!-- 左：调整积分 -->
       <div class="card">
         <h3 data-i18n="adjust_points_title">调整积分</h3>
-        <form id="form" style="margin-top:12px;display:grid;gap:10px;">
-          <div>
-            <label data-i18n="label_phone">电话</label>
-            <input id="phone" class="input" inputmode="numeric" data-i18n-ph="ph_phone" placeholder="请输入电话">
-          </div>
-          <div>
-            <label data-i18n="label_delta">积分变动（正数加分，负数扣分）</label>
-            <input id="delta" class="input" inputmode="numeric" placeholder="+100 或 -50">
-          </div>
-          <div>
-            <label data-i18n="label_note">备注</label>
-            <input id="note" class="input" placeholder="">
-          </div>
-          <button class="btn btn-gold" type="submit" style="width:160px" data-i18n="btn_add_points">提交</button>
-          <div id="msg" class="sub" style="color:#c00;"></div>
-        </form>
+
+        <div class="form-row">
+          <label data-i18n="label_phone">电话</label>
+          <input id="phone" class="input" data-i18n-ph="ph_phone" placeholder="请输入手机号">
+        </div>
+        <div class="form-row">
+          <label data-i18n="label_delta">积分变动（正数加分，负数扣分）</label>
+          <input id="delta" class="input" placeholder="+100 或 -50">
+        </div>
+        <div class="form-row">
+          <label data-i18n="label_note">备注</label>
+          <input id="note" class="input">
+        </div>
+        <button id="btnSubmit" class="btn btn-gold" data-i18n="btn_add_points">提交</button>
+        <div id="msg" class="alert mt-10" style="display:none"></div>
       </div>
 
-      <!-- 右：积分记录 -->
+      <!-- 右：记录 -->
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <h3 style="margin:0" data-i18n="points_list_title">积分记录</h3>
-          <input id="q" class="input" style="max-width:280px" data-i18n-ph="ph_phone" placeholder="请输入电话">
-        </div>
-
-        <div class="table-wrap" style="margin-top:12px">
+        <h3 data-i18n="points_list_title">积分记录</h3>
+        <input id="q" class="input" style="max-width:320px" data-i18n-ph="ph_phone" placeholder="请输入手机号">
+        <div style="overflow:auto;margin-top:10px">
           <table class="table">
             <thead>
               <tr>
@@ -76,9 +59,7 @@
                 <th data-i18n="th_time">时间</th>
               </tr>
             </thead>
-            <tbody id="tbody">
-              <tr><td colspan="5" class="sub" data-i18n="no_rows">暂无记录</td></tr>
-            </tbody>
+            <tbody id="tbody"><tr><td colspan="5" class="sub" data-i18n="no_rows">暂无记录</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -90,82 +71,51 @@
   <script src="lang.js"></script>
   <script type="module">
     import { supabase } from './supabase.js'
+    const $ = s=>document.querySelector(s)
+    const msg = $('#msg')
 
-    // 顶栏：登出
-    document.getElementById('logout').addEventListener('click', async ()=>{
-      await supabase.auth.signOut()
-      location.href = 'login.html'
+    $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
+
+    // 提交积分
+    $('#btnSubmit').addEventListener('click', async ()=>{
+      msg.style.display='none'
+      const ph = $('#phone').value.trim()
+      const d  = Number(($('#delta').value||'').replace(/\s/g,'')) // 支持 +100 / -50
+      const nt = $('#note').value.trim()
+      if(!ph || !Number.isFinite(d)){
+        setMsg('请输入有效的手机号与积分变动', false); return
+      }
+      const { data: m, error: e1 } = await supabase.from('members').select('id,name,phone').eq('phone', ph).maybeSingle()
+      if(e1 || !m){ setMsg(e1?.message || '未找到该会员', false); return }
+
+      const { error: e2 } = await supabase.from('point_transactions').insert({ member_id: m.id, points: d, note: nt })
+      if(e2){ setMsg(e2.message, false); return }
+
+      setMsg('已提交', true)
+      $('#delta').value=''; $('#note').value=''
+      $('#q').value = ph
+      refresh()
     })
 
-    const form  = document.getElementById('form')
-    const phone = document.getElementById('phone')
-    const delta = document.getElementById('delta')
-    const note  = document.getElementById('note')
-    const msg   = document.getElementById('msg')
-    const q     = document.getElementById('q')
-    const tbody = document.getElementById('tbody')
-
-    // 简单转义
-    const esc = s => String(s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))
-
-    // 提交调整
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault()
-      msg.textContent = ''
-      const ph = phone.value.trim()
-      const d  = Number((delta.value||'').replace(/\s/g,''))
-      const nt = note.value.trim()
-
-      if(!ph || !Number.isFinite(d)){ msg.textContent = '请填写有效的电话与积分变动'; return }
-
-      // 1) 找会员
-      const { data: m, error: e1 } = await supabase
-        .from('members')
-        .select('id,name,phone')
-        .eq('phone', ph)
-        .maybeSingle()
-
-      if(e1 || !m){ msg.textContent = e1?.message || '未找到该会员'; return }
-
-      // 2) 记一条交易
-      const { error: e2 } = await supabase
-        .from('point_transactions')
-        .insert({ member_id: m.id, points: d, note: nt })
-
-      if(e2){ msg.textContent = e2.message; return }
-
-      // 清空并刷新右侧列表（按该手机号过滤）
-      delta.value = ''; note.value = ''
-      q.value = ph
-      await refresh()
-      msg.style.color = '#0a0'
-      msg.textContent = '已提交'
-      setTimeout(()=>{ msg.textContent=''; msg.style.color='#c00' }, 1500)
-    })
-
-    // 拉取/渲染
+    function setMsg(t, ok){
+      msg.className = 'alert ' + (ok?'alert-success':'alert-error')
+      msg.textContent = t; msg.style.display='block'
+      if(ok) setTimeout(()=>msg.style.display='none',1500)
+    }
+    const esc = s=>String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m]))
     async function refresh(){
-      const ph = q.value.trim()
-      let req = supabase
-        .from('point_transactions')
+      const ph = $('#q').value.trim()
+      let req = supabase.from('point_transactions')
         .select('points,note,created_at,members!inner(name,phone)')
-        .order('created_at',{ascending:false})
-        .limit(100)
+        .order('created_at',{ascending:false}).limit(100)
       if(ph) req = req.eq('members.phone', ph)
-
       const { data, error } = await req
-      if(error){
-        tbody.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`
-        return
-      }
-      const rows = data||[]
-      if(!rows.length){
-        tbody.innerHTML = `<tr><td colspan="5" class="sub">${(I18N[localStorage.getItem('lang')||'zh']||{}).no_rows || '暂无记录'}</td></tr>`
-        return
-      }
-      tbody.innerHTML = rows.map(r=>{
-        const t = new Date(r.created_at).toLocaleString()
+      const tb = $('#tbody')
+      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; return }
+      if(!data || !data.length){ tb.innerHTML = `<tr><td colspan="5" class="sub">${I18N[localStorage.getItem('lang')||'zh'].no_rows}</td></tr>`; return }
+      tb.innerHTML = data.map(r=>{
         const sign = r.points>0? '+' : ''
+        const t = new Date(r.created_at).toLocaleString()
         return `<tr>
           <td>${esc(r.members?.name)}</td>
           <td>${esc(r.members?.phone)}</td>
@@ -175,11 +125,7 @@
         </tr>`
       }).join('')
     }
-
-    // 搜索框监听
-    q.addEventListener('input', refresh)
-
-    // 初始加载
+    $('#q').addEventListener('input', refresh)
     refresh()
   </script>
 </body>
