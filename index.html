@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>会员系统 - 首页</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="lang.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KEDAI EMAS SIANG HENG · Members</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="lang.js"></script>
+  <script defer src="app.js"></script>
 </head>
 <body>
-  <header>
-    <h1>✨ KEDAI EMAS SIANG HENG · <span data-i18n="system">会员管理</span></h1>
-    <nav>
-      <a href="qr.html" data-i18n="qr">二维码</a>
-      <a href="login.html" data-i18n="admin">后台</a>
-      <select id="langSwitcher">
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo">●</span>
+      <span class="brand-line">KEDAI EMAS SIANG HENG</span>
+      <span class="muted"> · </span>
+      <span class="brand-sub" data-i18n="system">Member System</span>
+    </div>
+    <nav class="nav">
+      <a class="pill" href="qr.html" data-i18n="qr">QR Code</a>
+      <a class="pill" href="login.html" data-i18n="admin">Admin</a>
+      <select id="langSwitch" class="lang-switch">
         <option value="zh">中</option>
         <option value="en">EN</option>
         <option value="ms">BM</option>
@@ -21,22 +27,22 @@
     </nav>
   </header>
 
-  <main>
-    <section class="card">
-      <h2 data-i18n="welcome">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h2>
-      <p data-i18n="instruction">输入手机号即可查询积分</p>
-      <form action="member-portal.html">
-        <label data-i18n="phone">电话</label>
-        <input type="text" name="phone" placeholder="请输入手机号">
-        <button type="submit" data-i18n="check">查询积分</button>
+  <main class="container">
+    <section class="card hero">
+      <div class="badge">White • Gold • Luxe</div>
+      <h1 data-i18n="welcome">Welcome to KEDAI EMAS SIANG HENG Member System</h1>
+      <p class="muted" data-i18n="enter_phone">Enter your mobile number to view your points.</p>
+      <form id="goPortalForm" class="grid" onsubmit="return goPortal()">
+        <label class="label" for="phone" data-i18n="phone">Phone</label>
+        <input id="phone" class="input" type="tel" placeholder="01154021213" required />
+        <button class="btn gold" type="submit" data-i18n="check_points">Check</button>
       </form>
+      <div class="links-row">
+        <a class="link" href="member-portal.html?phone=01154021213" data-i18n="deep_link_hint">Supports deep link with ?phone=</a>
+      </div>
     </section>
   </main>
+  <footer class="site-footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</footer>
 
-  <footer>
-    <p>© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</p>
-  </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>
