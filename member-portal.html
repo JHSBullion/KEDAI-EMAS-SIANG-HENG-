@@ -1,49 +1,115 @@
 <!doctype html>
-<html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="member_portal">会员入口</title>
-<link rel="stylesheet" href="style.css">
-<script src="lang.js" defer></script>
-<script type="module" src="supabase.js"></script>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>会员积分 · 结果</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lang.js" defer></script>
+  <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <div class="navbar">
     <div class="navbar-inner container">
-      <div class="brand"><span class="dot"></span><span data-i18n="member_portal">KEDAI EMAS SIANG HENG · 会员入口</span></div>
-      <div class="actions"><select class="lang"><option value="zh">中</option><option value="en">EN</option><option value="ms">BM</option></select></div>
+      <div class="brand"><span class="crest"></span><span>会员积分</span></div>
+      <div class="lang-pill">
+        <select class="lang"><option value="zh">中</option><option value="en">EN</option><option value="ms">BM</option></select>
+      </div>
     </div>
   </div>
-  <div class="container grid-2">
-    <div class="card">
-      <h2 data-i18n="check_points">查询积分</h2>
+
+  <div class="container">
+    <!-- 查询框（可再次查询） -->
+    <div class="card" style="max-width:640px;margin:18px auto">
+      <h2 style="margin:0 0 10px">查询会员积分</h2>
       <form id="f">
-        <label data-i18n="enter_phone">输入你的电话号码</label>
-        <input id="ph" class="input" placeholder="0123456789">
-        <div style="margin-top:12px"><button class="btn btn-gold" type="submit" data-i18n="check_points">查询积分</button></div>
+        <label>手机号</label>
+        <input id="ph" class="input" placeholder="请输入手机号">
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-gold" type="submit">查询</button>
+          <a class="btn" href="index.html">返回首页</a>
+        </div>
       </form>
-      <div id="msg" class="msg" style="margin-top:8px"></div>
+      <div id="msg" class="sub" style="margin-top:10px"></div>
     </div>
-    <div id="panel" class="card" style="display:none">
-      <h2 data-i18n="your_points">当前积分</h2>
-      <div class="kpi"><div class="value" id="tp">0</div><div class="hint" data-i18n="total_points">总积分</div></div>
-      <p><b data-i18n="name">姓名</b>：<span id="nm"></span></p>
-      <p><b data-i18n="phone">电话</b>：<span id="pp"></span></p>
-      <h3 style="margin-top:16px" data-i18n="history">积分记录</h3>
-      <table class="table"><thead><tr><th data-i18n="points">积分</th><th data-i18n="note">备注</th><th data-i18n="created_at">时间</th></tr></thead><tbody id="tb"></tbody></table>
+
+    <!-- 结果面板 -->
+    <div id="panel" class="card" style="max-width:900px;margin:18px auto;display:none">
+      <h2 style="margin:0 0 6px">查询结果</h2>
+      <p class="sub" id="bio" style="margin:0 0 10px"></p>
+
+      <div class="kpi" style="margin:6px 0 16px">
+        <div class="value" id="tp">0</div>
+        <div class="hint">总积分</div>
+      </div>
+
+      <h3 style="margin:16px 0 8px">积分记录</h3>
+      <table class="table">
+        <thead><tr><th>积分</th><th>备注</th><th>时间</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
     </div>
   </div>
+
   <script type="module">
     import { supabase } from './supabase.js'
-    const f=document.getElementById('f'), msg=document.getElementById('msg'), panel=document.getElementById('panel')
-    const nm=document.getElementById('nm'), pp=document.getElementById('pp'), tp=document.getElementById('tp'), tb=document.getElementById('tb')
-    f.addEventListener('submit', async (e)=>{ e.preventDefault(); msg.textContent=''; panel.style.display='none'
-      const phone=document.getElementById('ph').value.trim()
-      const { data: mp, error } = await supabase.from('member_points').select('*').eq('phone', phone).single()
-      if(error||!mp){ msg.className='msg err'; msg.textContent=document.querySelector('[data-i18n="no_member"]').textContent || '没有找到该会员'; return }
-      nm.textContent=mp.name; pp.textContent=mp.phone; tp.textContent=mp.total_points
-      const { data: hist } = await supabase.from('point_transactions').select('points,note,created_at,members!inner(phone)').eq('members.phone', phone).order('created_at',{ascending:false}).limit(20)
-      tb.innerHTML=(hist||[]).map(r=>`<tr><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`).join('')||'<tr><td colspan="3">-</td></tr>'
-      panel.style.display='block'
+
+    const ph = document.getElementById('ph')
+    const f = document.getElementById('f')
+    const msg = document.getElementById('msg')
+    const panel = document.getElementById('panel')
+    const bio = document.getElementById('bio')
+    const tp = document.getElementById('tp')
+    const tb = document.getElementById('tb')
+
+    // 初次：从 ?phone 读取并查询
+    const urlPhone = new URLSearchParams(location.search).get('phone')
+    if(urlPhone){ ph.value = urlPhone; query(urlPhone) }
+
+    // 表单再次查询
+    f.addEventListener('submit',(e)=>{
+      e.preventDefault()
+      query(ph.value.trim())
     })
+
+    async function query(phone){
+      panel.style.display='none'
+      msg.style.color='#666'
+      if(!phone){ msg.textContent='请输入手机号'; return }
+      msg.textContent='查询中…'
+      try{
+        // 先查总积分/姓名
+        const { data: mp, error: e1 } = await supabase
+          .from('member_points')
+          .select('name,phone,total_points')
+          .eq('phone', phone)
+          .maybeSingle()
+        if(e1) throw e1
+        if(!mp){ msg.style.color='#c00'; msg.textContent='未找到该会员'; return }
+
+        // 再查明细（最近 30 条）
+        const { data: rows, error: e2 } = await supabase
+          .from('point_transactions')
+          .select('points,note,created_at,members!inner(phone)')
+          .eq('members.phone', phone)
+          .order('created_at',{ascending:false})
+          .limit(30)
+        if(e2) throw e2
+
+        // 展示
+        bio.textContent = `姓名：${mp.name}（${mp.phone}）`
+        tp.textContent = mp.total_points
+        tb.innerHTML = (rows||[]).map(r =>
+          `<tr><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`
+        ).join('') || `<tr><td colspan="3">暂无记录</td></tr>`
+        msg.textContent=''
+        panel.style.display='block'
+      }catch(err){
+        console.error(err)
+        msg.style.color='#c00'
+        msg.textContent='查询失败，请稍后重试'
+      }
+    }
   </script>
-</body></html>
+</body>
+</html>
