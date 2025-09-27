@@ -1,77 +1,89 @@
-/* ===== White · Gold · Luxe ===== */
-:root{
-  --gold:#D4AF37;
-  --gold-700:#B38C2C;
-  --gold-glow:rgba(212,175,55,.45);
-  --ink:#0A0A0A;
-  --muted:#6B6B6B;
-  --border:rgba(0,0,0,.06);
-  --glass:rgba(255,255,255,.7);
-  --radius:20px;
-  --shadow-deep:0 20px 60px rgba(0,0,0,.12);
-  --shadow-soft:0 8px 28px rgba(0,0,0,.08);
+// ===== Simple i18n =====
+window.I18N = {
+  zh: {
+    brand_title: "KEDAI EMAS SIANG HENG 会员系统",
+    hero_title: "会员积分查询",
+    hero_sub: "输入手机号码查询当前积分",
+    phone_label: "手机号",
+    phone_placeholder: "请输入手机号",
+    btn_check: "查询积分",
+    btn_admin: "后台",
+    btn_qr: "二维码",
+    back_home: "返回首页",
+    result_title: "查询结果",
+    result_total: "总积分",
+    history_title: "积分记录",
+    th_points: "积分",
+    th_note: "备注",
+    th_time: "时间",
+    no_rows: "暂无记录",
+    not_found: "未找到该会员",
+    fetch_fail: "查询失败，请稍后重试"
+  },
+  en: {
+    brand_title: "KEDAI EMAS SIANG HENG · Members",
+    hero_title: "Check Member Points",
+    hero_sub: "Enter mobile number to view your points",
+    phone_label: "Phone",
+    phone_placeholder: "Enter phone number",
+    btn_check: "Check",
+    btn_admin: "Admin",
+    btn_qr: "QR Code",
+    back_home: "Back to Home",
+    result_title: "Result",
+    result_total: "Total Points",
+    history_title: "History",
+    th_points: "Points",
+    th_note: "Note",
+    th_time: "Time",
+    no_rows: "No records",
+    not_found: "Member not found",
+    fetch_fail: "Failed to fetch, please retry"
+  },
+  ms: {
+    brand_title: "KEDAI EMAS SIANG HENG · Ahli",
+    hero_title: "Semak Mata",
+    hero_sub: "Masukkan nombor telefon untuk semak mata",
+    phone_label: "Telefon",
+    phone_placeholder: "Masukkan nombor telefon",
+    btn_check: "Semak",
+    btn_admin: "Admin",
+    btn_qr: "Kod QR",
+    back_home: "Balik Laman",
+    result_title: "Keputusan",
+    result_total: "Jumlah Mata",
+    history_title: "Sejarah",
+    th_points: "Mata",
+    th_note: "Nota",
+    th_time: "Masa",
+    no_rows: "Tiada rekod",
+    not_found: "Ahli tidak dijumpai",
+    fetch_fail: "Gagal mengambil data"
+  }
+};
+
+function applyLang(lang){
+  const dict = (window.I18N && window.I18N[lang]) || window.I18N.zh;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    if (dict[key] != null) el.textContent = dict[key];
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-ph");
+    if (dict[key] != null) el.setAttribute("placeholder", dict[key]);
+  });
+  localStorage.setItem("lang", lang);
+  document.querySelectorAll("select.lang").forEach(s => s.value = lang);
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;color:var(--ink);
-  font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei";
-  background:
-    radial-gradient(1000px 500px at 80% 20%, rgba(212,175,55,.08), transparent 60%),
-    radial-gradient(1400px 600px at 0% 100%, rgba(212,175,55,.06), transparent 60%),
-    linear-gradient(180deg,#fff 0%, #FFFBF0 100%);
+function initLang(){
+  const saved = localStorage.getItem("lang") || "zh";
+  applyLang(saved);
+  document.addEventListener("change", (e)=>{
+    if (e.target.matches("select.lang")) {
+      applyLang(e.target.value);
+    }
+  });
 }
 
-.container{max-width:1180px;margin:0 auto;padding:28px}
-
-/* 顶部栏 */
-.navbar{position:sticky;top:0;z-index:10;backdrop-filter:saturate(140%) blur(8px);background:rgba(255,255,255,.75);border-bottom:1px solid var(--border)}
-.navbar-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
-.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.3px}
-.brand .crest{width:22px;height:22px;border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #F7E9B3 40%, #D4AF37 65%, #B38910 100%);
-  box-shadow:0 0 0 4px rgba(212,175,55,.18), 0 6px 16px rgba(212,175,55,.35) inset;
-}
-.actions{display:flex;align-items:center;gap:8px}
-.lang-pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;box-shadow:var(--shadow-soft)}
-.lang-pill select{border:none;background:transparent;outline:none;font-weight:600;cursor:pointer}
-
-/* 英雄区 */
-.hero{position:relative;padding:64px 24px 80px}
-.hero .wrap{position:relative;display:grid;grid-template-columns:1fr;gap:30px;align-items:center}
-
-/* 徽章/标题/说明 */
-.badge{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.45);background:linear-gradient(180deg,#FFF9E9,#FFF);color:#7E5A00;font-weight:700;font-size:12px;letter-spacing:.3px}
-.h1{font-size:36px;line-height:1.15;margin:14px 0 10px;font-weight:900;letter-spacing:.2px}
-.sub{color:var(--muted);font-size:15px}
-
-/* 玻璃卡 */
-.card{background:var(--glass);border:1px solid rgba(212,175,55,.28);border-radius:24px;padding:24px;backdrop-filter: blur(10px) saturate(140%);box-shadow:var(--shadow-deep)}
-
-/* 表单/按钮 */
-label{display:block;margin:10px 0 6px;color:var(--muted)}
-.input, input, select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:#fff;outline:none}
-input:focus, select:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
-
-.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:14px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:700;transition:.2s;position:relative;overflow:hidden}
-.btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(0,0,0,.08)}
-.btn-gold{color:#fff;border-color:rgba(212,175,55,.9);background:linear-gradient(135deg,#E7C96B 0%,#D4AF37 45%,#B98B13 100%)}
-.btn-gold::before{content:"";position:absolute;inset:0;transform:skewX(-20deg) translateX(-120%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transition:transform .7s ease}
-.btn-gold:hover::before{transform:skewX(-20deg) translateX(130%)}
-.btn-ghost{background:#fff}
-
-/* 表格 */
-.table{width:100%;border-collapse:collapse;border-radius:14px;overflow:hidden}
-.table th,.table td{padding:12px 14px;border-bottom:1px solid var(--border);text-align:left;background:#fff}
-.table th{background:#FAF7ED;color:#5d4b1b;font-weight:800}
-.table tr:hover td{background:#FFFCF3}
-
-/* 结果区 */
-.kpi{display:flex;align-items:center;gap:16px;margin-top:14px}
-.kpi .value{font-size:38px;font-weight:900}
-.kpi .hint{color:var(--muted)}
-
-.footer{padding:26px;color:#8b8b8b;text-align:center}
-
-@media (max-width: 960px){ .h1{font-size:28px} }
+document.addEventListener("DOMContentLoaded", initLang);
