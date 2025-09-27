@@ -25,14 +25,14 @@
     </div>
   </div>
 
-  <!-- 英雄区：单列，直接输入手机号 -->
+  <!-- 单列英雄区：直接输入手机号 -->
   <section class="hero">
     <div class="container">
       <div class="wrap onecol">
         <div>
           <span class="badge">White • Gold • Luxe</span>
           <h1 class="h1">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h1>
-          <p class="sub">输入手机号后会跳转到结果页</p>
+          <p class="sub">输入手机号后将跳转到结果页</p>
 
           <form id="f" class="mt-28" style="max-width:420px">
             <label for="phone">手机号</label>
@@ -51,15 +51,15 @@
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
   <script>
-    // 提交后跳到结果页携带 ?phone=
+    // 提交后携带 ?phone= 跳到结果页
     document.getElementById('f').addEventListener('submit', (e)=>{
       e.preventDefault();
       const phone = document.getElementById('phone').value.trim();
-      if(!phone){ return }
+      if(!phone) return;
       location.href = 'member-portal.html?phone=' + encodeURIComponent(phone);
     });
 
-    // 允许从扫码等场景直接带 phone 到首页，也跳转
+    // 如果从扫码带了 phone 参数到首页，也直接跳转
     const p = new URLSearchParams(location.search).get('phone');
     if(p){ location.replace('member-portal.html?phone='+encodeURIComponent(p)); }
   </script>
