@@ -1,20 +1,55 @@
-<!doctype html><html lang="zh"><head>
-<meta charset="utf-8"><title>JHS Admin · Index</title>
-<link rel="stylesheet" href="style.css"><script src="lang.js"></script>
-</head><body>
-<header>
-  <h1 data-i18n="system_title">会员系统</h1>
-  <nav>
-    <a href="member-portal.html" data-i18n="member_portal">会员入口</a>
-    <a href="login.html" data-i18n="login">登录</a>
-    <a href="admin-members.html" data-i18n="members">会员</a>
-    <a href="admin-points.html" data-i18n="points">积分</a>
-  </nav>
-</header>
-<main>
-  <div class="card">
-    <p>进入「会员入口」让顾客用手机号查询积分；后台请先登录。</p>
-    <p class="small">语言切换：控制台执行 <code>setLang('zh'|'en'|'ms')</code></p>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KEDAI EMAS SIANG HENG · Index</title>
+<link rel="stylesheet" href="style.css">
+<script src="lang.js" defer></script>
+</head>
+<body>
+  
+<div class="navbar">
+  <div class="navbar-inner container">
+    <div class="brand">
+      <span class="dot"></span>
+      <span data-i18n="system_title">KEDAI EMAS SIANG HENG 会员系统</span>
+    </div>
+    <div class="actions">
+      <select class="lang">
+        <option value="zh">中</option><option value="en">EN</option><option value="ms">BM</option>
+      </select>
+    </div>
   </div>
-</main>
-</body></html>
+</div>
+
+  <section class="hero">
+    <div class="container">
+      <div class="wrap">
+        <div>
+          <span class="badge">White • Gold • Luxe</span>
+          <h1 data-i18n="welcome">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h1>
+          <p data-i18n="hero_desc">为您的门店提供简单高效的会员与积分管理。</p>
+          <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+            <a class="btn btn-gold" href="member-portal.html"><span data-i18n="open_portal">会员入口</span></a>
+          </div>
+          <p class="muted" style="margin-top:8px;color:#888" data-i18n="portal_desc">顾客输入手机号即可查询当前积分。</p>
+        </div>
+        <div class="card">
+          <h2 style="margin-bottom:8px" data-i18n="choose_language">选择语言</h2>
+          <p class="muted" style="color:var(--muted);margin-top:0">中文 / English / Bahasa Melayu</p>
+          <div style="display:flex;gap:12px">
+            <button class="btn" onclick="setLang('zh')">中文</button>
+            <button class="btn" onclick="setLang('en')">English</button>
+            <button class="btn" onclick="setLang('ms')">BM</button>
+          </div>
+          <div style="margin-top:22px;border-top:1px dashed var(--border);padding-top:16px;color:var(--muted)">
+            <div class="kpi"><div class="value">∞</div><div class="hint">Members</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+</body>
+</html>
