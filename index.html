@@ -6,29 +6,9 @@
   <title>KEDAI EMAS SIANG HENG · 会员系统</title>
   <link rel="stylesheet" href="style.css">
   <script src="lang.js" defer></script>
-  <script src="supabase.js" defer></script>
-  <script>
-    async function checkPoints(){
-      const phone = document.getElementById("phone").value.trim()
-      const msg = document.getElementById("msg")
-      msg.textContent = "查询中..."
-      if(!phone){ msg.textContent="请输入手机号"; return }
-
-      const { data, error } = await supabase
-        .from("member_points")
-        .select("name, total_points")
-        .eq("phone", phone)
-        .maybeSingle()
-
-      if(error){ msg.textContent = "查询失败"; console.error(error); return }
-      if(!data){ msg.textContent = "未找到该会员"; return }
-
-      msg.textContent = `姓名：${data.name} · 积分：${data.total_points}`
-    }
-  </script>
 </head>
 <body>
-  <!-- 顶部导航 -->
+  <!-- 顶部导航：只保留右上角语言 -->
   <div class="navbar">
     <div class="navbar-inner container">
       <div class="brand">
@@ -45,10 +25,10 @@
     </div>
   </div>
 
-  <!-- 英雄区 -->
+  <!-- 只有左侧内容（去掉右卡片） -->
   <section class="hero">
     <div class="container">
-      <div class="wrap">
+      <div class="wrap onecol"><!-- onecol 让它单列 -->
         <div>
           <span class="badge">White • Gold • Luxe</span>
           <h1 class="h1">欢迎来到 KEDAI EMAS SIANG HENG 会员系统</h1>
@@ -57,18 +37,15 @@
           <div class="mt-28" style="max-width:420px">
             <label for="phone">手机号</label>
             <input id="phone" type="text" placeholder="请输入手机号" class="input">
-            <button class="btn btn-gold mt-20" onclick="checkPoints()">查询积分</button>
+            <button class="btn btn-gold mt-20" id="btn-check">查询积分</button>
             <p id="msg" class="sub mt-20"></p>
-          </div>
-        </div>
 
-        <!-- 右边装饰卡片 -->
-        <div class="card">
-          <h3 style="margin:0 0 8px">会员系统</h3>
-          <p class="sub" style="margin:0">积分实时更新 · 公平透明</p>
-          <div class="kpi">
-            <div class="value">∞</div>
-            <div class="hint">Members</div>
+            <!-- 查询结果面板（查到后显示） -->
+            <div id="panel" class="card" style="display:none;margin-top:18px">
+              <h3 style="margin:0 0 8px">查询结果</h3>
+              <p class="sub" id="nameLine"></p>
+              <div class="kpi"><div class="value" id="points">0</div><div class="hint">总积分</div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -76,5 +53,53 @@
   </section>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
+  <!-- 放在 body 结尾，确保先加载完页面再加载 Supabase -->
+  <script type="module">
+    import { supabase } from './supabase.js'
+
+    const phoneInput = document.getElementById('phone')
+    const btn = document.getElementById('btn-check')
+    const msg = document.getElementById('msg')
+    const panel = document.getElementById('panel')
+    const nameLine = document.getElementById('nameLine')
+    const pointsEl = document.getElementById('points')
+
+    // 读取 ?phone=xxxx 自动查询（也可以让扫码页跳过输入）
+    const urlPhone = new URLSearchParams(location.search).get('phone')
+    if (urlPhone) { phoneInput.value = urlPhone; doQuery() }
+
+    btn.addEventListener('click', doQuery)
+    phoneInput.addEventListener('keydown', e => { if (e.key === 'Enter') doQuery() })
+
+    async function doQuery(){
+      const phone = phoneInput.value.trim()
+      panel.style.display='none'
+      msg.style.color = '#666'
+      if(!phone){ msg.textContent='请输入手机号'; return }
+      msg.textContent='查询中…'
+
+      try {
+        const { data, error } = await supabase
+          .from('member_points')
+          .select('name,total_points')
+          .eq('phone', phone)
+          .maybeSingle()
+
+        if (error) { throw error }
+        if (!data) { msg.style.color='#c00'; msg.textContent='未找到该会员'; return }
+
+        // 展示结果
+        nameLine.textContent = `姓名：${data.name}（${phone}）`
+        pointsEl.textContent = data.total_points
+        panel.style.display='block'
+        msg.textContent = '' // 清空提示
+      } catch (e) {
+        console.error(e)
+        msg.style.color='#c00'
+        msg.textContent = '查询失败，请稍后重试'
+      }
+    }
+  </script>
 </body>
 </html>
