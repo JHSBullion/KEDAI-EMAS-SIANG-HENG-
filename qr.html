@@ -6,7 +6,6 @@
   <title>会员入口二维码</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 让二维码容器固定大小，保证可见 */
     .qr-box{
       width: 320px; height: 320px; margin:16px auto;
       border:1px solid rgba(0,0,0,.06); border-radius:12px;
@@ -34,7 +33,6 @@
       <h2 style="margin:0 0 8px" data-i18n="qr_title">打印用二维码</h2>
       <p class="sub" data-i18n="qr_desc">默认生成本站 index.html（顾客扫码后输入手机号查询）</p>
 
-      <!-- 用 div 容器生成二维码，更稳定 -->
       <div id="qrbox" class="qr-box"></div>
 
       <label style="display:block;margin-top:6px" data-i18n="qr_link_label">
@@ -49,40 +47,29 @@
     </div>
   </div>
 
-  <!-- 顺序：先 i18n，再二维码库，再初始化 -->
   <script src="lang.js"></script>
-  <!-- 稳定版二维码库（qrcodejs） -->
+  <!-- 稳定版二维码库 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
           integrity="sha512-M6g3YxZl9e9Hk8o2c6kG5R0sQ3yq1qYcO9YzYk9m7Ue2sQ5QqTqj3pNwF4S2n7m8HhZrX2v5v8h5p9YwG2+AQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    // 计算默认链接（指向 index.html）
     function defaultIndexUrl(){
       return location.origin + location.pathname.replace(/\/[^/]*$/,'/') + 'index.html';
     }
 
-    let qr; // 持有实例，便于刷新
     function drawQR(text){
       const box = document.getElementById('qrbox');
-      box.innerHTML = ''; // 清空旧图
-      // 生成二维码
-      qr = new QRCode(box, {
-        text: text,
-        width: 320,
-        height: 320,
-        correctLevel: QRCode.CorrectLevel.H
-      });
+      box.innerHTML = '';
+      new QRCode(box, { text, width:320, height:320, correctLevel: QRCode.CorrectLevel.H });
     }
 
-    // 初始化
     document.addEventListener('DOMContentLoaded', ()=>{
       const urlInput = document.getElementById('url');
       urlInput.value = defaultIndexUrl();
       drawQR(urlInput.value);
 
       document.getElementById('regen').addEventListener('click', ()=>{
-        const v = (urlInput.value || defaultIndexUrl()).trim();
-        drawQR(v);
+        drawQR((urlInput.value || defaultIndexUrl()).trim());
       });
     });
   </script>
