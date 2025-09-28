@@ -1,125 +1,96 @@
-(function(){
-  // Lightweight i18n loader — loads lang/*.json and applies translations to [data-i18n] and [data-i18n-ph]
-  const alias = {
-    // map HTML data-i18n keys to keys in lang JSON files
-    brand_title: ['system_title','brand_title','welcome'],
-    btn_qr: ['open_portal','open_portal'],
-    btn_admin: ['open_admin','open_admin'],
-    hero_title: ['welcome','hero_title'],
-    hero_sub: ['hero_desc','portal_desc','hero_sub'],
-    phone_label: ['phone','enter_phone'],
-    phone_placeholder: ['enter_phone','phone_placeholder'],
-    btn_check: ['check_points','btn_check'],
+// lang.js - 修正版
+// 把 langs、applyLang、initLang 挂到全局 window，确保前台能用
 
-    qr_page_title: ['member_portal','system_title','qr_page_title'],
-    back_home: ['back_home','nav_home'],
-    qr_title: ['member_portal','qr_title'],
-    qr_desc: ['portal_desc','qr_desc'],
-    qr_link_label: ['open_portal','qr_link_label'],
-    btn_regenerate: ['btn_regenerate'],
-    btn_print: ['btn_print'],
-
-    tx_empty: ['no_member','no_data','no_record','tx_empty']
-  };
-
-  const fallbacks = {
-    back_home: {zh:'返回首页', en:'Back to Home', ms:'Kembali ke Laman Utama'},
-    btn_regenerate: {zh:'重置二维码', en:'Regenerate', ms:'Jana Semula'},
-    btn_print: {zh:'打印', en:'Print', ms:'Cetak'}
-  };
-
-  function mapLangCode(c){
-    if(!c) return 'zh';
-    if(c === 'bm') return 'ms'; // select uses bm but files are ms.json
-    return c;
+window.langs = {
+  zh: {
+    system_title: "黄金会员积分系统",
+    welcome: "欢迎",
+    hero_desc: "扫描二维码进入会员系统",
+    enter_phone: "输入你的电话号码",
+    check_points: "查询积分",
+    open_portal: "打开会员门户",
+    open_admin: "打开后台管理",
+    member_portal: "会员门户",
+    portal_desc: "请扫描下方二维码进入会员系统",
+    no_member: "暂无会员记录",
+    back_home: "返回首页",
+    btn_regenerate: "重置二维码",
+    btn_print: "打印"
+  },
+  en: {
+    system_title: "Gold Member Points System",
+    welcome: "Welcome",
+    hero_desc: "Scan the QR code to access the member system",
+    enter_phone: "Enter your phone number",
+    check_points: "Check Points",
+    open_portal: "Open Member Portal",
+    open_admin: "Open Admin",
+    member_portal: "Member Portal",
+    portal_desc: "Please scan the QR code below to enter the member system",
+    no_member: "No member records",
+    back_home: "Back to Home",
+    btn_regenerate: "Regenerate",
+    btn_print: "Print"
+  },
+  ms: {
+    system_title: "Sistem Mata Ganjaran Ahli Emas",
+    welcome: "Selamat Datang",
+    hero_desc: "Imbas kod QR untuk masuk ke sistem ahli",
+    enter_phone: "Masukkan nombor telefon anda",
+    check_points: "Semak Mata",
+    open_portal: "Buka Portal Ahli",
+    open_admin: "Buka Admin",
+    member_portal: "Portal Ahli",
+    portal_desc: "Sila imbas kod QR di bawah untuk masuk ke sistem ahli",
+    no_member: "Tiada rekod ahli",
+    back_home: "Kembali ke Laman Utama",
+    btn_regenerate: "Jana Semula",
+    btn_print: "Cetak"
   }
+};
 
-  async function loadLang(code){
-    const mapped = mapLangCode(code);
-    try{
-      const res = await fetch('lang/' + mapped + '.json', {cache:'no-cache'});
-      if(!res.ok) throw new Error('Lang file not found: ' + mapped);
-      const t = await res.json();
-      applyTranslations(t, code);
-    }catch(e){
-      console.warn('i18n load error', e);
-      // no-op
-    }
-  }
+// 应用语言
+window.applyLang = function (lang) {
+  lang = (lang === "bm") ? "ms" : (lang || "zh");
+  if (!window.langs[lang]) lang = "zh";
 
-  function findTranslation(t, key, uiLang){
-    if(!t) return undefined;
-    if(Object.prototype.hasOwnProperty.call(t, key)) return t[key];
-    const alts = alias[key];
-    if(alts){
-      for(const a of alts){
-        if(Object.prototype.hasOwnProperty.call(t, a)) return t[a];
-      }
-    }
-    if(fallbacks[key]) return fallbacks[key][mapLangCode(uiLang)] || fallbacks[key].en;
-    return undefined;
-  }
-
-  function applyTranslations(t, uiLang){
-    // Set elements' innerText from data-i18n
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-      const key = el.getAttribute('data-i18n');
-      const txt = findTranslation(t, key, uiLang);
-      if(txt !== undefined){
-        // preserve inner structure if element has children?
-        // Clear children and set text to avoid leftover icons/text nodes
-        el.textContent = txt;
-      }
-    });
-    // Set placeholders for inputs/textareas
-    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
-      const key = el.getAttribute('data-i18n-ph');
-      const txt = findTranslation(t, key, uiLang);
-      if(txt !== undefined){
-        if('placeholder' in el) el.placeholder = txt;
-        else el.setAttribute('placeholder', txt);
-      }
-    });
-    // Update document title if translation contains title/system_title
-    const titleKeys = ['title','system_title','member_portal','qr_page_title'];
-    for(const k of titleKeys){
-      if(t && Object.prototype.hasOwnProperty.call(t,k)){
-        document.title = t[k];
-        break;
-      }
-    }
-    // Sync language selector UI
-    document.querySelectorAll('.lang-select, #langSel').forEach(s=>{
-      try{
-        const saved = localStorage.getItem('lang') || uiLang;
-        if(s.querySelector('option[value="'+saved+'"]')) s.value = saved;
-        else if(saved === 'ms' && s.querySelector('option[value="bm"]')) s.value = 'bm';
-        else s.value = saved;
-      }catch(e){}
-    });
-    localStorage.setItem('lang', uiLang);
-  }
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const saved = localStorage.getItem('lang') || 'zh';
-    // initialize selector elements value
-    document.querySelectorAll('.lang-select, #langSel').forEach(s=>{
-      if(s.querySelector('option[value="'+saved+'"]')) s.value = saved;
-      else if(saved === 'ms' && s.querySelector('option[value="bm"]')) s.value = 'bm';
-    });
-    // load translations
-    loadLang(saved);
-
-    // attach change listeners
-    document.querySelectorAll('.lang-select, #langSel').forEach(s=>{
-      s.addEventListener('change', (e)=>{
-        const val = e.target.value;
-        localStorage.setItem('lang', val);
-        loadLang(val);
-      });
-    });
+  document.querySelectorAll("[data-i18n]").forEach(function (el) {
+    var key = el.getAttribute("data-i18n");
+    var txt = (window.langs[lang] && window.langs[lang][key]) || key;
+    el.textContent = txt;
   });
 
-  // Expose methods for debugging
-  window.i18nLoader = { loadLang, applyTranslations, alias };
-})();
+  document.querySelectorAll("[data-i18n-ph]").forEach(function (el) {
+    var key = el.getAttribute("data-i18n-ph");
+    var txt = (window.langs[lang] && window.langs[lang][key]) || "";
+    if ("placeholder" in el) el.placeholder = txt;
+    else el.setAttribute("placeholder", txt);
+  });
+
+  localStorage.setItem("lang", (lang === "ms") ? "bm" : lang);
+};
+
+// 初始化语言
+window.initLang = function () {
+  var saved = localStorage.getItem("lang") || "zh";
+  if (saved === "bm") saved = "ms";
+  window.applyLang(saved);
+
+  document.querySelectorAll(".lang-select, #langSel").forEach(function (s) {
+    if (s.querySelector('option[value="' + saved + '"]')) s.value = saved;
+    else if (saved === "ms" && s.querySelector('option[value="bm"]')) s.value = "bm";
+  });
+};
+
+// 页面加载时自动运行
+document.addEventListener("DOMContentLoaded", function () {
+  window.initLang();
+  document.querySelectorAll(".lang-select, #langSel").forEach(function (s) {
+    s.addEventListener("change", function (e) {
+      var val = e.target.value;
+      if (val === "bm") val = "ms";
+      localStorage.setItem("lang", val);
+      window.applyLang(val);
+    });
+  });
+});
