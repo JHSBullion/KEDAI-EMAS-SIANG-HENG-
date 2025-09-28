@@ -31,6 +31,9 @@ body{
     radial-gradient(1200px 600px at 80% 10%, rgba(233,196,106,0.08), transparent 60%),
     radial-gradient(1000px 500px at 10% 90%, rgba(233,196,106,0.06), transparent 60%),
     var(--bg);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* 容器 */
@@ -43,7 +46,7 @@ body{
 /* ============ 顶栏 ============ */
 .navbar{
   position: sticky; top:0; z-index: 20;
-  background: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.85);
   -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--card-border);
@@ -61,11 +64,11 @@ body{
 }
 .nav-right, .actions{ display:flex; gap:10px; align-items:center; }
 
-/* 顶部按钮 → 改成金色圆角 */
+/* 顶部按钮 → 金色圆角 */
 .actions .btn {
   border: none;
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   font-size: 14px;
   font-weight: 600;
   background: linear-gradient(180deg, #ffe89b, #e9c46a 60%, #d4a90f);
@@ -89,10 +92,11 @@ body{
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 18px;
+  padding: 22px;
+  margin: 24px auto;
 }
-h1,h2,h3{ margin:0 0 10px; font-weight: 800; letter-spacing:.2px; }
-.sub{ color:var(--subtext); font-size: 13px; }
+h1,h2,h3{ margin:0 0 12px; font-weight: 800; letter-spacing:.2px; }
+.sub{ color:var(--subtext); font-size: 14px; margin-bottom: 12px; }
 
 .form-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
 .form-row label{ width:92px; font-weight:600; color:var(--text); }
@@ -119,7 +123,7 @@ label{ display:block; margin:8px 0 6px; font-weight:600; }
   --btn-bd: var(--card-border);
   --btn-fg: var(--text);
   display:inline-flex; align-items:center; justify-content:center;
-  height:36px; padding: 0 14px;
+  height:36px; padding: 0 16px;
   border-radius: 999px;
   border:1px solid var(--btn-bd);
   background: var(--btn-bg);
@@ -147,7 +151,7 @@ label{ display:block; margin:8px 0 6px; font-weight:600; }
 /* 语言选择 pill */
 .lang-pill select,
 .navbar select{
-  height:36px; border-radius:999px; padding:0 10px;
+  height:36px; border-radius:999px; padding:0 12px;
   border:1px solid var(--card-border); background:#fff;
 }
 
@@ -178,6 +182,7 @@ label{ display:block; margin:8px 0 6px; font-weight:600; }
 .footer{
   text-align:center; color:var(--subtext);
   padding: 28px 12px; font-size:13px;
+  margin-top: auto;
 }
 
 /* ============ 卡片标题下的徽标 ============ */
@@ -204,7 +209,7 @@ a:hover{ text-decoration:underline; }
 
 /* ============ QR 画布容器 ============ */
 .qr-box{
-  width:320px; height:320px; margin:16px auto;
+  width:280px; height:280px; margin:20px auto;
   background:#fff; border:1px solid var(--card-border);
   border-radius: var(--radius);
   display:flex; align-items:center; justify-content:center;
@@ -222,8 +227,9 @@ a:hover{ text-decoration:underline; }
   .card{ box-shadow:none; border-color:#ddd; }
 }
 
-/* ============ member-page 缩小整体 ============ */
+/* ============ 缩放优化 ============ */
+.front-page .wrap,
 .member-page .wrap {
-  transform: scale(0.92);
+  transform: scale(0.9);
   transform-origin: top center;
 }
