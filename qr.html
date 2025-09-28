@@ -1,45 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="zh">
 <head>
-  <meta charset="utf-8" />
-  <title data-i18n="qr_page_title">QR · 会员入口</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- 轻量 QRCode 库（CDN） -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta charset="utf-8"/>
+<title data-i18n="qr_page_title">QR · 会员入口</title>
+<link href="style.css" rel="stylesheet"/>
+<!-- 轻量 QRCode 库（CDN） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
-      <div class="brand"><span class="crest"></span> <span data-i18n="qr_page_title">QR · 会员入口</span></div>
-      <div class="nav-right">
-        <a href="index.html" class="btn" data-i18n="back_home">返回首页</a>
-        <select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
-      </div>
-    </div>
-  </div>
-
-  <div class="container" style="max-width:960px;margin:24px auto;">
-    <div class="card" style="text-align:center">
-      <h3 data-i18n="qr_title">打印用二维码</h3>
-      <p class="sub" data-i18n="qr_desc">默认生成本站 index.html（顾客扫码后输入手机号查询）</p>
-      <div id="qr" class="qr-box"></div>
-
-      <div style="max-width:520px;margin:12px auto;text-align:left">
-        <label class="mt-10" data-i18n="qr_link_label">链接（可改，例如：member-portal.html?phone=0123456789）</label>
-        <input id="link" class="input" value="">
-      </div>
-
-      <div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
-        <button id="regen" class="btn btn-gold" data-i18n="btn_regenerate">重新生成</button>
-        <button id="print" class="btn" data-i18n="btn_print">打印</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
-
-  <script src="lang.js"></script>
-  <script>
+<div class="navbar">
+<div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
+<div class="brand"><span class="crest"></span> <span data-i18n="qr_page_title">QR · 会员入口</span></div>
+<div class="nav-right">
+<a class="btn" data-i18n="backHome" href="index.html">返回首页</a>
+<select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
+</div>
+</div>
+</div>
+<main style="text-align:center;margin-top:40px">
+<p data-i18n="scanQr">Please scan the QR code</p>
+<a data-i18n="backHome" href="index.html">Back to Home</a>
+</main>
+<div class="container" style="max-width:960px;margin:24px auto;">
+<div class="card" style="text-align:center">
+<h3 data-i18n="qr_title">打印用二维码</h3>
+<p class="sub" data-i18n="qr_desc">默认生成本站 index.html（顾客扫码后输入手机号查询）</p>
+<div class="qr-box" id="qr"></div>
+<div style="max-width:520px;margin:12px auto;text-align:left">
+<label class="mt-10" data-i18n="qr_link_label">链接（可改，例如：member-portal.html?phone=0123456789）</label>
+<input class="input" id="link" value=""/>
+</div>
+<div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
+<button class="btn btn-gold" data-i18n="btn_regenerate" id="regen">重新生成</button>
+<button class="btn" data-i18n="btn_print" id="print">打印</button>
+</div>
+</div>
+</div>
+<main style="text-align:center;margin-top:40px">
+<p data-i18n="scanQr">Please scan the QR code</p>
+<a data-i18n="backHome" href="index.html">Back to Home</a>
+</main>
+<div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+<script src="lang.js"></script>
+<script>
     const el = s=>document.querySelector(s)
     function defaultLink(){
       // 默认到主页 index.html
