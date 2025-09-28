@@ -1,176 +1,160 @@
-/* ============ White • Gold • Luxe ============ */
-:root{
-  --bg: #f9f7f2;
-  --bg-soft: #fbfaf6;
-  --text: #1a1a1a;
-  --subtext: #757575;
-
-  --gold: #e9c46a;            /* 主金色 */
-  --gold-strong: #d4a90f;     /* 深一点的金色 */
-  --gold-soft: #fff4cf;       /* 淡金色，用于高光 */
-
-  --card: #ffffff;
-  --card-border: rgba(0,0,0,.06);
-  --ring: rgba(233,196,106,.55);
-  --shadow: 0 10px 30px rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.04);
-
-  --radius: 8px;   /* 卡片 → 四方形 */
-  --radius-sm: 6px;
-
-  --container: 1200px;
+/* ============ 全局 ============ */
+:root {
+  --bg: #fafafa;
+  --text: #222;
+  --gold: #d4af37;
+  --brand: #1e1e1e;
+  --card: #fff;
+  --card-border: #e5e5e5;
+  --radius: 8px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-/* 背景 */
-html,body{ height:100%; }
-body{
-  margin:0;
-  color:var(--text);
-  font: 15px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC",
-        "Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
-  background:
-    radial-gradient(1200px 600px at 80% 10%, rgba(233,196,106,0.08), transparent 60%),
-    radial-gradient(1000px 500px at 10% 90%, rgba(233,196,106,0.06), transparent 60%),
-    var(--bg);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* 容器 */
-.container{
-  width: min(100%, var(--container));
-  margin: 0 auto;
-  padding: 0 18px;
+body {
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
 }
 
 /* ============ 顶栏 ============ */
-.navbar{
-  position: sticky; top:0; z-index: 20;
-  background: rgba(255,255,255,.78);
-  -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--card-border);
+.navbar {
+  background: var(--brand);
+  color: #fff;
+  padding: 12px 0;
 }
-.navbar .navbar-inner,
-.navbar > .container{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:14px; height:64px;
-}
-.brand{ display:flex; align-items:center; gap:10px; font-weight:800; }
-.crest{
-  width:18px; height:18px; border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #fff4cf 40%, #e9c46a 70%, #d4a90f 100%);
-  box-shadow: 0 0 0 3px rgba(233,196,106,.2);
-}
-.nav-right, .actions{ display:flex; gap:10px; align-items:center; }
 
-/* 顶部按钮 → 改成金色圆角 */
-.actions .btn {
-  border: none;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 14px;
+.navbar .container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
   font-weight: 600;
-  background: linear-gradient(180deg, #ffe89b, #e9c46a 60%, #d4a90f);
-  color: #3b2b00;
-  box-shadow: 0 4px 10px rgba(233,196,106,.35),
-              inset 0 1px 0 rgba(255,255,255,.8);
-  transition: all .2s ease;
+  font-size: 18px;
 }
-.actions .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(233,196,106,.45);
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.actions .btn:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 8px rgba(233,196,106,.3);
+
+.btn {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.25s;
+  background: var(--gold);
+  color: #fff;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.lang-pill select {
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+}
+
+/* ============ Hero ============ */
+.hero {
+  padding: 40px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.hero .container {
+  width: 100%;
+  max-width: 520px;
 }
 
 /* ============ 卡片 / 表单 ============ */
-.card{
+.card {
   background: var(--card);
   border: 1px solid var(--card-border);
-  border-radius: var(--radius);
+  border-radius: 4px;   /* ← 直角 */
   box-shadow: var(--shadow);
-  padding: 22px;
-}
-h1,h2,h3{ margin:0 0 10px; font-weight: 800; letter-spacing:.2px; }
-.sub{ color:var(--subtext); font-size: 13px; }
-
-/* 输入框 + 按钮间距优化 */
-.search-form{
-  display:flex;
-  flex-wrap:wrap;
-  gap:16px;                 /* 输入框和按钮之间间隔 */
-  margin-top:18px;          /* 和上方说明文字拉开 */
-}
-.search-form .input{
-  flex:1; min-width:220px;
+  padding: 28px 26px;
+  margin: 40px auto;
+  max-width: 420px;     /* 限制宽度，看起来更「方」 */
 }
 
-label{ display:block; margin:8px 0 6px; font-weight:600; }
-.input{
-  width:100%;
-  padding:10px 12px;
-  border:1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  outline:none;
-  transition: box-shadow .15s border-color .15s;
-}
-.input:focus{
-  border-color: var(--gold);
-  box-shadow: 0 0 0 4px var(--ring);
-}
-
-/* ============ 按钮 ============ */
-.btn{
-  --btn-bg: #fff;
-  --btn-bd: var(--card-border);
-  --btn-fg: var(--text);
-  display:inline-flex; align-items:center; justify-content:center;
-  height:38px; padding: 0 16px;
+.badge {
+  display: inline-block;
+  background: var(--gold);
+  color: #fff;
+  padding: 3px 10px;
+  font-size: 13px;
   border-radius: 999px;
-  border:1px solid var(--btn-bd);
-  background: var(--btn-bg);
-  color: var(--btn-fg);
-  cursor:pointer;
-  text-decoration:none;
-  font-weight:600;
-  transition: transform .05s ease, box-shadow .2s ease, background .2s ease;
-  box-shadow: 0 2px 0 rgba(0,0,0,.02);
-}
-.btn:hover{ transform: translateY(-1px); }
-.btn:active{ transform: translateY(0); }
-
-.btn-gold{
-  --btn-bg: linear-gradient(180deg, #ffe89b, #e9c46a);
-  --btn-bd: rgba(212,169,15,.5);
-  --btn-fg: #3b2b00;
-  box-shadow: 0 6px 16px rgba(233,196,106,.35), inset 0 1px 0 rgba(255,255,255,.6);
+  margin-bottom: 14px;
 }
 
-/* 语言选择 pill */
-.lang-pill select,
-.navbar select{
-  height:36px; border-radius:999px; padding:0 10px;
-  border:1px solid var(--card-border); background:#fff;
+.h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.sub {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 14px;
+  width: 100%;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-gold:hover {
+  opacity: 0.9;
+}
+
+/* 让输入框和按钮有间距 */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;     /* 输入框和按钮的距离 */
+  margin-top: 10px;
 }
 
 /* ============ 页脚 ============ */
-.footer{
-  text-align:center; color:var(--subtext);
-  padding: 28px 12px; font-size:13px;
-}
-
-/* ============ QR 画布容器 ============ */
-.qr-box{
-  width:320px; height:320px; margin:16px auto;
-  background:#fff; border:1px solid var(--card-border);
-  border-radius: var(--radius);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow: var(--shadow);
-}
-
-/* ============ member-page 缩小整体 ============ */
-.member-page .wrap {
-  transform: scale(0.92);
-  transform-origin: top center;
+.footer {
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  padding: 20px 0;
+  margin-top: 40px;
 }
