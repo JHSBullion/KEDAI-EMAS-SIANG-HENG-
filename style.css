@@ -203,3 +203,68 @@ a:hover{ text-decoration:underline; }
   body{ background:#fff; }
   .card{ box-shadow:none; border-color:#ddd; }
 }
+/* ============ 移动端优化（小屏幕 < 600px）=========== */
+@media (max-width: 600px) {
+  /* 顶栏按钮横排，不要挤成竖着 */
+  .nav-right, .actions {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .navbar .navbar-inner,
+  .navbar > .container {
+    height: 56px; /* 顶栏高度稍微缩小 */
+  }
+
+  .brand {
+    font-size: 14px;
+  }
+
+  /* 语言选择器小一点 */
+  .lang-pill select,
+  .navbar select {
+    font-size: 13px;
+    padding: 4px 8px;
+    height: 30px;
+  }
+
+  /* 卡片内边距缩小 */
+  .card {
+    padding: 14px;
+  }
+
+  /* 标题缩小 */
+  h1 {
+    font-size: 20px;
+  }
+  h2 {
+    font-size: 18px;
+  }
+  .sub {
+    font-size: 12px;
+  }
+
+  /* 输入框缩小 */
+  .input {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  /* 按钮缩小 */
+  .btn {
+    font-size: 14px;
+    height: 32px;
+    padding: 0 12px;
+  }
+
+  /* 表格文字缩小 */
+  .table {
+    font-size: 13px;
+  }
+
+  /* QR 框适配小屏幕 */
+  .qr-box {
+    width: 260px;
+    height: 260px;
+  }
+}
