@@ -76,107 +76,51 @@
 
     $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
 
-    // ---------- Helper: 获取当前登录用户 id（兼容 supabase v2 / v1） ----------
-    async function getCurrentUserId() {
-      try {
-        // v2
-        if (supabase.auth && supabase.auth.getUser) {
-          const res = await supabase.auth.getUser();
-          return res?.data?.user?.id ?? null;
-        }
-        // v1
-        if (supabase.auth && typeof supabase.auth.user === 'function') {
-          const u = supabase.auth.user();
-          return u?.id ?? null;
-        }
-        // fallback session
-        if (supabase.auth && typeof supabase.auth.session === 'function') {
-          const s = supabase.auth.session();
-          return s?.user?.id ?? null;
-        }
-        return null;
-      } catch (e) {
-        console.warn('getCurrentUserId error:', e);
-        return null;
-      }
-    }
-
-    // ---------- 插入函数：确保传 member_id / points / amount / created_by ----------
-    async function addPointTransaction(memberId, points, amount = null, note = '') {
-      try {
-        const member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim();
-        const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10);
-        const amt = amount === null ? pts : (Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10));
-
-        if (!member_id) {
-          const err = { message: 'invalid member id' };
-          console.error('addPointTransaction invalid member id', { memberId, points, amount, note });
-          return { data: null, error: err };
-        }
-
-        const userId = await getCurrentUserId();
-        if (!userId) {
-          const err = { message: '当前未登入，请先登入管理员账号' };
-          console.error('addPointTransaction: no logged in user');
-          return { data: null, error: err };
-        }
-
-        const payload = {
-          member_id,
-          points: pts,
-          amount: amt,
-          note: note || null,
-          created_by: userId
-        };
-
-        // 直接插入到 point_transactions（若你后来改用 RPC 可以改成 supabase.rpc(...)）
-        const { data, error } = await supabase
-          .from('point_transactions')
-          .insert([payload]);
-
-        if (error) {
-          console.error('Supabase insert error:', error, 'payload:', payload);
-          return { data: null, error };
-        }
-
-        console.log('inserted point_transaction:', data);
-        return { data, error: null };
-      } catch (e) {
-        console.error('unexpected error in addPointTransaction:', e);
-        return { data: null, error: e };
-      }
-    }
-
-    // ---------- 绑定提交按钮 ----------
+    // 提交按钮
     $('#btnSubmit').addEventListener('click', async ()=>{
       msg.style.display='none'
       const ph = $('#phone').value.trim()
-      const dRaw = ($('#delta').value||'').replace(/\s/g,'') // 支持 +100 / -50
+      const dRaw = ($('#delta').value||'').replace(/\s/g,'')
       const d  = Number(dRaw)
       const nt = $('#note').value.trim()
       if(!ph || !Number.isFinite(d)){
         setMsg('请输入有效的手机号与积分变动', false); return
       }
 
-      // 先根据手机号查会员
+      // 查会员
       const { data: m, error: e1 } = await supabase
         .from('members')
-        .select('id,name,phone')
+        .select('id,name,phone,points')
         .eq('phone', ph)
         .maybeSingle();
 
-      if (e1) {
-        console.error('查会员出错：', e1);
-        setMsg(e1.message || '查会员出错', false);
-        return;
-      }
+      if (e1) { setMsg(e1.message || '查会员出错', false); return }
       if (!m) { setMsg('未找到该会员', false); return }
 
-      // 插入：默认 amount = points（若你需要 amount 表示实际金额请传入不同值）
-      const { data: insData, error: e2 } = await addPointTransaction(m.id, d, d, nt)
-      if(e2){ setMsg(e2.message || JSON.stringify(e2), false); return }
+      // 新积分
+      const newPoints = (m.points || 0) + d
 
-      setMsg('已提交', true)
+      // 1. 更新会员表积分
+      const { error: e2 } = await supabase
+        .from('members')
+        .update({ points: newPoints })
+        .eq('id', m.id)
+
+      if(e2){ setMsg(e2.message || '更新会员积分失败', false); return }
+
+      // 2. 插入积分流水
+      const { error: e3 } = await supabase
+        .from('point_transactions')
+        .insert([{
+          member_id: m.id,
+          points: d,
+          note: nt,
+          created_by: (await supabase.auth.getUser()).data.user.id
+        }])
+
+      if(e3){ setMsg(e3.message || '保存积分记录失败', false); return }
+
+      setMsg('积分已更新', true)
       $('#delta').value=''; $('#note').value=''
       $('#q').value = ph
       refresh()
@@ -190,20 +134,19 @@
 
     const esc = s=>String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m]))
 
-    // ---------- 刷新积分记录列表 ----------
+    // 刷新积分记录列表
     async function refresh(){
       const ph = $('#q').value.trim()
-      // 这里使用 inner join，优点是只显示能关联到 members 的记录（若你想看孤立记录可改为 members(name,phone)）
       let req = supabase.from('point_transactions')
         .select('points,note,created_at,members!inner(name,phone)')
         .order('created_at',{ascending:false}).limit(100)
       if(ph) req = req.eq('members.phone', ph)
       const { data, error } = await req
       const tb = $('#tbody')
-      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; console.error(error); return }
+      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; return }
       if(!data || !data.length){ tb.innerHTML = `<tr><td colspan="5" class="sub">${I18N[localStorage.getItem('lang')||'zh'].no_rows}</td></tr>`; return }
       tb.innerHTML = data.map(r=>{
-        const pts = Number.isFinite(Number(r.points)) ? Number(r.points) : 0
+        const pts = Number(r.points)||0
         const sign = pts>0? '+' : ''
         const t = r.created_at ? new Date(r.created_at).toLocaleString() : ''
         return `<tr>
