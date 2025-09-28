@@ -74,7 +74,10 @@
     const $ = s=>document.querySelector(s)
     const msg = $('#msg')
 
-    $('#logout').addEventListener('click', async ()=>{ await supabase.auth.signOut(); location.href='login.html' })
+    $('#logout').addEventListener('click', async ()=>{ 
+      await supabase.auth.signOut(); 
+      location.href='login.html' 
+    })
 
     // 提交按钮
     $('#btnSubmit').addEventListener('click', async ()=>{
@@ -109,13 +112,16 @@
       if(e2){ setMsg(e2.message || '更新会员积分失败', false); return }
 
       // 2. 插入积分流水
+      const userRes = await supabase.auth.getUser()
+      const userId = userRes?.data?.user?.id || null
+
       const { error: e3 } = await supabase
         .from('point_transactions')
         .insert([{
           member_id: m.id,
           points: d,
           note: nt,
-          created_by: (await supabase.auth.getUser()).data.user.id
+          created_by: userId
         }])
 
       if(e3){ setMsg(e3.message || '保存积分记录失败', false); return }
@@ -138,13 +144,25 @@
     async function refresh(){
       const ph = $('#q').value.trim()
       let req = supabase.from('point_transactions')
-        .select('points,note,created_at,members!inner(name,phone)')
+        .select(`
+          points,
+          note,
+          created_at,
+          members:member_id ( name, phone )
+        `)
         .order('created_at',{ascending:false}).limit(100)
       if(ph) req = req.eq('members.phone', ph)
       const { data, error } = await req
       const tb = $('#tbody')
-      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; return }
-      if(!data || !data.length){ tb.innerHTML = `<tr><td colspan="5" class="sub">${I18N[localStorage.getItem('lang')||'zh'].no_rows}</td></tr>`; return }
+      if(error){ 
+        tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; 
+        console.error(error); 
+        return 
+      }
+      if(!data || !data.length){ 
+        tb.innerHTML = `<tr><td colspan="5" class="sub">${I18N[localStorage.getItem('lang')||'zh'].no_rows}</td></tr>`; 
+        return 
+      }
       tb.innerHTML = data.map(r=>{
         const pts = Number(r.points)||0
         const sign = pts>0? '+' : ''
