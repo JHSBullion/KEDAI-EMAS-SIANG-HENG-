@@ -6,20 +6,21 @@
   --brand: #1e1e1e;
   --card: #fff;
   --card-border: #e5e5e5;
-  --radius: 8px;        /* 默认圆角（非首页） */
+  --radius: 8px;
   --shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   font-family: system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 /* ============ 顶栏 ============ */
@@ -28,130 +29,133 @@ body {
   color: #fff;
   padding: 12px 0;
 }
+
 .navbar .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.brand { display:flex; align-items:center; font-weight:600; font-size:18px; }
-.crest{
-  width:18px;height:18px;border-radius:50%;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #fff4cf 35%, var(--gold) 75%);
-  box-shadow:0 0 0 3px rgba(212,169,15,.12);
-}
-.actions { display:flex; align-items:center; gap:12px; }
 
-/* 顶部按钮（统一金色圆角） */
+.brand {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .btn {
-  display:inline-block;
-  padding:6px 14px;
-  border-radius:999px;
-  text-decoration:none;
-  font-size:14px;
-  font-weight:600;
-  transition:0.18s;
-  background: linear-gradient(180deg,#ffe89b,#e9c46a);
-  color:#3b2b00;
-  border: none;
-  box-shadow: 0 6px 14px rgba(212,169,15,.18), inset 0 1px 0 rgba(255,255,255,.6);
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.25s;
+  background: var(--gold);
+  color: #fff;
 }
-.btn:hover { transform: translateY(-2px); }
 
-/* 语言选择 */
+.btn:hover {
+  opacity: 0.9;
+}
+
 .lang-pill select {
-  padding:6px 8px;
-  border-radius:999px;
-  border:1px solid var(--card-border);
-  background:#fff;
-  font-size:14px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
 }
 
 /* ============ Hero ============ */
-.hero { padding: 40px 16px; display:flex; justify-content:center; flex:1 0 auto; }
-.hero .container { width:100%; max-width:520px; }
+.hero {
+  padding: 40px 16px;
+  display: flex;
+  justify-content: center;
+}
 
-/* ============ 卡片（默认：圆角，其他页面用） ============ */
+.hero .container {
+  width: 100%;
+  max-width: 520px;
+}
+
+/* ============ 卡片 / 表单 ============ */
+/* 默认：所有页面卡片圆角（旧版效果） */
 .card {
   background: var(--card);
   border: 1px solid var(--card-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius);   /* ← 圆角 */
   box-shadow: var(--shadow);
   padding: 28px 26px;
   margin: 40px auto;
   max-width: 420px;
 }
 
-/* ============ 首页专属：方形（直角）卡片 ============
-   仅在 <body class="homepage"> 下生效，不影响其他页面 */
+/* 首页专用：直角卡片 */
 .homepage .card {
-  border-radius: 4px;            /* 直角 */
+  border-radius: 4px;  /* 直角 */
   max-width: 420px;
-  min-height: 380px;            /* 让卡片看起来更方正 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;      /* 垂直居中内容 */
-  align-items: center;
-  padding: 28px;
-  margin: 32px auto;
 }
 
-/* 卡片内文本 */
 .badge {
-  display:inline-block;
+  display: inline-block;
   background: var(--gold);
-  color:#fff;
-  padding:4px 10px;
-  border-radius:999px;
-  margin-bottom:12px;
-  font-size:13px;
+  color: #fff;
+  padding: 3px 10px;
+  font-size: 13px;
+  border-radius: 999px;
+  margin-bottom: 14px;
 }
-.h1 { font-size:22px; font-weight:700; margin-bottom:8px; text-align:center; }
-.sub { color:#666; font-size:14px; text-align:center; margin-bottom:14px; }
 
-/* ============ 搜索表单：输入框和按钮不贴合 ============
-   竖直排列（手机友好），并且有足够间距 */
-.search-form {
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:20px;              /* <- 这里控制输入框与按钮的距离（可改更大） */
-  margin-top: 8px;
+.h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
-.search-form .input {
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-  font-size: 15px;
-  width:100%;
+
+.sub {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
 }
-.search-form .btn-gold {
-  width:100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: linear-gradient(180deg,#ffe89b,#e9c46a);
-  color: #3b2b00;
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 14px;
+  width: 100%;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: #fff;
   border: none;
-  font-weight:700;
-  cursor:pointer;
-  box-shadow: 0 8px 18px rgba(212,169,15,.18);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
 }
-.search-form .btn-gold:hover { transform: translateY(-2px); }
+
+.btn-gold:hover {
+  opacity: 0.9;
+}
 
 /* ============ 页脚 ============ */
 .footer {
-  text-align:center;
-  color:#777;
-  padding:16px 12px;
-  font-size:13px;
-  margin-top:auto;
-}
-
-/* 响应式：如果屏幕宽度较大，搜索行可以并排（可选） */
-@media (min-width:720px) {
-  .search-form { flex-direction:row; gap:14px; align-items:center; }
-  .search-form .input { flex:1; margin-bottom:0; }
-  .search-form .btn-gold { width:auto; min-width:140px; }
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  padding: 20px 0;
+  margin-top: 40px;
 }
