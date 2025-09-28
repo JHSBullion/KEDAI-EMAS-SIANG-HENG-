@@ -5,22 +5,22 @@
   --text: #1a1a1a;
   --subtext: #757575;
 
-  --gold: #e9c46a;            /* 主金色 */
-  --gold-strong: #d4a90f;     /* 深一点的金色 */
-  --gold-soft: #fff4cf;       /* 淡金色，用于高光 */
+  --gold: #e9c46a;
+  --gold-strong: #d4a90f;
+  --gold-soft: #fff4cf;
 
   --card: #ffffff;
   --card-border: rgba(0,0,0,.06);
   --ring: rgba(233,196,106,.55);
-  --shadow: 0 10px 30px rgba(0,0,0,.06), 0 2px 10px rgba(0,0,0,.04);
+  --shadow: 0 8px 24px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.05);
 
-  --radius: 14px;
-  --radius-sm: 10px;
+  --radius: 18px;
+  --radius-sm: 12px;
 
   --container: 1200px;
 }
 
-/* 背景：微金色辐射光，低调 */
+/* 背景光效 */
 html, body {
   height: 100%;
 }
@@ -45,15 +45,14 @@ body {
 /* ============ 顶栏 ============ */
 .navbar {
   position: sticky; top:0; z-index: 20;
-  background: rgba(255,255,255,.78);
-  -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
+  background: rgba(255,255,255,.85);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--card-border);
 }
 .navbar .navbar-inner,
 .navbar > .container {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 14px; height: 64px;
+  gap: 14px; height: 60px;
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
 .crest {
@@ -63,194 +62,118 @@ body {
 }
 .nav-right, .actions { display: flex; gap: 10px; align-items: center; }
 
-/* ============ 卡片 / 表单 ============ */
+/* ============ 主内容（居中对齐） ============ */
+.hero {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+.hero .wrap {
+  width: 100%;
+}
+
+/* 卡片 */
 .card {
   background: var(--card);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 18px;
+  padding: 28px 22px;
+  text-align: center;
 }
-h1,h2,h3 { margin: 0 0 10px; font-weight: 800; letter-spacing:.2px; }
-.sub { color: var(--subtext); font-size: 13px; }
+h1,h2,h3 { margin: 0 0 14px; font-weight: 800; letter-spacing:.2px; }
+.sub { color: var(--subtext); font-size: 14px; margin-bottom: 20px; }
 
-/* 表单 */
-.form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.form-row label { width: 92px; font-weight: 600; color: var(--text); }
-.form-row .input { flex: 1; }
-
-label { display: block; margin: 8px 0 6px; font-weight: 600; }
+/* 输入框 + 按钮 */
 .input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
   background: #fff;
   outline: none;
-  transition: box-shadow .15s border-color .15s;
+  font-size: 15px;
+  transition: box-shadow .15s, border-color .15s;
 }
 .input:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 4px var(--ring);
 }
-
-/* ============ 按钮 ============ */
 .btn {
-  --btn-bg: #fff;
-  --btn-bd: var(--card-border);
-  --btn-fg: var(--text);
   display: inline-flex; align-items: center; justify-content: center;
-  height: 36px; padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid var(--btn-bd);
-  background: var(--btn-bg);
-  color: var(--btn-fg);
-  cursor: pointer;
-  text-decoration: none;
   font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--card-border);
   transition: transform .05s ease, box-shadow .2s ease, background .2s ease;
-  box-shadow: 0 2px 0 rgba(0,0,0,.02);
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 
 .btn-gold {
-  --btn-bg: linear-gradient(180deg, #ffe89b, #e9c46a);
-  --btn-bd: rgba(212,169,15,.5);
-  --btn-fg: #3b2b00;
+  background: linear-gradient(180deg, #ffe89b, #e9c46a);
+  border: 1px solid rgba(212,169,15,.5);
+  color: #3b2b00;
   box-shadow: 0 6px 16px rgba(233,196,106,.35), inset 0 1px 0 rgba(255,255,255,.6);
-}
-.btn-ghost {
-  --btn-bg: #fff; --btn-bd: var(--card-border); --btn-fg:#333;
-  background: #fff;
+  padding: 10px 18px;
+  font-size: 15px;
 }
 
 /* 语言选择器 */
-.lang-pill select,
-.navbar select {
-  height: 36px; border-radius: 999px; padding: 0 10px;
-  border: 1px solid var(--card-border); background: #fff;
-}
-
-/* ============ 表格 ============ */
-.table {
-  width: 100%; border-collapse: collapse; font-size: 14px; background:#fff;
-  border: 1px solid var(--card-border); border-radius: var(--radius);
-  overflow: hidden;
-}
-.table thead th {
-  text-align: left; background: #faf9f5; border-bottom: 1px solid var(--card-border);
-  padding: 12px; font-weight: 700; color: #333;
-}
-.table tbody td {
-  padding: 12px; border-bottom: 1px solid var(--card-border);
-}
-.table tbody tr:last-child td { border-bottom: none; }
-
-/* ============ 布局 ============ */
-.grid-2 {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;
-}
-@media (max-width: 1024px) {
-  .grid-2 { grid-template-columns: 1fr; }
-}
-
-/* ============ 页脚 ============ */
-.footer {
-  text-align: center; color: var(--subtext);
-  padding: 28px 12px; font-size: 13px;
-}
-
-/* ============ 小徽章 ============ */
-.badge-gold {
-  display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 700;
+.lang-pill select {
   border-radius: 999px;
-  background: var(--gold-soft);
-  border: 1px solid rgba(212,169,15,.35);
-  color: #6a5200;
+  padding: 6px 10px;
+  border: 1px solid var(--card-border);
+  background: #fff;
+  font-size: 14px;
 }
 
-/* 链接 */
-a { color:#59359a; text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-/* 小提示条 */
-.alert {
-  border-radius: var(--radius-sm);
-  padding: 10px 12px; margin-top: 8px; font-size: 14px;
-  border: 1px solid var(--card-border); background: #fff;
-}
-.alert-success { border-color: rgba(20,150,60,.2); background:#f0fff5; color:#136b35; }
-.alert-error { border-color: rgba(200,40,40,.2); background:#fff0f0; color:#8b1a1a; }
-
-/* QR 容器 */
+/* QR 框 */
 .qr-box {
-  width: 320px; height: 320px; margin: 16px auto;
+  width: 320px; height: 320px; margin: 20px auto;
   background: #fff; border: 1px solid var(--card-border);
   border-radius: var(--radius);
   display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow);
 }
 
-/* 边距辅助 */
-.mt-0{ margin-top:0 } .mt-6{ margin-top:6px } .mt-10{ margin-top:10px }
-.mb-0{ margin-bottom:0 } .mb-6{ margin-bottom:6px } .mb-10{ margin-bottom:10px }
-
-/* 打印优化 */
-@media print {
-  .navbar, .footer { display:none !important; }
-  body { background:#fff; }
-  .card { box-shadow:none; border-color:#ddd; }
+/* 页脚 */
+.footer {
+  text-align: center; color: var(--subtext);
+  padding: 24px 12px; font-size: 13px;
 }
 
 /* ============ 移动端优化 ============ */
 @media (max-width: 600px) {
-  /* 顶栏更紧凑 */
-  .navbar .navbar-inner,
-  .navbar > .container {
-    height: 56px;
+  .navbar .navbar-inner {
+    height: 54px;
   }
-  .brand { font-size: 14px; }
+  .brand { font-size: 13px; }
 
-  .nav-right, .actions {
-    flex-direction: row;
-    gap: 6px;
+  .card {
+    padding: 20px 16px;
   }
+  h1 { font-size: 22px; }
+  .sub { font-size: 13px; }
 
-  .lang-pill select,
-  .navbar select {
-    font-size: 13px;
-    padding: 4px 8px;
-    height: 30px;
-  }
-
-  /* 卡片缩小 */
-  .card { padding: 14px; }
-
-  /* 标题缩小 */
-  h1 { font-size: 20px; }
-  h2 { font-size: 18px; }
-  .sub { font-size: 12px; }
-
-  /* 输入框缩小 */
   .input {
     font-size: 14px;
-    padding: 8px 10px;
+    padding: 10px 12px;
   }
-
-  /* 按钮缩小 */
-  .btn {
+  .btn-gold {
     font-size: 14px;
-    height: 32px;
-    padding: 0 12px;
+    padding: 9px 16px;
   }
 
-  /* 表格缩小 */
-  .table { font-size: 13px; }
-
-  /* QR 框缩小 */
   .qr-box {
     width: 240px;
     height: 240px;
+  }
+
+  .hero {
+    padding: 20px 0;
+    align-items: flex-start; /* 内容稍微靠上，但保留空间 */
   }
 }
