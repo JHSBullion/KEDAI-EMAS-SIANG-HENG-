@@ -18,7 +18,8 @@
         <a class="btn" href="qr.html" data-i18n="btn_qr">二维码</a>
         <a class="btn" href="login.html" data-i18n="btn_admin">后台</a>
         <div class="lang-pill">
-          <select class="lang">
+          <!-- ✅ 加上 id="langSwitch" -->
+          <select class="lang" id="langSwitch">
             <option value="zh">中</option>
             <option value="en">EN</option>
             <option value="ms">BM</option>
@@ -50,9 +51,18 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 正确引入：先 lang.js，再页面逻辑 -->
-  <script src="lang.js"></script>
-  <script>
+  <!-- ✅ 正确引入：先 lang.js，再页面逻辑 -->
+  <script type="module">
+    import { initLang, applyLang } from "./lang.js";
+
+    // 初始化语言
+    initLang();
+
+    // 监听下拉框切换
+    document.getElementById("langSwitch").addEventListener("change", (e)=>{
+      applyLang(e.target.value);
+    });
+
     // ?phone=xxx 访问首页 → 直接去结果页
     const p = new URLSearchParams(location.search).get('phone');
     if (p) { location.replace('member-portal.html?phone=' + encodeURIComponent(p)); }
