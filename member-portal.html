@@ -69,7 +69,7 @@
     }
 
     async function loadMember() {
-      // 1️⃣ 查询会员资料（直接拿 total_points）
+      // 1️⃣ 查询会员资料（含总积分）
       const { data: member, error } = await supabase
         .from('members')
         .select('id, name, phone, total_points')
@@ -94,7 +94,7 @@
       // 2️⃣ 查询积分流水
       const { data: txs, error: txErr } = await supabase
         .from('point_transactions')
-        .select('created_at, points, description')
+        .select('created_at, points, note, member_id')
         .eq('member_id', member.id)
         .order('created_at', { ascending: false })
 
@@ -111,7 +111,7 @@
           tr.innerHTML = `
             <td>${new Date(tx.created_at).toLocaleString()}</td>
             <td>${tx.points > 0 ? '+' : ''}${tx.points}</td>
-            <td>${tx.description || ''}</td>
+            <td>${tx.note || ''}</td>
           `
           tbody.appendChild(tr)
         })
