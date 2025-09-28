@@ -2,74 +2,115 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</title>
+  <title data-i18n="homeTitle">会员积分查询</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- 引入语言脚本（必须有） -->
-  <script src="lang.js"></script>
+  <script type="module" src="supabase.js"></script>
+  <script type="module" src="lang.js"></script>
 </head>
 <body>
   <!-- 顶栏 -->
   <div class="navbar">
-    <div class="navbar-inner container">
-      <div class="brand">
-        <span class="crest"></span>
-        <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
-      </div>
-      <div class="actions">
-        <a class="btn" href="qr.html" data-i18n="btn_qr">二维码</a>
-        <a class="btn" href="login.html" data-i18n="btn_admin">后台</a>
-        <div class="lang-pill">
-          <!-- select 名称要和 lang.js 匹配（lang / lang-select / langSwitch） -->
-          <select class="lang">
-            <option value="zh">中</option>
-            <option value="en">EN</option>
-            <option value="ms">BM</option>
-          </select>
-        </div>
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
+      <div class="brand"><span class="crest"></span><span data-i18n="homeTitle">会员积分查询</span></div>
+      <div class="nav-right">
+        <select id="langSwitch">
+          <option value="zh">中</option>
+          <option value="en">EN</option>
+          <option value="ms">BM</option>
+        </select>
       </div>
     </div>
   </div>
 
-  <!-- 内容：中置卡片 -->
-  <section class="hero">
-    <div class="container">
-      <div class="wrap">
-        <div class="card" style="max-width:680px;margin:0 auto">
-          <span class="badge">White • Gold • Luxe</span>
-          <h1 class="h1" data-i18n="hero_title">会员积分查询</h1>
-          <p class="sub" data-i18n="hero_sub">输入手机号码查询当前积分</p>
-
-          <form id="f" class="mt-28" style="display:flex;gap:10px;flex-wrap:wrap">
-            <label class="sr-only" for="phone" data-i18n="phone_label">手机号</label>
-            <input id="phone" class="input" style="flex:1;min-width:220px" inputmode="numeric"
-                   data-i18n-ph="phone_placeholder" placeholder="请输入手机号" />
-            <button class="btn btn-gold" type="submit" data-i18n="btn_check">查询积分</button>
-          </form>
-        </div>
+  <!-- 查询内容 -->
+  <div class="container" style="margin:18px auto;">
+    <div class="card" style="max-width:500px;margin:auto;">
+      <h3 data-i18n="checkPoints">查询积分</h3>
+      <div class="form-row">
+        <label for="phoneInput" data-i18n="phone">手机号</label>
+        <input id="phoneInput" class="input" data-i18n-ph="phonePlaceholder" placeholder="请输入手机号">
       </div>
+      <button id="btnCheck" class="btn btn-gold" style="margin-top:12px;" data-i18n="checkBtn">查询</button>
+
+      <div id="result" style="margin-top:20px;"></div>
     </div>
-  </section>
+  </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <script src="supabase.js" type="module"></script>
-  <script>
-    // index 的行为保持不变：若 ?phone=xxx 就跳转到 member-portal.html
-    const p = new URLSearchParams(location.search).get('phone');
-    if (p) { location.replace('member-portal.html?phone=' + encodeURIComponent(p)); }
+  <script type="module">
+    import { supabase } from './supabase.js'
+    import { initLang, applyLang } from './lang.js'
+    const $ = s => document.querySelector(s)
 
-    document.getElementById('f').addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const ph = document.getElementById('phone').value.trim();
-      if(!ph) return;
-      location.href = 'member-portal.html?phone=' + encodeURIComponent(ph);
-    });
+    // 初始化语言
+    initLang()
+    $('#langSwitch').addEventListener('change', e=>{
+      applyLang(e.target.value)
+    })
 
-    // 确保语言下拉与 lang.js 绑定（如果页面早于 lang.js 加载，lang.js 会在 DOMContentLoaded 自动绑定）
-    // 这里可以强制绑定一次以防 race condition：
-    document.addEventListener('DOMContentLoaded', ()=> {
-      if(window.bindLanguageSelectors) window.bindLanguageSelectors()
+    // 查询积分
+    $('#btnCheck').addEventListener('click', async ()=>{
+      const phone = $('#phoneInput').value.trim()
+      if(!phone){ alert('请输入手机号'); return }
+
+      const { data: members, error } = await supabase
+        .from('members')
+        .select('id,name,total_points,created_at')
+        .eq('phone', phone)
+        .limit(1)
+
+      const result = $('#result')
+      if(error){
+        result.innerHTML = `<div style="color:#c00">${error.message}</div>`
+        return
+      }
+      if(!members || !members.length){
+        result.innerHTML = `<div data-i18n="noMember">未找到该会员</div>`
+        applyLang($('#langSwitch').value)
+        return
+      }
+
+      const m = members[0]
+
+      // 积分记录
+      const { data: txs } = await supabase
+        .from('point_transactions')
+        .select('change,description,created_at')
+        .eq('member_id', m.id)
+        .order('created_at',{ascending:false})
+        .limit(20)
+
+      result.innerHTML = `
+        <div class="card">
+          <h4 data-i18n="memberInfo">会员信息</h4>
+          <p><b data-i18n="name">姓名</b>: ${m.name}</p>
+          <p><b data-i18n="phone">电话</b>: ${phone}</p>
+          <p><b data-i18n="totalPoints">总积分</b>: ${m.total_points||0}</p>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <h4 data-i18n="pointRecords">积分记录</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th data-i18n="change">变动</th>
+                <th data-i18n="desc">说明</th>
+                <th data-i18n="createdAt">时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${txs && txs.length ? txs.map(t=>`
+                <tr>
+                  <td>${t.change>0?`+${t.change}`:t.change}</td>
+                  <td>${t.description||''}</td>
+                  <td>${new Date(t.created_at).toLocaleString()}</td>
+                </tr>
+              `).join('') : `<tr><td colspan="3" data-i18n="noData">暂无数据</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `
+      applyLang($('#langSwitch').value) // 更新插入内容的语言
     })
   </script>
 </body>
