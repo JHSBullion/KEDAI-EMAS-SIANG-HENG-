@@ -2,18 +2,15 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <title data-i18n="admin_members_title">后台 · 会员管理</title>
+  <title data-i18n="brand_admin_members">后台 · 会员管理</title>
   <link rel="stylesheet" href="style.css" />
   <script type="module" src="supabase.js"></script>
+  <script src="lang.js"></script>
 </head>
 <body>
-  <!-- 顶栏 -->
   <div class="navbar">
     <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
-      <div class="brand">
-        <span class="crest"></span>
-        <span data-i18n="brand_admin_members">后台 · 会员管理</span>
-      </div>
+      <div class="brand"><span class="crest"></span><span data-i18n="brand_admin_members">后台 · 会员管理</span></div>
       <div class="nav-right">
         <a class="btn" href="admin-members.html" data-i18n="btn_members">会员管理</a>
         <a class="btn" href="admin-points.html" data-i18n="btn_points">积分管理</a>
@@ -30,11 +27,10 @@
     </div>
   </div>
 
-  <!-- 内容 -->
   <div class="container" style="margin:18px auto;">
     <div class="card">
       <h3 data-i18n="member_list">会员列表</h3>
-      <input id="q" class="input" style="max-width:320px" data-i18n-ph="ph_search" placeholder="搜索姓名或手机号">
+      <input id="q" class="input" style="max-width:320px" placeholder="搜索姓名或手机号" data-i18n-ph="ph_search">
       <div style="overflow:auto;margin-top:10px">
         <table class="table">
           <thead>
@@ -53,7 +49,6 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- 页面逻辑 -->
   <script type="module">
     import { supabase } from './supabase.js'
     const $ = s=>document.querySelector(s)
@@ -101,8 +96,5 @@
     $('#q').addEventListener('input', refresh)
     refresh()
   </script>
-
-  <!-- 语言切换脚本 -->
-  <script src="lang.js"></script>
 </body>
 </html>
