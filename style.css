@@ -203,6 +203,7 @@ a:hover{ text-decoration:underline; }
   body{ background:#fff; }
   .card{ box-shadow:none; border-color:#ddd; }
 }
+
 /* ============ 移动端优化（小屏幕 < 600px）=========== */
 @media (max-width: 600px) {
   /* 顶栏按钮横排，不要挤成竖着 */
@@ -213,7 +214,7 @@ a:hover{ text-decoration:underline; }
 
   .navbar .navbar-inner,
   .navbar > .container {
-    height: 56px; /* 顶栏高度稍微缩小 */
+    height: 56px;
   }
 
   .brand {
