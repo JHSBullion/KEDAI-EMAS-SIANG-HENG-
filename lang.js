@@ -1,128 +1,159 @@
 // lang.js
+
+// 定义多语言字典
 const I18N = {
   zh: {
-    // --- 全局 ---
+    // 通用
     brand_title: "KEDAI EMAS SIANG HENG 会员系统",
     btn_qr: "二维码",
     btn_admin: "后台",
     btn_home: "首页",
-    btn_check: "查询积分",
     btn_logout: "登出",
+    btn_submit: "提交",
 
-    // --- 首页 ---
+    // 首页
     hero_title: "会员积分查询",
     hero_sub: "输入手机号码查询当前积分",
     phone_label: "手机号",
     phone_placeholder: "请输入手机号",
+    btn_check: "查询积分",
 
-    // --- 会员结果页 ---
-    portal_title: "会员积分查询结果",
-    result_title: "查询结果",
-    member_name: "姓名：",
-    member_phone: "电话：",
-    member_points: "总积分：",
+    // 后台导航
+    brand_admin_points: "后台 · 积分管理",
+    btn_members: "会员管理",
+    btn_points: "积分管理",
+
+    // 后台 - 积分管理
+    admin_points_title: "后台 · 积分管理",
+    adjust_points: "调整积分",
+    form_phone: "电话",
+    form_phone_ph: "请输入手机号",
+    form_delta: "积分变动（正数加分，负数扣分）",
+    form_delta_ph: "+100 或 -50",
+    form_note: "备注",
     tx_title: "积分记录",
-    tx_date: "日期",
     tx_change: "变动",
     tx_note: "备注",
+    tx_date: "时间",
     tx_empty: "暂无记录",
+    member_name: "姓名",
+    member_phone: "电话"
   },
 
   en: {
-    // --- Global ---
-    brand_title: "KEDAI EMAS SIANG HENG Membership",
+    // Common
+    brand_title: "KEDAI EMAS SIANG HENG Membership System",
     btn_qr: "QR Code",
     btn_admin: "Admin",
     btn_home: "Home",
-    btn_check: "Check Points",
     btn_logout: "Logout",
+    btn_submit: "Submit",
 
-    // --- Homepage ---
-    hero_title: "Membership Points Inquiry",
-    hero_sub: "Enter your phone number to check current points",
-    phone_label: "Phone",
+    // Home
+    hero_title: "Member Points Inquiry",
+    hero_sub: "Enter phone number to check your points",
+    phone_label: "Phone Number",
     phone_placeholder: "Enter phone number",
+    btn_check: "Check Points",
 
-    // --- Member Portal ---
-    portal_title: "Member Points Result",
-    result_title: "Result",
-    member_name: "Name:",
-    member_phone: "Phone:",
-    member_points: "Total Points:",
-    tx_title: "Point Transactions",
-    tx_date: "Date",
+    // Admin nav
+    brand_admin_points: "Admin · Points Management",
+    btn_members: "Members",
+    btn_points: "Points",
+
+    // Admin - Points
+    admin_points_title: "Admin · Points Management",
+    adjust_points: "Adjust Points",
+    form_phone: "Phone",
+    form_phone_ph: "Enter phone number",
+    form_delta: "Points Change (+ add, - deduct)",
+    form_delta_ph: "+100 or -50",
+    form_note: "Note",
+    tx_title: "Points Records",
     tx_change: "Change",
     tx_note: "Note",
+    tx_date: "Date",
     tx_empty: "No records",
+    member_name: "Name",
+    member_phone: "Phone"
   },
 
   ms: {
-    // --- Global ---
-    brand_title: "KEDAI EMAS SIANG HENG Keahlian",
+    // Umum
+    brand_title: "KEDAI EMAS SIANG HENG Sistem Keahlian",
     btn_qr: "Kod QR",
     btn_admin: "Admin",
     btn_home: "Laman Utama",
-    btn_check: "Semak Mata",
     btn_logout: "Log Keluar",
+    btn_submit: "Hantar",
 
-    // --- Homepage ---
-    hero_title: "Semakan Mata Keahlian",
-    hero_sub: "Masukkan nombor telefon untuk semak mata semasa",
-    phone_label: "Telefon",
+    // Laman utama
+    hero_title: "Semakan Mata Ahli",
+    hero_sub: "Masukkan nombor telefon untuk semak mata",
+    phone_label: "Nombor Telefon",
     phone_placeholder: "Masukkan nombor telefon",
+    btn_check: "Semak Mata",
 
-    // --- Member Portal ---
-    portal_title: "Keputusan Mata Ahli",
-    result_title: "Keputusan",
-    member_name: "Nama:",
-    member_phone: "Telefon:",
-    member_points: "Jumlah Mata:",
+    // Admin nav
+    brand_admin_points: "Admin · Pengurusan Mata",
+    btn_members: "Ahli",
+    btn_points: "Mata",
+
+    // Admin - Points
+    admin_points_title: "Admin · Pengurusan Mata",
+    adjust_points: "Laraskan Mata",
+    form_phone: "Telefon",
+    form_phone_ph: "Masukkan nombor telefon",
+    form_delta: "Perubahan Mata (+ tambah, - tolak)",
+    form_delta_ph: "+100 atau -50",
+    form_note: "Nota",
     tx_title: "Rekod Mata",
-    tx_date: "Tarikh",
     tx_change: "Perubahan",
-    tx_note: "Catatan",
+    tx_note: "Nota",
+    tx_date: "Masa",
     tx_empty: "Tiada rekod",
+    member_name: "Nama",
+    member_phone: "Telefon"
   }
 };
 
-// ---- 语言切换逻辑 ----
+// 应用翻译
 function applyLang(lang) {
-  if (!I18N[lang]) lang = "zh";
-  localStorage.setItem("lang", lang);
-
-  // 替换文本
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
-    if (I18N[lang][key]) {
+    if (I18N[lang] && I18N[lang][key]) {
       el.textContent = I18N[lang][key];
     }
   });
 
-  // 替换 placeholder
   document.querySelectorAll("[data-i18n-ph]").forEach(el => {
     const key = el.getAttribute("data-i18n-ph");
-    if (I18N[lang][key]) {
+    if (I18N[lang] && I18N[lang][key]) {
       el.setAttribute("placeholder", I18N[lang][key]);
     }
   });
 
   // 更新 <title>
-  if (document.title && I18N[lang][document.title]) {
-    document.title = I18N[lang][document.title];
+  const titleEl = document.querySelector("title[data-i18n]");
+  if (titleEl) {
+    const key = titleEl.getAttribute("data-i18n");
+    if (I18N[lang][key]) {
+      titleEl.textContent = I18N[lang][key];
+    }
   }
 }
 
-// ---- 初始化语言 ----
-document.addEventListener("DOMContentLoaded", () => {
+// 初始化语言
+(function(){
   const lang = localStorage.getItem("lang") || "zh";
   applyLang(lang);
 
-  // 监听下拉框
-  const sel = document.querySelector(".lang");
-  if (sel) {
+  document.querySelectorAll("select.lang").forEach(sel=>{
     sel.value = lang;
-    sel.addEventListener("change", e => {
-      applyLang(e.target.value);
+    sel.addEventListener("change", e=>{
+      const l = e.target.value;
+      localStorage.setItem("lang", l);
+      applyLang(l);
     });
-  }
-});
+  });
+})();
