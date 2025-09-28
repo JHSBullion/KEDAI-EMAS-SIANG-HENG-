@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title data-i18n="portal_title">会员积分查询结果</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="lang.js"></script>
   <script type="module" src="supabase.js"></script>
 </head>
 <body>
+  <!-- 顶栏 -->
   <div class="navbar">
     <div class="navbar-inner container">
-      <div class="brand"><span class="crest"></span><span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span></div>
+      <div class="brand">
+        <span class="crest"></span>
+        <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
+      </div>
       <div class="actions">
         <a class="btn" href="index.html" data-i18n="btn_home">首页</a>
         <div class="lang-pill">
@@ -25,6 +28,7 @@
     </div>
   </div>
 
+  <!-- 内容 -->
   <div class="container" style="margin:30px auto;max-width:600px;">
     <div class="card">
       <h3 data-i18n="result_title">查询结果</h3>
@@ -45,18 +49,18 @@
             <th data-i18n="tx_note">备注</th>
           </tr>
         </thead>
-        <tbody id="tx"><tr><td colspan="3" class="sub" data-i18n="tx_empty">暂无记录</td></tr></tbody>
+        <tbody id="tx"></tbody>
       </table>
     </div>
   </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
+  <!-- 引入语言包 -->
+  <script src="lang.js"></script>
+
   <script type="module">
     import { supabase } from './supabase.js'
-
-    // ensure language selectors bound
-    document.addEventListener('DOMContentLoaded', ()=>{ if(window.bindLanguageSelectors) window.bindLanguageSelectors() })
 
     const phone = new URLSearchParams(location.search).get('phone')
     if (!phone) {
@@ -65,27 +69,39 @@
     }
 
     async function loadMember() {
+      // 1️⃣ 查询会员资料（含总积分）
       const { data: member, error } = await supabase
         .from('members')
         .select('id, name, phone, total_points')
         .eq('phone', phone)
         .maybeSingle()
 
-      if (error) { console.error(error); alert('查询出错'); return }
-      if (!member) { alert('未找到该会员'); location.href = 'index.html'; return }
+      if (error) {
+        console.error(error)
+        alert('查询出错')
+        return
+      }
+      if (!member) {
+        alert('未找到该会员')
+        location.href = 'index.html'
+        return
+      }
 
       document.getElementById('name').textContent = member.name || '-'
       document.getElementById('phone').textContent = member.phone || '-'
       document.getElementById('points').textContent = member.total_points || 0
 
-      // transactions
+      // 2️⃣ 查询积分流水
       const { data: txs, error: txErr } = await supabase
         .from('point_transactions')
         .select('created_at, points, note, member_id')
         .eq('member_id', member.id)
         .order('created_at', { ascending: false })
 
-      if (txErr) { console.error(txErr); return }
+      if (txErr) {
+        console.error(txErr)
+        return
+      }
 
       const tbody = document.getElementById('tx')
       tbody.innerHTML = ''
@@ -100,9 +116,7 @@
           tbody.appendChild(tr)
         })
       } else {
-        tbody.innerHTML = `<tr><td colspan="3" class="sub" data-i18n="tx_empty">暂无记录</td></tr>`
-        // after injection, re-apply language so tx_empty text gets translated
-        if(window.applyLang) window.applyLang(window.getCurrentLang ? window.getCurrentLang() : (localStorage.getItem('lang')||'zh'))
+        tbody.innerHTML = `<tr><td colspan="3" data-i18n="tx_empty">暂无记录</td></tr>`
       }
     }
 
