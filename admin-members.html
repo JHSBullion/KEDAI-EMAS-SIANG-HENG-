@@ -2,51 +2,58 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <title data-i18n="admin_members_title">后台 · 会员管理</title>
+  <title data-i18n="title">后台 · 会员管理</title>
   <link rel="stylesheet" href="style.css" />
   <script type="module" src="supabase.js"></script>
-  <script src="lang.js"></script>
+  <script type="module" src="lang.js"></script>
 </head>
 <body>
   <div class="navbar">
     <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
-      <div class="brand"><span class="crest"></span><span data-i18n="admin_members_title">后台 · 会员管理</span></div>
-      <div class="nav-right" style="display:flex;gap:8px;align-items:center;">
-        <a class="btn" href="admin-members.html" data-i18n="nav_members">会员管理</a>
-        <a class="btn" href="admin-points.html" data-i18n="nav_points">积分管理</a>
-        <a class="btn" href="index.html" data-i18n="nav_home">首页</a>
-        <div class="lang-pill">
-          <select class="lang">
-            <option value="zh">中</option>
-            <option value="en">EN</option>
-            <option value="bm">BM</option>
-          </select>
-        </div>
-        <button id="logout" class="btn btn-ghost" data-i18n="nav_logout">登出</button>
+      <div class="brand"><span class="crest"></span><span data-i18n="members">后台 · 会员管理</span></div>
+      <div class="nav-right">
+        <a class="btn" href="admin-members.html" data-i18n="members">会员管理</a>
+        <a class="btn" href="admin-points.html" data-i18n="points">积分管理</a>
+        <a class="btn" href="index.html" data-i18n="home">首页</a>
+        <select id="langSwitch" class="btn">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+        </select>
+        <button id="logout" class="btn btn-ghost" data-i18n="logout">登出</button>
       </div>
     </div>
   </div>
 
   <div class="container" style="margin:18px auto;">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 data-i18n="members_list_title">会员列表</h3>
-        <button id="btnAddMember" class="btn btn-gold" data-i18n="add_member_btn">新增会员</button>
-      </div>
-      <input id="q" class="input" style="max-width:320px" data-i18n-ph="ph_search" placeholder="搜索姓名或手机号">
+      <h3 data-i18n="members">会员列表</h3>
+      <input id="q" class="input" style="max-width:320px" data-i18n="search" placeholder="搜索姓名或手机号">
+      <button id="btnAdd" class="btn btn-gold" style="margin-left:10px" data-i18n="addMember">新增会员</button>
       <div style="overflow:auto;margin-top:10px">
         <table class="table">
           <thead>
             <tr>
-              <th data-i18n="th_name">姓名</th>
-              <th data-i18n="th_phone">电话</th>
-              <th data-i18n="th_total_points">总积分</th>
-              <th data-i18n="th_created">注册时间</th>
+              <th data-i18n="name">姓名</th>
+              <th data-i18n="phone">电话</th>
+              <th data-i18n="totalPoints">总积分</th>
+              <th data-i18n="createdAt">注册时间</th>
             </tr>
           </thead>
-          <tbody id="tbody"><tr><td colspan="4" class="sub" data-i18n="no_rows">暂无数据</td></tr></tbody>
+          <tbody id="tbody"><tr><td colspan="4" class="sub" data-i18n="noData">暂无数据</td></tr></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- 新增会员弹窗 -->
+  <div id="modal" class="modal" style="display:none">
+    <div class="card" style="max-width:400px;margin:auto">
+      <h3 data-i18n="addMember">新增会员</h3>
+      <div class="form-row"><label data-i18n="name">姓名</label><input id="newName" class="input"></div>
+      <div class="form-row"><label data-i18n="phone">电话</label><input id="newPhone" class="input"></div>
+      <div class="form-row"><label data-i18n="totalPoints">总积分</label><input id="newPoints" class="input" value="0"></div>
+      <button id="btnSave" class="btn btn-gold" data-i18n="submit">提交</button>
+      <button id="btnClose" class="btn">关闭</button>
     </div>
   </div>
 
@@ -54,7 +61,12 @@
 
   <script type="module">
     import { supabase } from './supabase.js'
+    import { initLang, applyLang } from './lang.js'
     const $ = s=>document.querySelector(s)
+
+    // init language
+    initLang()
+    $('#langSwitch').addEventListener('change', e=>applyLang(e.target.value))
 
     $('#logout').addEventListener('click', async ()=>{ 
       await supabase.auth.signOut(); 
@@ -69,49 +81,27 @@
         .select('id,name,phone,total_points,created_at')
         .order('created_at',{ascending:false})
         .limit(200)
-
-      if(q){
-        req = req.or(`name.ilike.%${q}%,phone.ilike.%${q}%`)
-      }
-
+      if(q){ req = req.or(`name.ilike.%${q}%,phone.ilike.%${q}%`) }
       const { data, error } = await req
       const tb = $('#tbody')
-
-      if(error){ 
-        tb.innerHTML = `<tr><td colspan="4" style="color:#c00">${esc(error.message)}</td></tr>`
-        return 
-      }
-      if(!data || !data.length){ 
-        tb.innerHTML = `<tr><td colspan="4" class="sub" data-i18n="no_rows">暂无数据</td></tr>`
-        return 
-      }
-
-      tb.innerHTML = data.map(m=>{
-        return `<tr>
-          <td>${esc(m.name)}</td>
-          <td>${esc(m.phone)}</td>
-          <td>${esc(m.total_points||0)}</td>
-          <td>${m.created_at ? new Date(m.created_at).toLocaleString() : ''}</td>
-        </tr>`
-      }).join('')
+      if(error){ tb.innerHTML = `<tr><td colspan="4" style="color:#c00">${esc(error.message)}</td></tr>`; return }
+      if(!data?.length){ tb.innerHTML = `<tr><td colspan="4" class="sub" data-i18n="noData">暂无数据</td></tr>`; return }
+      tb.innerHTML = data.map(m=>`<tr>
+        <td>${esc(m.name)}</td>
+        <td>${esc(m.phone)}</td>
+        <td>${esc(m.total_points||0)}</td>
+        <td>${m.created_at ? new Date(m.created_at).toLocaleString() : ''}</td>
+      </tr>`).join('')
     }
 
     // 新增会员
-    document.getElementById('btnAddMember').addEventListener('click', async ()=>{
-      const name = prompt(I18N[currentLang].th_name + ":")
-      const phone = prompt(I18N[currentLang].th_phone + ":")
-      if(!name || !phone) return
-
-      const { error } = await supabase.from('members').insert([
-        { name, phone, total_points: 0 }
-      ])
-
-      if(error){
-        alert(error.message)
-      }else{
-        alert("✅ " + (I18N[currentLang].add_member_btn || "Added"))
-        refresh()
-      }
+    $('#btnAdd').addEventListener('click',()=>$('#modal').style.display='block')
+    $('#btnClose').addEventListener('click',()=>$('#modal').style.display='none')
+    $('#btnSave').addEventListener('click',async ()=>{
+      const nm=$('#newName').value.trim(), ph=$('#newPhone').value.trim(), pts=Number($('#newPoints').value||0)
+      if(!nm||!ph){alert("请输入姓名和电话");return}
+      const { error } = await supabase.from('members').insert([{name:nm,phone:ph,total_points:pts}])
+      if(error){alert(error.message)} else {alert("已新增");$('#modal').style.display='none';refresh()}
     })
 
     $('#q').addEventListener('input', refresh)
