@@ -1,15 +1,14 @@
-// lang.js - 修正版
-// 把 langs、applyLang、initLang 挂到全局 window，确保前台能用
-
+// lang.js - 前台修正版
 window.langs = {
   zh: {
-    system_title: "黄金会员积分系统",
-    welcome: "欢迎",
-    hero_desc: "扫描二维码进入会员系统",
-    enter_phone: "输入你的电话号码",
-    check_points: "查询积分",
-    open_portal: "打开会员门户",
-    open_admin: "打开后台管理",
+    brand_title: "黄金会员积分系统",
+    btn_qr: "会员入口",
+    btn_admin: "后台管理",
+    hero_title: "欢迎",
+    hero_sub: "扫描二维码进入会员系统",
+    phone_label: "电话号码",
+    btn_check: "查询积分",
+
     member_portal: "会员门户",
     portal_desc: "请扫描下方二维码进入会员系统",
     no_member: "暂无会员记录",
@@ -18,13 +17,14 @@ window.langs = {
     btn_print: "打印"
   },
   en: {
-    system_title: "Gold Member Points System",
-    welcome: "Welcome",
-    hero_desc: "Scan the QR code to access the member system",
-    enter_phone: "Enter your phone number",
-    check_points: "Check Points",
-    open_portal: "Open Member Portal",
-    open_admin: "Open Admin",
+    brand_title: "Gold Member Points System",
+    btn_qr: "Member Portal",
+    btn_admin: "Admin",
+    hero_title: "Welcome",
+    hero_sub: "Scan the QR code to access the member system",
+    phone_label: "Phone Number",
+    btn_check: "Check Points",
+
     member_portal: "Member Portal",
     portal_desc: "Please scan the QR code below to enter the member system",
     no_member: "No member records",
@@ -33,13 +33,14 @@ window.langs = {
     btn_print: "Print"
   },
   ms: {
-    system_title: "Sistem Mata Ganjaran Ahli Emas",
-    welcome: "Selamat Datang",
-    hero_desc: "Imbas kod QR untuk masuk ke sistem ahli",
-    enter_phone: "Masukkan nombor telefon anda",
-    check_points: "Semak Mata",
-    open_portal: "Buka Portal Ahli",
-    open_admin: "Buka Admin",
+    brand_title: "Sistem Mata Ganjaran Ahli Emas",
+    btn_qr: "Portal Ahli",
+    btn_admin: "Admin",
+    hero_title: "Selamat Datang",
+    hero_sub: "Imbas kod QR untuk masuk ke sistem ahli",
+    phone_label: "Nombor Telefon",
+    btn_check: "Semak Mata",
+
     member_portal: "Portal Ahli",
     portal_desc: "Sila imbas kod QR di bawah untuk masuk ke sistem ahli",
     no_member: "Tiada rekod ahli",
