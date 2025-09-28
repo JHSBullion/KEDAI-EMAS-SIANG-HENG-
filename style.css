@@ -6,7 +6,7 @@
   --brand: #1e1e1e;
   --card: #fff;
   --card-border: #e5e5e5;
-  --radius: 8px;
+  --radius: 10px;
   --shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
@@ -88,16 +88,23 @@ body {
 }
 
 /* ============ 卡片 / 表单 ============ */
+/* 默认：圆角卡片 */
 .card {
   background: var(--card);
   border: 1px solid var(--card-border);
-  border-radius: 4px;   /* ← 直角 */
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 28px 26px;
   margin: 40px auto;
-  max-width: 420px;     /* 限制宽度，看起来更「方」 */
+  max-width: 420px;
 }
 
+/* 首页专属：直角方形卡片 */
+.homepage .card {
+  border-radius: 4px;
+}
+
+/* 卡片内容 */
 .badge {
   display: inline-block;
   background: var(--gold);
@@ -126,8 +133,7 @@ body {
   border-radius: var(--radius);
   font-size: 14px;
   width: 100%;
-  display: block;
-  margin-bottom: 16px;   /* ✅ 给输入框和按钮留出距离 */
+  margin-bottom: 16px; /* ← 这里加了间距，避免贴在按钮上 */
 }
 
 .btn-gold {
@@ -138,8 +144,7 @@ body {
   padding: 10px 16px;
   font-size: 14px;
   cursor: pointer;
-  display: block;
-  width: 100%;
+  width: 100%; /* 让按钮和输入框对齐 */
 }
 
 .btn-gold:hover {
