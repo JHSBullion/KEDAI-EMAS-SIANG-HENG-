@@ -1,23 +1,20 @@
-export const langs = {
+// lang.js
+const dict = {
   zh: {
     title: "后台 · 会员管理",
     members: "会员管理",
     points: "积分管理",
     home: "首页",
     logout: "登出",
-    search: "搜索姓名或手机号",
-    totalPoints: "总积分",
     addMember: "新增会员",
     name: "姓名",
     phone: "电话",
+    totalPoints: "总积分",
     createdAt: "注册时间",
+    search: "搜索姓名或手机号",
     noData: "暂无数据",
     submit: "提交",
-    adjustPoints: "调整积分",
-    delta: "积分变动（正数加分，负数扣分）",
-    note: "备注",
-    records: "积分记录",
-    noRecord: "暂无记录"
+    cancel: "取消",
   },
   en: {
     title: "Admin · Members",
@@ -25,33 +22,40 @@ export const langs = {
     points: "Points",
     home: "Home",
     logout: "Logout",
-    search: "Search name or phone",
-    totalPoints: "Total Points",
     addMember: "Add Member",
     name: "Name",
     phone: "Phone",
+    totalPoints: "Total Points",
     createdAt: "Created At",
-    noData: "No Data",
+    search: "Search name or phone",
+    noData: "No data",
     submit: "Submit",
-    adjustPoints: "Adjust Points",
-    delta: "Point change (+ add, - deduct)",
-    note: "Note",
-    records: "Point Records",
-    noRecord: "No Records"
+    cancel: "Cancel",
   }
 }
 
-export function applyLang(lang){
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key = el.getAttribute("data-i18n")
-    el.innerText = langs[lang][key] || key
-  })
-  localStorage.setItem("lang", lang)
+let currentLang = "zh"
+
+export function initLang() {
+  applyLang(currentLang)
 }
 
-export function initLang(){
-  const saved = localStorage.getItem("lang") || "zh"
-  applyLang(saved)
-  const sel = document.getElementById("langSwitch")
-  if(sel) sel.value = saved
+export function applyLang(lang) {
+  currentLang = lang
+  const dictLang = dict[lang]
+
+  // 普通 innerText/innerHTML 替换
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n")
+    if (dictLang[key]) el.innerText = dictLang[key]
+  })
+
+  // placeholder 替换
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+    const key = el.getAttribute("data-i18n-ph")
+    if (dictLang[key]) el.setAttribute("placeholder", dictLang[key])
+  })
+
+  // 页面标题替换
+  if (dictLang["title"]) document.title = dictLang["title"]
 }
