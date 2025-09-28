@@ -8,48 +8,29 @@
     location.href = 'login.html'
   })
 
-  // ---------- Helper: 获取当前登录用户 id ----------
+  // ---------- 获取当前登录管理员 ----------
   async function getCurrentUserId() {
     try {
-      if (supabase.auth && supabase.auth.getUser) {
-        const res = await supabase.auth.getUser()
-        return res?.data?.user?.id ?? null
-      }
-      if (supabase.auth && typeof supabase.auth.user === 'function') {
-        const u = supabase.auth.user()
-        return u?.id ?? null
-      }
-      if (supabase.auth && typeof supabase.auth.session === 'function') {
-        const s = supabase.auth.session()
-        return s?.user?.id ?? null
-      }
-      return null
+      const res = await supabase.auth.getUser()
+      return res?.data?.user?.id ?? null
     } catch (e) {
-      console.warn('getCurrentUserId error:', e)
+      console.error('getCurrentUserId error:', e)
       return null
     }
   }
 
-  // ---------- 插入函数 ----------
+  // ---------- 插入积分记录 ----------
   async function addPointTransaction(memberId, points, amount = null, note = '') {
     try {
-      const member_id = (memberId === null || memberId === undefined) ? '' : String(memberId).trim()
-      const pts = Number.isNaN(parseInt(points, 10)) ? 0 : parseInt(points, 10)
-      const amt = amount === null ? pts : (Number.isNaN(parseInt(amount, 10)) ? 0 : parseInt(amount, 10))
-
-      if (!member_id) {
-        return { data: null, error: { message: 'invalid member id' } }
-      }
-
       const userId = await getCurrentUserId()
       if (!userId) {
-        return { data: null, error: { message: '当前未登入，请先登入管理员账号' } }
+        return { data: null, error: { message: '未登入，请先登入管理员账号' } }
       }
 
       const payload = {
-        member_id,
-        points: pts,
-        amount: amt,
+        member_id: memberId,
+        points: parseInt(points, 10),
+        amount: amount ?? parseInt(points, 10),
         note: note || null,
         created_by: userId
       }
@@ -58,14 +39,9 @@
         .from('point_transactions')
         .insert([payload])
 
-      if (error) {
-        console.error('Supabase insert error:', error, 'payload:', payload)
-        return { data: null, error }
-      }
-
-      return { data, error: null }
+      return { data, error }
     } catch (e) {
-      console.error('unexpected error in addPointTransaction:', e)
+      console.error(e)
       return { data: null, error: e }
     }
   }
@@ -88,15 +64,11 @@
       .eq('phone', ph)
       .maybeSingle()
 
-    if (e1) {
-      console.error('查会员出错：', e1)
-      setMsg(e1.message || '查会员出错', false)
-      return
-    }
+    if (e1) { setMsg(e1.message, false); return }
     if (!m) { setMsg('未找到该会员', false); return }
 
     const { error: e2 } = await addPointTransaction(m.id, d, d, nt)
-    if (e2) { setMsg(e2.message || JSON.stringify(e2), false); return }
+    if (e2) { setMsg(e2.message, false); return }
 
     setMsg('已提交', true)
     $('#delta').value = ''; $('#note').value = ''
@@ -106,7 +78,8 @@
 
   function setMsg(t, ok) {
     msg.className = 'alert ' + (ok ? 'alert-success' : 'alert-error')
-    msg.textContent = t; msg.style.display = 'block'
+    msg.textContent = t
+    msg.style.display = 'block'
     if (ok) setTimeout(() => msg.style.display = 'none', 1500)
   }
 
@@ -128,15 +101,13 @@
       .order('created_at', { ascending: false })
       .limit(100)
 
-    if (ph) {
-      req = req.eq('members.phone', ph)
-    }
+    if (ph) req = req.eq('members.phone', ph)
 
     const { data, error } = await req
     const tb = $('#tbody')
+
     if (error) {
       tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`
-      console.error(error)
       return
     }
     if (!data || !data.length) {
