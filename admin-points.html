@@ -5,18 +5,20 @@
   <title data-i18n="admin_points_title">后台 · 积分管理</title>
   <link rel="stylesheet" href="style.css" />
   <script type="module" src="supabase.js"></script>
-  <script src="lang.js"></script>
 </head>
-<body> 
+<body>
+  <!-- 顶栏 -->
   <div class="navbar">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
-      <div class="brand"><span class="crest"></span><span data-i18n="brand_admin_points">后台 · 积分管理</span></div>
-      <div class="nav-right">
+    <div class="navbar-inner container">
+      <div class="brand">
+        <span class="crest"></span>
+        <span data-i18n="brand_admin_points">后台 · 积分管理</span>
+      </div>
+      <div class="actions">
         <a class="btn" href="admin-members.html" data-i18n="btn_members">会员管理</a>
         <a class="btn" href="admin-points.html" data-i18n="btn_points">积分管理</a>
         <a class="btn" href="index.html" data-i18n="btn_home">首页</a>
         <button id="logout" class="btn btn-ghost" data-i18n="btn_logout">登出</button>
-        <!-- 语言切换 -->
         <div class="lang-pill">
           <select class="lang">
             <option value="zh">中</option>
@@ -35,15 +37,15 @@
         <h3 data-i18n="adjust_points">调整积分</h3>
 
         <div class="form-row">
-          <label data-i18n="form_phone">电话</label>
-          <input id="phone" class="input" data-i18n-ph="form_phone_ph" placeholder="请输入手机号">
+          <label data-i18n="phone_label">电话</label>
+          <input id="phone" class="input" data-i18n-ph="phone_placeholder" placeholder="请输入手机号">
         </div>
         <div class="form-row">
-          <label data-i18n="form_delta">积分变动（正数加分，负数扣分）</label>
-          <input id="delta" class="input" data-i18n-ph="form_delta_ph" placeholder="+100 或 -50">
+          <label data-i18n="delta_label">积分变动（正数加分，负数扣分）</label>
+          <input id="delta" class="input" placeholder="+100 或 -50">
         </div>
         <div class="form-row">
-          <label data-i18n="form_note">备注</label>
+          <label data-i18n="note_label">备注</label>
           <input id="note" class="input">
         </div>
         <button id="btnSubmit" class="btn btn-gold" data-i18n="btn_submit">提交</button>
@@ -52,20 +54,20 @@
 
       <!-- 右：记录 -->
       <div class="card">
-        <h3 data-i18n="tx_title">积分记录</h3>
-        <input id="q" class="input" style="max-width:320px" data-i18n-ph="form_phone_ph" placeholder="请输入手机号">
+        <h3 data-i18n="points_record">积分记录</h3>
+        <input id="q" class="input" style="max-width:320px" data-i18n-ph="phone_placeholder" placeholder="请输入手机号">
         <div style="overflow:auto;margin-top:10px">
           <table class="table">
             <thead>
               <tr>
-                <th data-i18n="member_name">姓名</th>
-                <th data-i18n="member_phone">电话</th>
-                <th data-i18n="tx_change">变动</th>
-                <th data-i18n="tx_note">备注</th>
-                <th data-i18n="tx_date">时间</th>
+                <th data-i18n="th_name">姓名</th>
+                <th data-i18n="th_phone">电话</th>
+                <th data-i18n="th_points">变动</th>
+                <th data-i18n="th_note">备注</th>
+                <th data-i18n="th_time">时间</th>
               </tr>
             </thead>
-            <tbody id="tbody"><tr><td colspan="5" class="sub" data-i18n="tx_empty">暂无记录</td></tr></tbody>
+            <tbody id="tbody"><tr><td colspan="5" class="sub" data-i18n="no_records">暂无记录</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -111,7 +113,6 @@
         .insert([{
           member_id: m.id,
           points: d,
-          amount: d,
           note: nt
         }])
 
@@ -163,7 +164,7 @@
         return 
       }
       if(!data || !data.length){ 
-        tb.innerHTML = `<tr><td colspan="5" class="sub" data-i18n="tx_empty">暂无记录</td></tr>`; 
+        tb.innerHTML = `<tr><td colspan="5" class="sub" data-i18n="no_records">暂无记录</td></tr>`; 
         return 
       }
 
@@ -184,5 +185,8 @@
     $('#q').addEventListener('input', refresh)
     refresh()
   </script>
+
+  <!-- 语言脚本 -->
+  <script src="lang.js"></script>
 </body>
 </html>
