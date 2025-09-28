@@ -29,7 +29,8 @@
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3 data-i18n="members">会员列表</h3>
-        <button id="btnAdd" class="btn btn-gold" data-i18n="addMember">新增会员</button>
+        <!-- 跳转到新增页面 -->
+        <a href="add-member.html" class="btn btn-gold" data-i18n="addMember">新增会员</a>
       </div>
       <input id="q" class="input" style="max-width:320px" data-i18n-ph="search" placeholder="搜索姓名或手机号">
       <div style="overflow:auto;margin-top:10px">
@@ -44,29 +45,6 @@
           </thead>
           <tbody id="tbody"><tr><td colspan="4" class="sub" data-i18n="noData">暂无数据</td></tr></tbody>
         </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- 新增会员弹窗 -->
-  <div id="modal" class="modal" style="display:none;">
-    <div class="modal-content card" style="max-width:400px;margin:auto;">
-      <h3 data-i18n="addMember">新增会员</h3>
-      <div class="form-row">
-        <label data-i18n="name">姓名</label>
-        <input id="newName" class="input">
-      </div>
-      <div class="form-row">
-        <label data-i18n="phone">电话</label>
-        <input id="newPhone" class="input">
-      </div>
-      <div class="form-row">
-        <label data-i18n="totalPoints">初始积分</label>
-        <input id="newPoints" class="input" value="0">
-      </div>
-      <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end;">
-        <button id="btnCancel" class="btn">取消</button>
-        <button id="btnSave" class="btn btn-gold" data-i18n="submit">提交</button>
       </div>
     </div>
   </div>
@@ -88,23 +66,6 @@
     initLang()
     $('#langSwitch').addEventListener('change', e=>{
       applyLang(e.target.value)
-    })
-
-    // 显示/隐藏弹窗
-    $('#btnAdd').addEventListener('click', ()=>$('#modal').style.display='block')
-    $('#btnCancel').addEventListener('click', ()=>$('#modal').style.display='none')
-
-    // 保存会员
-    $('#btnSave').addEventListener('click', async ()=>{
-      const name = $('#newName').value.trim()
-      const phone = $('#newPhone').value.trim()
-      const pts = Number($('#newPoints').value) || 0
-      if(!name || !phone){ alert('请输入姓名和电话'); return }
-      const { error } = await supabase.from('members').insert([{ name, phone, total_points: pts }])
-      if(error){ alert(error.message); return }
-      $('#modal').style.display='none'
-      $('#newName').value=''; $('#newPhone').value=''; $('#newPoints').value='0'
-      refresh()
     })
 
     // 刷新会员列表
