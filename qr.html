@@ -2,62 +2,83 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <title data-i18n="qr_page_title">QR · 会员入口</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KEDAI EMAS SIANG HENG · 会员系统</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- 轻量 QRCode 库（CDN） -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+  <!-- 顶栏 -->
   <div class="navbar">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
-      <div class="brand"><span class="crest"></span> <span data-i18n="qr_page_title">QR · 会员入口</span></div>
-      <div class="nav-right">
-        <a href="index.html" class="btn" data-i18n="back_home">返回首页</a>
-        <select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
+    <div class="navbar-inner container">
+      <div class="brand">
+        <span class="crest"></span>
+        <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
+      </div>
+      <div class="actions">
+        <a class="btn" href="index.html" data-i18n="back_home">返回首页</a>
+        <a class="btn" href="login.html" data-i18n="btn_admin">后台</a>
+        <div class="lang-pill">
+          <!-- ✅ 统一语言选择 -->
+          <select class="lang" id="langSwitch">
+            <option value="zh">中</option>
+            <option value="en">EN</option>
+            <option value="ms">BM</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="container" style="max-width:960px;margin:24px auto;">
-    <div class="card" style="text-align:center">
-      <h3 data-i18n="qr_title">打印用二维码</h3>
-      <p class="sub" data-i18n="qr_desc">默认生成本站 index.html（顾客扫码后输入手机号查询）</p>
-      <div id="qr" class="qr-box"></div>
-
-      <div style="max-width:520px;margin:12px auto;text-align:left">
-        <label class="mt-10" data-i18n="qr_link_label">链接（可改，例如：member-portal.html?phone=0123456789）</label>
-        <input id="link" class="input" value="">
-      </div>
-
-      <div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
-        <button id="regen" class="btn btn-gold" data-i18n="btn_regenerate">重新生成</button>
-        <button id="print" class="btn" data-i18n="btn_print">打印</button>
+  <!-- 内容：二维码展示 -->
+  <section class="hero">
+    <div class="container">
+      <div class="wrap">
+        <div class="card" style="max-width:680px;margin:0 auto;text-align:center">
+          <h1 class="h1" data-i18n="member_portal">会员门户</h1>
+          <p class="sub" data-i18n="portal_desc">请扫描下方二维码进入会员系统</p>
+          <div style="margin:20px auto">
+            <canvas id="qrcanvas"></canvas>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn" id="regen" data-i18n="btn_regenerate">重置二维码</button>
+            <button class="btn" id="print" data-i18n="btn_print">打印</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <script src="lang.js"></script>
-  <script>
-    const el = s=>document.querySelector(s)
-    function defaultLink(){
-      // 默认到主页 index.html
-      return `${location.origin}/index.html`
+  <!-- ✅ 脚本部分 -->
+  <script src="qrcode.min.js"></script>
+  <script type="module">
+    import { initLang, applyLang } from "./lang.js";
+
+    // 初始化语言
+    initLang();
+
+    // 监听下拉框切换
+    document.getElementById("langSwitch").addEventListener("change", (e)=>{
+      applyLang(e.target.value);
+    });
+
+    // 生成二维码逻辑
+    const canvas = document.getElementById("qrcanvas");
+    const regenBtn = document.getElementById("regen");
+    const printBtn = document.getElementById("print");
+
+    function makeQR(){
+      const url = location.origin + "/index.html";
+      QRCode.toCanvas(canvas, url, { width: 260 }, err=>{
+        if(err) console.error(err);
+      });
     }
-    function render(){
-      const url = el('#link').value.trim() || defaultLink()
-      const box = el('#qr')
-      box.innerHTML = ''
-      // 生成二维码
-      new QRCode(box, { text: url, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H })
-    }
-    document.addEventListener('DOMContentLoaded', ()=>{
-      el('#link').value = defaultLink()
-      render()
-      el('#regen').addEventListener('click', render)
-      el('#print').addEventListener('click', ()=>window.print())
-    })
+
+    regenBtn.addEventListener("click", makeQR);
+    printBtn.addEventListener("click", ()=>{ window.print(); });
+
+    makeQR();
   </script>
 </body>
 </html>
