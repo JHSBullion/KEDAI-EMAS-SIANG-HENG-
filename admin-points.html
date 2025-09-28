@@ -29,15 +29,15 @@
         <h3 data-i18n="adjust_points_title">调整积分</h3>
 
         <div class="form-row">
-          <label data-i18n="label_phone">电话</label>
+          <label>电话</label>
           <input id="phone" class="input" placeholder="请输入手机号">
         </div>
         <div class="form-row">
-          <label data-i18n="label_delta">积分变动（正数加分，负数扣分）</label>
+          <label>积分变动（正数加分，负数扣分）</label>
           <input id="delta" class="input" placeholder="+100 或 -50">
         </div>
         <div class="form-row">
-          <label data-i18n="label_note">备注</label>
+          <label>备注</label>
           <input id="note" class="input">
         </div>
         <button id="btnSubmit" class="btn btn-gold">提交</button>
@@ -46,7 +46,7 @@
 
       <!-- 右：记录 -->
       <div class="card">
-        <h3 data-i18n="points_list_title">积分记录</h3>
+        <h3>积分记录</h3>
         <input id="q" class="input" style="max-width:320px" placeholder="请输入手机号">
         <div style="overflow:auto;margin-top:10px">
           <table class="table">
@@ -134,17 +134,26 @@
           points,
           note,
           created_at,
-          members:member_id (name, phone)
+          members ( name, phone )
         `)
         .order('created_at',{ascending:false})
         .limit(100)
 
       if(ph) req = req.eq('members.phone', ph)
+
       const { data, error } = await req
+      console.log("查询结果:", data, error) // 调试用
+
       const tb = $('#tbody')
 
-      if(error){ tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; return }
-      if(!data || !data.length){ tb.innerHTML = `<tr><td colspan="5" class="sub">暂无记录</td></tr>`; return }
+      if(error){ 
+        tb.innerHTML = `<tr><td colspan="5" style="color:#c00">${esc(error.message)}</td></tr>`; 
+        return 
+      }
+      if(!data || !data.length){ 
+        tb.innerHTML = `<tr><td colspan="5" class="sub">暂无记录</td></tr>`; 
+        return 
+      }
 
       tb.innerHTML = data.map(r=>{
         const pts = Number(r.points)||0
