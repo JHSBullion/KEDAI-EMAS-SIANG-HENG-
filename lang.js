@@ -21,12 +21,13 @@ export const langs = {
     noRecord: "暂无记录",
 
     // 前台
-    brand_title: "黄金会员积分系统",
-    btn_qr: "会员入口",
-    btn_admin: "后台管理",
-    hero_title: "欢迎",
-    hero_sub: "扫描二维码进入会员系统",
-    phone_label: "电话号码",
+    brand_title: "KEDAI EMAS SIANG HENG 会员系统",
+    btn_qr: "二维码",
+    btn_admin: "后台",
+    hero_title: "会员积分查询",
+    hero_sub: "输入手机号码查询当前积分",
+    phone_label: "手机号",
+    phone_placeholder: "请输入手机号",
     btn_check: "查询积分",
     member_portal: "会员门户",
     portal_desc: "请扫描下方二维码进入会员系统",
@@ -35,7 +36,7 @@ export const langs = {
     btn_print: "打印"
   },
   en: {
-    // 后台
+    // Admin
     title: "Admin · Members",
     members: "Members",
     points: "Points",
@@ -56,21 +57,22 @@ export const langs = {
     noRecord: "No Records",
 
     // Frontend
-    brand_title: "Gold Member Points System",
-    btn_qr: "Member Portal",
+    brand_title: "KEDAI EMAS SIANG HENG Member System",
+    btn_qr: "QR Code",
     btn_admin: "Admin",
-    hero_title: "Welcome",
-    hero_sub: "Scan the QR code to access the member system",
+    hero_title: "Check Member Points",
+    hero_sub: "Enter phone number to check your current points",
     phone_label: "Phone Number",
+    phone_placeholder: "Enter your phone number",
     btn_check: "Check Points",
     member_portal: "Member Portal",
-    portal_desc: "Please scan the QR code below to enter the member system",
+    portal_desc: "Please scan the QR code below to access the member system",
     back_home: "Back to Home",
-    btn_regenerate: "Regenerate",
+    btn_regenerate: "Regenerate QR",
     btn_print: "Print"
   },
   ms: {
-    // 后台
+    // Admin
     title: "Admin · Ahli",
     members: "Ahli",
     points: "Mata",
@@ -91,34 +93,44 @@ export const langs = {
     noRecord: "Tiada Rekod",
 
     // Frontend
-    brand_title: "Sistem Mata Ganjaran Ahli Emas",
-    btn_qr: "Portal Ahli",
+    brand_title: "Sistem Ahli KEDAI EMAS SIANG HENG",
+    btn_qr: "Kod QR",
     btn_admin: "Admin",
-    hero_title: "Selamat Datang",
-    hero_sub: "Imbas kod QR untuk masuk ke sistem ahli",
+    hero_title: "Semak Mata Ahli",
+    hero_sub: "Masukkan nombor telefon untuk semak mata semasa",
     phone_label: "Nombor Telefon",
+    phone_placeholder: "Masukkan nombor telefon anda",
     btn_check: "Semak Mata",
     member_portal: "Portal Ahli",
     portal_desc: "Sila imbas kod QR di bawah untuk masuk ke sistem ahli",
     back_home: "Kembali ke Laman Utama",
-    btn_regenerate: "Jana Semula",
+    btn_regenerate: "Jana Semula Kod QR",
     btn_print: "Cetak"
   }
 }
 
 export function applyLang(lang){
-  if(lang === "bm") lang = "ms"  // 兼容 bm=ms
+  if(lang === "bm") lang = "ms"; // 兼容 bm=ms
   document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key = el.getAttribute("data-i18n")
-    el.innerText = langs[lang][key] || key
-  })
-  localStorage.setItem("lang", lang)
+    const key = el.getAttribute("data-i18n");
+    if(langs[lang][key]){
+      el.innerText = langs[lang][key];
+    }
+    // 额外处理 placeholder
+    if(el.hasAttribute("data-i18n-ph")){
+      const phKey = el.getAttribute("data-i18n-ph");
+      if(langs[lang][phKey]){
+        el.setAttribute("placeholder", langs[lang][phKey]);
+      }
+    }
+  });
+  localStorage.setItem("lang", lang);
 }
 
 export function initLang(){
-  let saved = localStorage.getItem("lang") || "zh"
-  if(saved === "bm") saved = "ms"
-  applyLang(saved)
-  const sel = document.getElementById("langSwitch")
-  if(sel) sel.value = saved
+  let saved = localStorage.getItem("lang") || "zh";
+  if(saved === "bm") saved = "ms";
+  applyLang(saved);
+  const sel = document.getElementById("langSwitch");
+  if(sel) sel.value = saved;
 }
