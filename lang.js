@@ -17,18 +17,7 @@ export const langs = {
     delta: "积分变动（正数加分，负数扣分）",
     note: "备注",
     records: "积分记录",
-    noRecord: "暂无记录",
-
-    // 前台首页
-    brand_title: "KEDAI EMAS SIANG HENG 会员系统",
-    welcome: "欢迎来到会员系统",
-    loginBtn: "登录",
-    joinBtn: "加入会员",
-
-    // QR 页面
-    qr_page_title: "QR · 会员入口",
-    scanQr: "请扫描二维码",
-    backHome: "返回首页"
+    noRecord: "暂无记录"
   },
   en: {
     title: "Admin · Members",
@@ -45,51 +34,24 @@ export const langs = {
     noData: "No Data",
     submit: "Submit",
     adjustPoints: "Adjust Points",
-    delta: "Point Change (+ to add, - to subtract)",
+    delta: "Point change (+ add, - deduct)",
     note: "Note",
     records: "Point Records",
-    noRecord: "No Record",
-
-    // Front page
-    brand_title: "KEDAI EMAS SIANG HENG Membership System",
-    welcome: "Welcome to the Membership System",
-    loginBtn: "Login",
-    joinBtn: "Join Membership",
-
-    // QR page
-    qr_page_title: "QR · Member Entry",
-    scanQr: "Please scan the QR code",
-    backHome: "Back to Home"
-  },
-  ms: {
-    title: "Admin · Ahli",
-    members: "Ahli",
-    points: "Mata",
-    home: "Laman Utama",
-    logout: "Log Keluar",
-    search: "Cari nama atau nombor telefon",
-    totalPoints: "Jumlah Mata",
-    addMember: "Tambah Ahli",
-    name: "Nama",
-    phone: "Telefon",
-    createdAt: "Tarikh Daftar",
-    noData: "Tiada Data",
-    submit: "Hantar",
-    adjustPoints: "Laraskan Mata",
-    delta: "Perubahan Mata (+ untuk tambah, - untuk tolak)",
-    note: "Nota",
-    records: "Rekod Mata",
-    noRecord: "Tiada Rekod",
-
-    // Halaman depan
-    brand_title: "KEDAI EMAS SIANG HENG Sistem Keahlian",
-    welcome: "Selamat datang ke sistem ahli",
-    loginBtn: "Log Masuk",
-    joinBtn: "Sertai Ahli",
-
-    // Halaman QR
-    qr_page_title: "QR · Pintu Masuk Ahli",
-    scanQr: "Sila imbas kod QR",
-    backHome: "Kembali ke Laman Utama"
+    noRecord: "No Records"
   }
-};
+}
+
+export function applyLang(lang){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n")
+    el.innerText = langs[lang][key] || key
+  })
+  localStorage.setItem("lang", lang)
+}
+
+export function initLang(){
+  const saved = localStorage.getItem("lang") || "zh"
+  applyLang(saved)
+  const sel = document.getElementById("langSwitch")
+  if(sel) sel.value = saved
+}

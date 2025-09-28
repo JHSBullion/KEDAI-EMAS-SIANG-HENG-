@@ -1,44 +1,47 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="zh">
 <head>
-<meta charset="utf-8"/>
-<title data-i18n="login_title">Admin Login</title>
-<link href="style.css" rel="stylesheet"/>
-<script src="supabase.js" type="module"></script>
+  <meta charset="utf-8" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="supabase.js"></script>
 </head>
 <body>
-<div class="navbar">
-<div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
-<div class="brand"><span class="crest"></span> KEDAI EMAS SIANG HENG</div>
-<div class="nav-right">
-<a class="btn" data-i18n="back_home" href="index.html">返回首页</a>
-<select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
-</div>
-</div>
-</div>
-<div class="container" style="max-width:900px;margin:28px auto;">
-<div class="card">
-<h3 data-i18n="login_hint_title">登录</h3>
-<div class="form-row">
-<label data-i18n="login_email">邮箱</label>
-<input class="input" id="email" placeholder="admin@shop.com"/>
-</div>
-<div class="form-row">
-<label data-i18n="login_password">密码</label>
-<input class="input" id="password" placeholder="******" type="password"/>
-</div>
-<button class="btn btn-gold" data-i18n="login_btn" id="login">登录</button>
-</div>
-<div class="card mt-10">
-<h4 class="mt-0" data-i18n="login_tips_title">提示</h4>
-<p class="mt-6" data-i18n="login_hint_text">请使用 Supabase 管理员邮箱与密码登录（例如 admin@shop.com / 123456）。</p>
-<div class="alert mt-10" id="msg" style="display:none"></div>
-</div>
-</div>
-<div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
-<script src="lang.js"></script>
-<script type="module">
+  <div class="navbar">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:60px">
+      <div class="brand"><span class="crest"></span> KEDAI EMAS SIANG HENG</div>
+      <div class="nav-right">
+        <a href="index.html" class="btn" data-i18n="back_home">返回首页</a>
+        <select class="lang-select"><option value="zh">中</option><option value="en">EN</option><option value="bm">BM</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="max-width:900px;margin:28px auto;">
+    <div class="card">
+      <h3 data-i18n="login_title">登录</h3>
+      <div class="form-row">
+        <label data-i18n="login_email">邮箱</label>
+        <input id="email" class="input" placeholder="admin@shop.com">
+      </div>
+      <div class="form-row">
+        <label data-i18n="login_password">密码</label>
+        <input id="password" class="input" type="password" placeholder="******">
+      </div>
+      <button id="login" class="btn btn-gold" data-i18n="login_btn">登录</button>
+    </div>
+
+    <div class="card mt-10">
+      <h4 class="mt-0" data-i18n="login_tips_title">提示</h4>
+      <p class="mt-6" data-i18n="login_tips_text">请使用 Supabase 管理员邮箱与密码登录（例如 admin@shop.com / 123456）。</p>
+      <div id="msg" class="alert mt-10" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
+  <script src="lang.js"></script>
+  <script type="module">
     import { supabase } from './supabase.js'
     const $ = s=>document.querySelector(s)
     const msg = $('#msg')

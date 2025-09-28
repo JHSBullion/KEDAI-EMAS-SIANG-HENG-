@@ -1,55 +1,57 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="zh">
 <head>
-<meta charset="utf-8"/>
-<title data-i18n="admin_members_title">后台 · 会员管理</title>
-<link href="style.css" rel="stylesheet"/>
-<script src="supabase.js" type="module"></script>
+  <meta charset="utf-8" />
+  <title data-i18n="title">后台 · 会员管理</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="supabase.js"></script>
 </head>
 <body>
-<!-- 顶栏 -->
-<div class="navbar">
-<div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
-<div class="brand"><span class="crest"></span><span data-i18n="members">会员管理</span></div>
-<div class="nav-right">
-<a class="btn" data-i18n="members" href="admin-members.html">会员管理</a>
-<a class="btn" data-i18n="points" href="admin-points.html">积分管理</a>
-<a class="btn" data-i18n="home" href="index.html">首页</a>
-<select id="langSwitch">
-<option value="zh">中</option>
-<option value="en">EN</option>
-</select>
-<button class="btn btn-ghost" data-i18n="add_member" id="logout">登出</button>
-</div>
-</div>
-</div>
-<!-- 内容 -->
-<div class="container" style="margin:18px auto;">
-<div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<h3 data-i18n="members">会员列表</h3>
-<!-- 跳转到新增页面 -->
-<a class="btn btn-gold" data-i18n="addMember" href="add-member.html">新增会员</a>
-</div>
-<input class="input" data-i18n-ph="search" id="q" placeholder="搜索姓名或手机号" style="max-width:320px"/>
-<div style="overflow:auto;margin-top:10px">
-<table class="table">
-<thead>
-<tr>
-<th data-i18n="table_name">姓名</th>
-<th data-i18n="table_phone">电话</th>
-<th data-i18n="table_points">总积分</th>
-<th data-i18n="table_created">注册时间</th>
-</tr>
-</thead>
-<tbody id="tbody"><tr><td class="sub" colspan="4" data-i18n="noData">暂无数据</td></tr></tbody>
-</table>
-</div>
-</div>
-</div>
-<div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
-<script type="module">
+  <!-- 顶栏 -->
+  <div class="navbar">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;">
+      <div class="brand"><span class="crest"></span><span data-i18n="members">会员管理</span></div>
+      <div class="nav-right">
+        <a class="btn" href="admin-members.html" data-i18n="members">会员管理</a>
+        <a class="btn" href="admin-points.html" data-i18n="points">积分管理</a>
+        <a class="btn" href="index.html" data-i18n="home">首页</a>
+        <select id="langSwitch">
+          <option value="zh">中</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="logout" class="btn btn-ghost" data-i18n="logout">登出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 内容 -->
+  <div class="container" style="margin:18px auto;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 data-i18n="members">会员列表</h3>
+        <!-- 跳转到新增页面 -->
+        <a href="add-member.html" class="btn btn-gold" data-i18n="addMember">新增会员</a>
+      </div>
+      <input id="q" class="input" style="max-width:320px" data-i18n-ph="search" placeholder="搜索姓名或手机号">
+      <div style="overflow:auto;margin-top:10px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-i18n="name">姓名</th>
+              <th data-i18n="phone">电话</th>
+              <th data-i18n="totalPoints">总积分</th>
+              <th data-i18n="createdAt">注册时间</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"><tr><td colspan="4" class="sub" data-i18n="noData">暂无数据</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
+  <script type="module">
     import { supabase } from './supabase.js'
     import { initLang, applyLang } from './lang.js'
     const $ = s=>document.querySelector(s)

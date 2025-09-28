@@ -1,61 +1,65 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="zh">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title data-i18n="portal_title">会员积分查询结果</title>
-<link href="style.css" rel="stylesheet"/>
-<script src="supabase.js" type="module"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="portal_title">会员积分查询结果</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="supabase.js"></script>
 </head>
 <body>
-<!-- 顶栏 -->
-<div class="navbar">
-<div class="navbar-inner container">
-<div class="brand">
-<span class="crest" data-i18n="portal_name"></span>
-<span data-i18n="portal_phone">KEDAI EMAS SIANG HENG 会员系统</span>
-</div>
-<div class="actions">
-<a class="btn" data-i18n="btn_home" href="index.html">首页</a>
-<div class="lang-pill">
-<select class="lang">
-<option value="zh">中</option>
-<option value="en">EN</option>
-<option value="ms">BM</option>
-</select>
-</div>
-</div>
-</div>
-</div>
-<!-- 内容 -->
-<div class="container" style="margin:30px auto;max-width:600px;">
-<div class="card">
-<h3 data-i18n="portal_records">查询结果</h3>
-<div id="result" style="margin-top:15px;">
-<p data-i18n="portal_no_record"><strong data-i18n="member_name">姓名：</strong><span data-i18n="portal_total_points" id="name">-</span></p>
-<p><strong data-i18n="member_phone">电话：</strong><span id="phone">-</span></p>
-<p><strong data-i18n="member_points">总积分：</strong><span id="points">0</span></p>
-</div>
-</div>
-<div class="card" style="margin-top:20px;">
-<h3 data-i18n="tx_title">积分记录</h3>
-<table class="table">
-<thead>
-<tr>
-<th data-i18n="portal_date">日期</th>
-<th data-i18n="portal_change">变动</th>
-<th data-i18n="portal_note">备注</th>
-</tr>
-</thead>
-<tbody id="tx"></tbody>
-</table>
-</div>
-</div>
-<div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
-<!-- 引入语言包 -->
-<script src="lang.js"></script>
-<script type="module">
+  <!-- 顶栏 -->
+  <div class="navbar">
+    <div class="navbar-inner container">
+      <div class="brand">
+        <span class="crest"></span>
+        <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
+      </div>
+      <div class="actions">
+        <a class="btn" href="index.html" data-i18n="btn_home">首页</a>
+        <div class="lang-pill">
+          <select class="lang">
+            <option value="zh">中</option>
+            <option value="en">EN</option>
+            <option value="ms">BM</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 内容 -->
+  <div class="container" style="margin:30px auto;max-width:600px;">
+    <div class="card">
+      <h3 data-i18n="result_title">查询结果</h3>
+      <div id="result" style="margin-top:15px;">
+        <p><strong data-i18n="member_name">姓名：</strong><span id="name">-</span></p>
+        <p><strong data-i18n="member_phone">电话：</strong><span id="phone">-</span></p>
+        <p><strong data-i18n="member_points">总积分：</strong><span id="points">0</span></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 data-i18n="tx_title">积分记录</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th data-i18n="tx_date">日期</th>
+            <th data-i18n="tx_change">变动</th>
+            <th data-i18n="tx_note">备注</th>
+          </tr>
+        </thead>
+        <tbody id="tx"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
+  <!-- 引入语言包 -->
+  <script src="lang.js"></script>
+
+  <script type="module">
     import { supabase } from './supabase.js'
 
     const phone = new URLSearchParams(location.search).get('phone')
