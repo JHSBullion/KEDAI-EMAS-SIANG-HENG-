@@ -1,73 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KEDAI EMAS SIANG HENG · 会员系统</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>积分查询</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="homepage"> <!-- ← 首页加 homepage class -->
   <!-- 顶栏 -->
   <div class="navbar">
-    <div class="navbar-inner container">
-      <div class="brand">
-        <span class="crest"></span>
-        <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
-      </div>
+    <div class="container">
+      <div class="brand">品牌LOGO</div>
       <div class="actions">
-        <a class="btn" href="qr.html" data-i18n="btn_qr">二维码</a>
-        <a class="btn" href="login.html" data-i18n="btn_admin">后台</a>
+        <a href="#" class="btn">登录</a>
         <div class="lang-pill">
-          <select class="lang" id="langSwitch">
-            <option value="zh">中</option>
-            <option value="en">EN</option>
-            <option value="ms">BM</option>
+          <select>
+            <option>中文</option>
+            <option>English</option>
           </select>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 内容 -->
-  <section class="hero">
+  <!-- Hero -->
+  <div class="hero">
     <div class="container">
-      <div class="wrap">
-        <div class="card hero-card">
-          <div class="sub-title">White • Gold • Luxe</div>
-          <h1 class="h1" data-i18n="hero_title">会员积分查询</h1>
-          <p class="sub" data-i18n="hero_sub">输入手机号码查询当前积分</p>
-
-          <form id="f" class="form">
-            <input id="phone" class="input"
-                   data-i18n-ph="phone_placeholder"
-                   placeholder="请输入手机号" />
-            <button class="btn btn-gold" type="submit" data-i18n="btn_check">
-              查询积分
-            </button>
-          </form>
-        </div>
+      <div class="card">
+        <div class="badge">积分查询</div>
+        <div class="h1">请输入您的手机号</div>
+        <div class="sub">查询您的会员积分信息</div>
+        <form>
+          <input type="text" class="input" placeholder="请输入手机号">
+          <button type="submit" class="btn-gold">查询积分</button>
+        </form>
       </div>
     </div>
-  </section>
+  </div>
 
-  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
-
-  <!-- 引入语言 -->
-  <script src="lang.js"></script>
-  <script type="module">
-    import { initLang, applyLang } from "./lang.js";
-    initLang();
-    document.getElementById("langSwitch")?.addEventListener("change", e=>{
-      applyLang(e.target.value);
-    });
-
-    // 提交表单
-    document.getElementById('f').addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const ph = document.getElementById('phone').value.trim();
-      if(!ph) return;
-      location.href = 'member-portal.html?phone=' + encodeURIComponent(ph);
-    });
-  </script>
+  <!-- 页脚 -->
+  <div class="footer">
+    © 2025 品牌名称. 保留所有权利
+  </div>
 </body>
 </html>
