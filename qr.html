@@ -36,9 +36,7 @@
         <div class="card" style="max-width:680px;margin:0 auto;text-align:center">
           <h1 class="h1" data-i18n="member_portal">会员门户</h1>
           <p class="sub" data-i18n="portal_desc">请扫描下方二维码进入会员系统</p>
-          <div style="margin:20px auto">
-            <canvas id="qrcanvas"></canvas>
-          </div>
+          <div id="qrcanvas" style="margin:20px auto"></div>
           <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
             <button class="btn" id="regen" data-i18n="btn_regenerate">重置二维码</button>
             <button class="btn" id="print" data-i18n="btn_print">打印</button>
@@ -63,22 +61,21 @@
       applyLang(e.target.value);
     });
 
-    // 生成二维码逻辑
-    const canvas = document.getElementById("qrcanvas");
-    const regenBtn = document.getElementById("regen");
-    const printBtn = document.getElementById("print");
+    // ✅ 生成二维码逻辑（保持原来写法）
+    const qr = new QRCode(document.getElementById("qrcanvas"), {
+      text: location.origin + "/index.html",
+      width: 260,
+      height: 260
+    });
 
-    function makeQR(){
-      const url = location.origin + "/index.html";
-      QRCode.toCanvas(canvas, url, { width: 260 }, err=>{
-        if(err) console.error(err);
-      });
-    }
+    document.getElementById("regen").addEventListener("click", ()=>{
+      qr.clear();
+      qr.makeCode(location.origin + "/index.html");
+    });
 
-    regenBtn.addEventListener("click", makeQR);
-    printBtn.addEventListener("click", ()=>{ window.print(); });
-
-    makeQR();
+    document.getElementById("print").addEventListener("click", ()=>{
+      window.print();
+    });
   </script>
 </body>
 </html>
