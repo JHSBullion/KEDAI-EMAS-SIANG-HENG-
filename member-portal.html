@@ -1,20 +1,22 @@
 <!doctype html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>会员积分 · 结果</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="portal_title">会员积分查询结果</title>
+  <link rel="stylesheet" href="style.css" />
   <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <!-- 顶栏 -->
   <div class="navbar">
     <div class="navbar-inner container">
-      <div class="brand"><span class="crest"></span><span data-i18n="result_title">查询结果</span></div>
+      <div class="brand">
+        <span class="crest"></span>
+        <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
+      </div>
       <div class="actions">
-        <a class="btn" href="index.html" data-i18n="back_home">返回首页</a>
-        <a class="btn" href="login.html" data-i18n="btn_admin">后台</a>
+        <a class="btn" href="index.html" data-i18n="btn_home">首页</a>
         <div class="lang-pill">
           <select class="lang">
             <option value="zh">中</option>
@@ -26,82 +28,99 @@
     </div>
   </div>
 
-  <!-- 结果卡 -->
-  <div class="container">
-    <div class="card" style="max-width:920px;margin:18px auto">
-      <h2 style="margin:0 0 10px" data-i18n="result_title">查询结果</h2>
-
-      <div id="bio" class="sub" style="margin:0 0 10px">—</div>
-
-      <div class="kpi" style="margin:6px 0 16px">
-        <div class="value" id="tp">0</div>
-        <div class="hint" data-i18n="result_total">总积分</div>
+  <!-- 内容 -->
+  <div class="container" style="margin:30px auto;max-width:600px;">
+    <div class="card">
+      <h3 data-i18n="result_title">查询结果</h3>
+      <div id="result" style="margin-top:15px;">
+        <p><strong data-i18n="member_name">姓名：</strong><span id="name">-</span></p>
+        <p><strong data-i18n="member_phone">电话：</strong><span id="phone">-</span></p>
+        <p><strong data-i18n="member_points">总积分：</strong><span id="points">0</span></p>
       </div>
+    </div>
 
-      <h3 style="margin:16px 0 8px" data-i18n="history_title">积分记录</h3>
+    <div class="card" style="margin-top:20px;">
+      <h3 data-i18n="tx_title">积分记录</h3>
       <table class="table">
         <thead>
           <tr>
-            <th data-i18n="th_points">积分</th>
-            <th data-i18n="th_note">备注</th>
-            <th data-i18n="th_time">时间</th>
+            <th data-i18n="tx_date">日期</th>
+            <th data-i18n="tx_change">变动</th>
+            <th data-i18n="tx_note">备注</th>
           </tr>
         </thead>
-        <tbody id="tb"></tbody>
+        <tbody id="tx"></tbody>
       </table>
     </div>
   </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
+  <!-- 引入语言包 -->
   <script src="lang.js"></script>
+
   <script type="module">
     import { supabase } from './supabase.js'
 
-    const bio = document.getElementById('bio')
-    const tp = document.getElementById('tp')
-    const tb = document.getElementById('tb')
-
-    const L = ()=> (window.I18N && window.I18N[localStorage.getItem('lang')||'zh']) || {}
-
     const phone = new URLSearchParams(location.search).get('phone')
-    if(!phone){
-      bio.textContent = L().not_found || '未找到该会员'
-      fillTable([]); throw new Error('no phone')
+    if (!phone) {
+      alert('缺少手机号')
+      location.href = 'index.html'
     }
 
-    // 1) 基本信息 + 总分
-    const { data: mp, error: e1 } = await supabase
-      .from('member_points')
-      .select('name,phone,total_points')
-      .eq('phone', phone)
-      .maybeSingle()
+    async function loadMember() {
+      // 1️⃣ 查询会员资料（直接拿 total_points）
+      const { data: member, error } = await supabase
+        .from('members')
+        .select('id, name, phone, total_points')
+        .eq('phone', phone)
+        .maybeSingle()
 
-    if(e1 || !mp){
-      bio.textContent = L().not_found || '未找到该会员'
-      tp.textContent = '—'
-    } else {
-      bio.textContent = `姓名：${mp.name}（${mp.phone}）`
-      tp.textContent = mp.total_points
+      if (error) {
+        console.error(error)
+        alert('查询出错')
+        return
+      }
+      if (!member) {
+        alert('未找到该会员')
+        location.href = 'index.html'
+        return
+      }
+
+      document.getElementById('name').textContent = member.name || '-'
+      document.getElementById('phone').textContent = member.phone || '-'
+      document.getElementById('points').textContent = member.total_points || 0
+
+      // 2️⃣ 查询积分流水
+      const { data: txs, error: txErr } = await supabase
+        .from('point_transactions')
+        .select('created_at, points, description')
+        .eq('member_id', member.id)
+        .order('created_at', { ascending: false })
+
+      if (txErr) {
+        console.error(txErr)
+        return
+      }
+
+      const tbody = document.getElementById('tx')
+      tbody.innerHTML = ''
+      if (txs && txs.length) {
+        txs.forEach(tx => {
+          const tr = document.createElement('tr')
+          tr.innerHTML = `
+            <td>${new Date(tx.created_at).toLocaleString()}</td>
+            <td>${tx.points > 0 ? '+' : ''}${tx.points}</td>
+            <td>${tx.description || ''}</td>
+          `
+          tbody.appendChild(tr)
+        })
+      } else {
+        tbody.innerHTML = `<tr><td colspan="3" data-i18n="tx_empty">暂无记录</td></tr>`
+      }
     }
 
-    // 2) 历史记录
-    const { data: rows, error: e2 } = await supabase
-      .from('point_transactions')
-      .select('points,note,created_at,members!inner(phone)')
-      .eq('members.phone', phone)
-      .order('created_at',{ascending:false})
-      .limit(30)
-
-    if(e2){ fillTable([], true) } else { fillTable(rows||[]) }
-
-    function fillTable(rows, failed){
-      if(failed){ tb.innerHTML = `<tr><td colspan="3" style="color:#c00">${L().fetch_fail||'查询失败，请稍后重试'}</td></tr>`; return }
-      if(!rows.length){ tb.innerHTML = `<tr><td colspan="3">${L().no_rows||'暂无记录'}</td></tr>`; return }
-      tb.innerHTML = rows.map(r =>
-        `<tr><td>${r.points}</td><td>${r.note||''}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>`
-      ).join('')
-    }
+    loadMember()
   </script>
 </body>
 </html>
