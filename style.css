@@ -1,4 +1,4 @@
-/* ============ White • Gold • Luxe ============ */
+/* ============ White • Gold • Luxe 全局 ============ */
 :root{
   --bg: #f9f7f2;
   --bg-soft: #fbfaf6;
@@ -20,10 +20,8 @@
   --container: 1200px;
 }
 
-/* 背景：微金色辐射光，低调 */
-html,body{
-  height:100%;
-}
+/* 背景 */
+html,body{ height:100%; }
 body{
   margin:0;
   color:var(--text);
@@ -63,23 +61,41 @@ body{
 }
 .nav-right, .actions{ display:flex; gap:10px; align-items:center; }
 
+/* 顶部按钮 → 金色圆角 */
+.actions .btn {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(180deg, #ffe89b, #e9c46a 60%, #d4a90f);
+  color: #3b2b00;
+  box-shadow: 0 4px 10px rgba(233,196,106,.35),
+              inset 0 1px 0 rgba(255,255,255,.8);
+  transition: all .2s ease;
+}
+.actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(233,196,106,.45);
+}
+.actions .btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(233,196,106,.3);
+}
+
 /* ============ 卡片 / 表单 ============ */
 .card{
   background: var(--card);
   border: 1px solid var(--card-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius);   /* 默认圆角 */
   box-shadow: var(--shadow);
-  padding: 18px;
+  padding: 22px 20px;
+  margin: 20px auto;
+  max-width: 520px;
 }
 h1,h2,h3{ margin:0 0 10px; font-weight: 800; letter-spacing:.2px; }
-.sub{ color:var(--subtext); font-size: 13px; }
+.sub{ color:var(--subtext); font-size: 13px; margin-bottom: 12px; }
 
-/* 表单行（让标签与输入同一行） */
-.form-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-.form-row label{ width:92px; font-weight:600; color:var(--text); }
-.form-row .input{ flex:1; }
-
-/* 单列表单（也很好用） */
 label{ display:block; margin:8px 0 6px; font-weight:600; }
 .input{
   width:100%;
@@ -120,13 +136,10 @@ label{ display:block; margin:8px 0 6px; font-weight:600; }
   --btn-bd: rgba(212,169,15,.5);
   --btn-fg: #3b2b00;
   box-shadow: 0 6px 16px rgba(233,196,106,.35), inset 0 1px 0 rgba(255,255,255,.6);
-}
-.btn-ghost{
-  --btn-bg: #fff; --btn-bd: var(--card-border); --btn-fg:#333;
-  background: #fff;
+  margin-top: 14px; /* 与输入框分开 */
 }
 
-/* 语言选择 pill（可用于 a/按钮） */
+/* 语言选择 pill */
 .lang-pill select,
 .navbar select{
   height:36px; border-radius:999px; padding:0 10px;
@@ -148,34 +161,13 @@ label{ display:block; margin:8px 0 6px; font-weight:600; }
 }
 .table tbody tr:last-child td{ border-bottom:none; }
 
-/* ============ 布局 ============ */
-.grid-2{
-  display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start;
-}
-@media (max-width: 1024px){
-  .grid-2{ grid-template-columns: 1fr; }
-}
-
 /* ============ 页脚 ============ */
 .footer{
   text-align:center; color:var(--subtext);
   padding: 28px 12px; font-size:13px;
 }
 
-/* ============ 卡片标题下的徽标（可选） ============ */
-.badge-gold{
-  display:inline-block; padding:4px 10px; font-size:12px; font-weight:700;
-  border-radius: 999px;
-  background: var(--gold-soft);
-  border: 1px solid rgba(212,169,15,.35);
-  color: #6a5200;
-}
-
-/* ============ 链接 ============ */
-a{ color:#59359a; text-decoration:none; }
-a:hover{ text-decoration:underline; }
-
-/* ============ 小提示条（成功/错误）=========== */
+/* ============ 小提示条 ============ */
 .alert{
   border-radius: var(--radius-sm);
   padding:10px 12px; margin-top:8px; font-size:14px;
@@ -184,7 +176,7 @@ a:hover{ text-decoration:underline; }
 .alert-success{ border-color: rgba(20,150,60,.2); background:#f0fff5; color:#136b35; }
 .alert-error{ border-color: rgba(200,40,40,.2); background:#fff0f0; color:#8b1a1a; }
 
-/* ============ QR 画布容器（qr.html）=========== */
+/* ============ QR 画布容器 ============ */
 .qr-box{
   width:320px; height:320px; margin:16px auto;
   background:#fff; border:1px solid var(--card-border);
@@ -193,13 +185,9 @@ a:hover{ text-decoration:underline; }
   box-shadow: var(--shadow);
 }
 
-/* ============ 边距辅助 ============ */
-.mt-0{ margin-top:0 } .mt-6{ margin-top:6px } .mt-10{ margin-top:10px }
-.mb-0{ margin-bottom:0 } .mb-6{ margin-bottom:6px } .mb-10{ margin-bottom:10px }
-
-/* ============ 打印优化（用于 QR 打印）=========== */
-@media print{
-  .navbar, .footer { display:none !important; }
-  body{ background:#fff; }
-  .card{ box-shadow:none; border-color:#ddd; }
+/* ============ 首页专用：四方形卡片 ============ */
+.homepage .card {
+  border-radius: 4px !important;   /* 四方形 */
+  max-width: 460px;                /* 窄一点，看起来更「方」 */
+  margin: 40px auto;
 }
