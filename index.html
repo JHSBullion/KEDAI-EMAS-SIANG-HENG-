@@ -9,11 +9,14 @@
 <body class="homepage">
 
   <!-- 顶栏 -->
-  <nav class="navbar">
-    <div class="container">
-      <div class="brand">会员中心</div>
+  <div class="navbar">
+    <div class="container navbar-inner">
+      <div class="brand">
+        <div class="crest"></div>
+        积分系统
+      </div>
       <div class="actions">
-        <a href="#" class="btn">登录</a>
+        <a href="member.html" class="btn">会员中心</a>
         <div class="lang-pill">
           <select>
             <option>中文</option>
@@ -22,26 +25,27 @@
         </div>
       </div>
     </div>
-  </nav>
+  </div>
 
-  <!-- Hero -->
-  <section class="hero">
+  <!-- 主体 -->
+  <div class="hero">
     <div class="container">
       <div class="card">
-        <span class="badge">积分查询</span>
-        <div class="h1">请输入您的手机号</div>
-        <div class="sub">我们将为您查询积分情况</div>
+        <div class="badge-gold">欢迎</div>
+        <h1>查询您的会员积分</h1>
+        <p class="sub">请输入您的电话号码以查看积分</p>
 
-        <input type="text" class="input" placeholder="输入手机号">
-        <button class="btn-gold" style="margin-top:16px;">查询积分</button>
+        <input type="text" class="input" placeholder="请输入电话号码">
+
+        <button class="btn-gold">查询积分</button>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- 页脚 -->
-  <footer class="footer">
-    © 2025 会员中心
-  </footer>
+  <div class="footer">
+    © 2025 积分系统 All rights reserved.
+  </div>
 
 </body>
 </html>
