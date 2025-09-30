@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title data-i18n="portal_title">会员积分查询结果 (调试版)</title>
+  <title data-i18n="portal_title">会员积分查询结果</title>
   <link rel="stylesheet" href="style.css" />
   <script type="module" src="supabase.js"></script>
 </head>
@@ -17,6 +17,13 @@
       </div>
       <div class="actions">
         <a class="btn" href="index.html" data-i18n="btn_home">首页</a>
+        <div class="lang-pill">
+          <select class="lang">
+            <option value="zh">中</option>
+            <option value="en">EN</option>
+            <option value="ms">BM</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
@@ -26,9 +33,9 @@
     <div class="card">
       <h3 data-i18n="result_title">查询结果</h3>
       <div id="result" style="margin-top:15px;">
-        <p><strong>姓名：</strong><span id="name">-</span></p>
-        <p><strong>电话：</strong><span id="phone">-</span></p>
-        <p><strong>总积分：</strong><span id="points">0</span></p>
+        <p><strong data-i18n="member_name">姓名：</strong><span id="name">-</span></p>
+        <p><strong data-i18n="member_phone">电话：</strong><span id="phone">-</span></p>
+        <p><strong data-i18n="member_points">总积分：</strong><span id="points">0</span></p>
       </div>
     </div>
 
@@ -37,33 +44,23 @@
       <table class="table">
         <thead>
           <tr>
-            <th>日期</th>
-            <th>变动</th>
-            <th>备注</th>
+            <th data-i18n="tx_date">日期</th>
+            <th data-i18n="tx_change">变动</th>
+            <th data-i18n="tx_note">备注</th>
           </tr>
         </thead>
         <tbody id="tx"></tbody>
       </table>
     </div>
-
-    <!-- ⚡ 调试输出 -->
-    <div class="card" style="margin-top:20px; background:#fee;">
-      <h3>⚡ 调试信息 (仅测试用)</h3>
-      <div id="debug" style="font-size:14px;color:#c00;word-break:break-all;"></div>
-    </div>
   </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
+  <!-- 引入语言包 -->
+  <script src="lang.js"></script>
+
   <script type="module">
     import { supabase } from './supabase.js'
-
-    // ✅ 全角数字转半角
-    function normalizePhone(input) {
-      return input.replace(/[０-９]/g, d =>
-        String.fromCharCode(d.charCodeAt(0) - 0xFEE0)
-      );
-    }
 
     const phone = new URLSearchParams(location.search).get('phone')
     if (!phone) {
@@ -72,32 +69,27 @@
     }
 
     async function loadMember() {
-      // 1️⃣ 清理手机号
-      let cleanPhone = normalizePhone(phone).trim().replace(/\D/g, "")
+      // ⚡ 1. 手机号清理，避免格式差异
+      let cleanPhone = phone.trim().replace(/\D/g, "")
       if (cleanPhone.startsWith("60") && cleanPhone.length > 10) {
         cleanPhone = "0" + cleanPhone.slice(2)
       }
 
-      // 调试输出
-      document.getElementById("debug").innerHTML = `
-        <p>原始参数: <code>${phone}</code></p>
-        <p>清理后号码: <code>${cleanPhone}</code></p>
-      `
-
-      // 2️⃣ 查询会员（用 eq 更精准）
+      // ⚡ 2. 查询会员资料（用 ilike 宽松匹配）
       const { data: member, error } = await supabase
-        .from("members")
-        .select("id, name, phone, total_points")
-        .eq("phone", cleanPhone)   <!-- ✅ 精确匹配 -->
+        .from('members')
+        .select('id, name, phone, total_points')
+        .ilike('phone', `%${cleanPhone}%`)
         .maybeSingle()
 
       if (error) {
         console.error(error)
-        document.getElementById("debug").innerHTML += `<p>❌ 查询出错: ${error.message}</p>`
+        alert('查询出错')
         return
       }
       if (!member) {
-        document.getElementById("debug").innerHTML += `<p>❌ 未找到该会员</p>`
+        alert('未找到该会员')
+        location.href = 'index.html'
         return
       }
 
@@ -105,18 +97,15 @@
       document.getElementById('phone').textContent = member.phone || '-'
       document.getElementById('points').textContent = member.total_points || 0
 
-      document.getElementById("debug").innerHTML += `<p>✅ 找到会员: ${JSON.stringify(member)}</p>`
-
-      // 3️⃣ 查询积分流水
+      // ⚡ 3. 查询积分流水
       const { data: txs, error: txErr } = await supabase
-        .from("point_transactions")
-        .select("created_at, points, note, member_id")
-        .eq("member_id", member.id)
-        .order("created_at", { ascending: false })
+        .from('point_transactions')
+        .select('created_at, points, note, member_id')
+        .eq('member_id', member.id)
+        .order('created_at', { ascending: false })
 
       if (txErr) {
         console.error(txErr)
-        document.getElementById("debug").innerHTML += `<p>❌ 积分记录查询出错</p>`
         return
       }
 
@@ -133,7 +122,7 @@
           tbody.appendChild(tr)
         })
       } else {
-        tbody.innerHTML = `<tr><td colspan="3">暂无记录</td></tr>`
+        tbody.innerHTML = `<tr><td colspan="3" data-i18n="tx_empty">暂无记录</td></tr>`
       }
     }
 
