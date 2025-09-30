@@ -62,26 +62,25 @@
   <script type="module">
     import { supabase } from './supabase.js'
 
-    let phone = new URLSearchParams(location.search).get('phone')
+    const phone = new URLSearchParams(location.search).get('phone')
     if (!phone) {
       alert('缺少手机号')
       location.href = 'index.html'
     }
 
-    // 清理手机号，只保留数字，避免电脑/手机格式不同
-    phone = phone.replace(/\D/g, '')
-
     async function loadMember() {
-      console.log("查询手机号:", phone)
+      // ⚡ 1. 手机号清理，避免格式差异
+      let cleanPhone = phone.trim().replace(/\D/g, "")
+      if (cleanPhone.startsWith("60") && cleanPhone.length > 10) {
+        cleanPhone = "0" + cleanPhone.slice(2)
+      }
 
-      // 1️⃣ 查询会员资料
+      // ⚡ 2. 查询会员资料（用 ilike 宽松匹配）
       const { data: member, error } = await supabase
         .from('members')
         .select('id, name, phone, total_points')
-        .ilike('phone', `%${phone}`)   // 容错查询
+        .ilike('phone', `%${cleanPhone}%`)
         .maybeSingle()
-
-      console.log("查询结果:", member, error)
 
       if (error) {
         console.error(error)
@@ -98,14 +97,12 @@
       document.getElementById('phone').textContent = member.phone || '-'
       document.getElementById('points').textContent = member.total_points || 0
 
-      // 2️⃣ 查询积分流水
+      // ⚡ 3. 查询积分流水
       const { data: txs, error: txErr } = await supabase
         .from('point_transactions')
         .select('created_at, points, note, member_id')
         .eq('member_id', member.id)
         .order('created_at', { ascending: false })
-
-      console.log("积分流水:", txs, txErr)
 
       if (txErr) {
         console.error(txErr)
