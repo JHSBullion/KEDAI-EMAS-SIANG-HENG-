@@ -50,34 +50,34 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- ✅ 脚本 -->
   <script type="module">
     import { initLang, applyLang } from "./lang.js";
+
+    // ✅ 全角转半角
+    function normalizePhone(input) {
+      return input.replace(/[０-９]/g, d =>
+        String.fromCharCode(d.charCodeAt(0) - 0xFEE0)
+      );
+    }
 
     // 初始化语言
     initLang();
 
-    // 监听语言切换
     document.getElementById("langSwitch").addEventListener("change", (e)=>{
       applyLang(e.target.value);
     });
 
-    // 如果 URL 有 ?phone=xxx → 自动跳到结果页
-    let p = new URLSearchParams(location.search).get('phone');
-    if (p) {
-      p = p.trim().replace(/\D/g, ""); // 只留数字
-      if (p) location.replace('member-portal.html?phone=' + encodeURIComponent(p));
-    }
+    // ?phone=xxx 访问首页 → 直接去结果页
+    const p = new URLSearchParams(location.search).get('phone');
+    if (p) { location.replace('member-portal.html?phone=' + encodeURIComponent(normalizePhone(p))); }
 
-    // 表单提交
+    // 表单提交 → 跳到结果页
     document.getElementById('f').addEventListener('submit', (e)=>{
       e.preventDefault();
       let ph = document.getElementById('phone').value.trim();
-      ph = ph.replace(/\D/g, ""); // ⚡ 清理非数字，避免手机输入法问题
-      if (!ph) {
-        alert("请输入手机号");
-        return;
-      }
+      ph = normalizePhone(ph);   // ✅ 修正全角数字
+      ph = ph.replace(/\D/g, ''); // 去掉非数字
+      if(!ph) return;
       location.href = 'member-portal.html?phone=' + encodeURIComponent(ph);
     });
   </script>
