@@ -62,7 +62,14 @@
   <script type="module">
     import { supabase } from './supabase.js'
 
-    const phone = new URLSearchParams(location.search).get('phone')
+    // ✅ 手机号清理函数：去掉空格、非数字字符
+    function normalizePhone(p) {
+      return (p || '').trim().replace(/\s+/g, '').replace(/[^\d]/g, '');
+    }
+
+    const rawPhone = new URLSearchParams(location.search).get('phone')
+    const phone = normalizePhone(rawPhone)
+
     if (!phone) {
       alert('缺少手机号')
       location.href = 'index.html'
@@ -73,7 +80,7 @@
       const { data: member, error } = await supabase
         .from('members')
         .select('id, name, phone, total_points')
-        .eq('phone', phone)
+        .eq('phone', phone)   // ✅ 用清理过的号码
         .maybeSingle()
 
       if (error) {
