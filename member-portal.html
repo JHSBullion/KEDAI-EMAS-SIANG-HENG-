@@ -20,13 +20,13 @@
     </div>
   </div>
 
-  <!-- 内容：积分显示卡片 -->
+  <!-- 内容：查询结果 -->
   <section class="hero">
     <div class="container">
       <div class="wrap">
         <div class="card" style="max-width:680px;margin:0 auto">
-          <h1 class="h1">积分查询结果</h1>
-          <p id="pointsDisplay">加载中...</p>
+          <h1 class="h1">查询结果</h1>
+          <p id="resultDisplay">加载中...</p>
         </div>
       </div>
     </div>
@@ -34,7 +34,7 @@
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- ✅ 处理手机号参数 -->
+  <!-- ✅ 积分查询逻辑 -->
   <script>
     function normalizePhone(p) {
       return (p || '').trim().replace(/\s+/g, '').replace(/[^\d]/g, '');
@@ -48,28 +48,32 @@
       if (phone) {
         fetchPoints(phone);
       } else {
-        document.getElementById("pointsDisplay").innerText = "未找到该手机号";
+        document.getElementById("resultDisplay").innerText = "未找到有效的手机号";
       }
     });
 
-    // ✅ 这里放你原来查询积分的逻辑
+    // ✅ 查询积分
     async function fetchPoints(phone) {
       try {
-        // ⚠️ 用你实际的 Supabase / API 查询替换下面代码
+        // ⚠️ 替换成你实际的 Supabase 查询
         // 例如：
-        // const { data, error } = await supabase.from("members").select("*").eq("phone", phone);
+        // const { data, error } = await supabase
+        //   .from("members")
+        //   .select("points")
+        //   .eq("phone", phone);
         // if (error) throw error;
-        // if (data.length === 0) {
-        //   document.getElementById("pointsDisplay").innerText = "未找到该手机号的积分";
-        // } else {
-        //   document.getElementById("pointsDisplay").innerText = data[0].points + " 分";
-        // }
 
-        // 🔧 临时测试（你可以删除）：显示拿到的手机号
-        document.getElementById("pointsDisplay").innerText = "你查询的手机号是: " + phone;
+        // 模拟：假设数据库查到积分 200
+        const data = [{ points: 200 }];
+
+        if (data.length === 0) {
+          document.getElementById("resultDisplay").innerText = "未找到该手机号的积分";
+        } else {
+          document.getElementById("resultDisplay").innerText = "积分: " + data[0].points;
+        }
       } catch (err) {
         console.error("查询失败:", err);
-        document.getElementById("pointsDisplay").innerText = "查询失败，请稍后重试";
+        document.getElementById("resultDisplay").innerText = "查询失败，请稍后重试";
       }
     }
   </script>
