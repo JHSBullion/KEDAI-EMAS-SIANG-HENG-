@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>会员积分查询结果</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="supabase.js"></script>
+</head>
+<body>
+  <!-- 顶栏 -->
+  <div class="navbar">
+    <div class="navbar-inner container">
+      <div class="brand">
+        <span class="crest"></span>
+        <span>KEDAI EMAS SIANG HENG 会员系统</span>
+      </div>
+      <div class="actions">
+        <a class="btn" href="index.html">首页</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 内容 -->
+  <div class="container" style="margin:30px auto;max-width:600px;">
+    <div class="card">
+      <h3>查询结果</h3>
+      <div id="result" style="margin-top:15px;">
+        <p><strong>姓名：</strong><span id="name">-</span></p>
+        <p><strong>电话：</strong><span id="phone">-</span></p>
+        <p><strong>总积分：</strong><span id="points">0</span></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>积分记录</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>变动</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody id="tx"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
+
+  <script type="module">
+    import { supabase } from './supabase.js'
+
+    let phone = new URLSearchParams(location.search).get('phone')
+    console.log("📱 查询手机号参数:", JSON.stringify(phone))
+
+    if (!phone) {
+      alert('缺少手机号参数')
+      location.href = 'index.html'
+    }
+
+    // 去掉空格和非数字，确保格式正确
+    phone = phone.trim().replace(/\D/g, '')
+
+    async function loadMember() {
+      // 查询会员资料
+      const { data: member, error } = await supabase
+        .from('members')
+        .select('id, name, phone, total_points')
+        .eq('phone', phone)
+        .maybeSingle()
+
+      if (error) {
+        console.error(error)
+        alert('查询出错')
+        return
+      }
+      if (!member) {
+        alert('未找到该会员')
+        location.href = 'index.html'
+        return
+      }
+
+      document.getElementById('name').textContent = member.name || '-'
+      document.getElementById('phone').textContent = member.phone || '-'
+      document.getElementById('points').textContent = member.total_points || 0
+
+      // 查询积分流水
+      const { data: txs, error: txErr } = await supabase
+        .from('point_transactions')
+        .select('created_at, points, note, member_id')
+        .eq('member_id', member.id)
+        .order('created_at', { ascending: false })
+
+      if (txErr) {
+        console.error(txErr)
+        return
+      }
+
+      const tbody = document.getElementById('tx')
+      tbody.innerHTML = ''
+      if (txs && txs.length) {
+        txs.forEach(tx => {
+          const tr = document.createElement('tr')
+          tr.innerHTML = `
+            <td>${new Date(tx.created_at).toLocaleString()}</td>
+            <td>${tx.points > 0 ? '+' : ''}${tx.points}</td>
+            <td>${tx.note || ''}</td>
+          `
+          tbody.appendChild(tr)
+        })
+      } else {
+        tbody.innerHTML = `<tr><td colspan="3">暂无记录</td></tr>`
+      }
+    }
+
+    loadMember()
+  </script>
+</body>
+</html>
