@@ -62,13 +62,20 @@
   <script type="module">
     import { supabase } from './supabase.js'
 
-    // ✅ 手机号清理函数：去掉空格、非数字字符
+    // 统一手机号格式：全角→半角，去空格、去符号
     function normalizePhone(p) {
-      return (p || '').trim().replace(/\s+/g, '').replace(/[^\d]/g, '');
+      if (!p) return '';
+      // 转半角
+      p = p.replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0) - 0xFEE0));
+      // 去掉空格和非数字
+      return p.trim().replace(/\s+/g, '').replace(/[^\d]/g, '');
     }
 
     const rawPhone = new URLSearchParams(location.search).get('phone')
     const phone = normalizePhone(rawPhone)
+
+    console.log("原始输入:", rawPhone)
+    console.log("清理后:", phone)
 
     if (!phone) {
       alert('缺少手机号')
@@ -76,11 +83,11 @@
     }
 
     async function loadMember() {
-      // 1️⃣ 查询会员资料（含总积分）
+      // 1️⃣ 查询会员资料
       const { data: member, error } = await supabase
         .from('members')
         .select('id, name, phone, total_points')
-        .eq('phone', phone)   // ✅ 用清理过的号码
+        .eq('phone', phone)
         .maybeSingle()
 
       if (error) {
