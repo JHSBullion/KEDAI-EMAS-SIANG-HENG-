@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>会员积分 · KEDAI EMAS SIANG HENG</title>
+  <title data-i18n="portal_title">会员积分查询结果</title>
   <link rel="stylesheet" href="style.css" />
+  <script type="module" src="supabase.js"></script>
 </head>
 <body>
   <!-- 顶栏 -->
@@ -15,67 +16,111 @@
         <span data-i18n="brand_title">KEDAI EMAS SIANG HENG 会员系统</span>
       </div>
       <div class="actions">
-        <a class="btn" href="index.html">返回首页</a>
+        <a class="btn" href="index.html" data-i18n="btn_home">首页</a>
+        <div class="lang-pill">
+          <select class="lang">
+            <option value="zh">中</option>
+            <option value="en">EN</option>
+            <option value="ms">BM</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 内容：查询结果 -->
-  <section class="hero">
-    <div class="container">
-      <div class="wrap">
-        <div class="card" style="max-width:680px;margin:0 auto">
-          <h1 class="h1">查询结果</h1>
-          <p id="resultDisplay">加载中...</p>
-        </div>
+  <!-- 内容 -->
+  <div class="container" style="margin:30px auto;max-width:600px;">
+    <div class="card">
+      <h3 data-i18n="result_title">查询结果</h3>
+      <div id="result" style="margin-top:15px;">
+        <p><strong data-i18n="member_name">姓名：</strong><span id="name">-</span></p>
+        <p><strong data-i18n="member_phone">电话：</strong><span id="phone">-</span></p>
+        <p><strong data-i18n="member_points">总积分：</strong><span id="points">0</span></p>
       </div>
     </div>
-  </section>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 data-i18n="tx_title">积分记录</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th data-i18n="tx_date">日期</th>
+            <th data-i18n="tx_change">变动</th>
+            <th data-i18n="tx_note">备注</th>
+          </tr>
+        </thead>
+        <tbody id="tx"></tbody>
+      </table>
+    </div>
+  </div>
 
   <div class="footer">© 2025 KEDAI EMAS SIANG HENG · All rights reserved.</div>
 
-  <!-- ✅ 积分查询逻辑 -->
-  <script>
-    function normalizePhone(p) {
-      return (p || '').trim().replace(/\s+/g, '').replace(/[^\d]/g, '');
+  <!-- 引入语言包 -->
+  <script src="lang.js"></script>
+
+  <script type="module">
+    import { supabase } from './supabase.js'
+
+    const phone = new URLSearchParams(location.search).get('phone')
+    if (!phone) {
+      alert('缺少手机号')
+      location.href = 'index.html'
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      let phone = urlParams.get("phone");
-      phone = normalizePhone(phone);
+    async function loadMember() {
+      // 1️⃣ 查询会员资料（含总积分）
+      const { data: member, error } = await supabase
+        .from('members')
+        .select('id, name, phone, total_points')
+        .eq('phone', phone)
+        .maybeSingle()
 
-      if (phone) {
-        fetchPoints(phone);
+      if (error) {
+        console.error(error)
+        alert('查询出错')
+        return
+      }
+      if (!member) {
+        alert('未找到该会员')
+        location.href = 'index.html'
+        return
+      }
+
+      document.getElementById('name').textContent = member.name || '-'
+      document.getElementById('phone').textContent = member.phone || '-'
+      document.getElementById('points').textContent = member.total_points || 0
+
+      // 2️⃣ 查询积分流水
+      const { data: txs, error: txErr } = await supabase
+        .from('point_transactions')
+        .select('created_at, points, note, member_id')
+        .eq('member_id', member.id)
+        .order('created_at', { ascending: false })
+
+      if (txErr) {
+        console.error(txErr)
+        return
+      }
+
+      const tbody = document.getElementById('tx')
+      tbody.innerHTML = ''
+      if (txs && txs.length) {
+        txs.forEach(tx => {
+          const tr = document.createElement('tr')
+          tr.innerHTML = `
+            <td>${new Date(tx.created_at).toLocaleString()}</td>
+            <td>${tx.points > 0 ? '+' : ''}${tx.points}</td>
+            <td>${tx.note || ''}</td>
+          `
+          tbody.appendChild(tr)
+        })
       } else {
-        document.getElementById("resultDisplay").innerText = "未找到有效的手机号";
-      }
-    });
-
-    // ✅ 查询积分
-    async function fetchPoints(phone) {
-      try {
-        // ⚠️ 替换成你实际的 Supabase 查询
-        // 例如：
-        // const { data, error } = await supabase
-        //   .from("members")
-        //   .select("points")
-        //   .eq("phone", phone);
-        // if (error) throw error;
-
-        // 模拟：假设数据库查到积分 200
-        const data = [{ points: 200 }];
-
-        if (data.length === 0) {
-          document.getElementById("resultDisplay").innerText = "未找到该手机号的积分";
-        } else {
-          document.getElementById("resultDisplay").innerText = "积分: " + data[0].points;
-        }
-      } catch (err) {
-        console.error("查询失败:", err);
-        document.getElementById("resultDisplay").innerText = "查询失败，请稍后重试";
+        tbody.innerHTML = `<tr><td colspan="3" data-i18n="tx_empty">暂无记录</td></tr>`
       }
     }
+
+    loadMember()
   </script>
 </body>
 </html>
